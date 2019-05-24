@@ -1,3 +1,3 @@
-# omniscape
+# Omniscape
 
-An open source, optimized version of omniscape built on code developed by Brad McRae (https://github.com/bmcrae/omniscape/)
+The intent of this repository is to provide an open-source, updated version of [Omniscape](nature.org/resilienceNW) with improved relibility and speed.
