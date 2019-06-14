@@ -128,7 +128,7 @@ Primarily to address edge/tiling effects of breaking analysis into blocks. Alter
 8. **cleanUpBandFiles**
     - Boolean, not sure what this does. I think related to tiling
 
-9. **useCustomCSPath**, *CSPath**
+9. **useCustomCSPath**, **CSPath**
     - Specify location of Circuitscape installation
 
 
