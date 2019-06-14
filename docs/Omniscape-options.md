@@ -21,7 +21,7 @@ Notes from Brad's Omniscape code
 2. **blockSize**
     - Blocking of targets (grounds) to reduce computational load
     - Must be odd number so a pixel is at the center.
-    - central pixel of square with length = **blockSize** (*in pixles*) is used as target in CS all-to-one.
+    - central pixel of square with length = **blockSize** (*in pixels*) is used as target in CS all-to-one.
 3. **runTitle**
     - Job name, string.
 4. **projectDir**
