@@ -133,5 +133,7 @@ Primarily to address edge/tiling effects of breaking analysis into blocks. Alter
 
 
 
+## Running all-to-one for *target pixel only*
 
+Use advanced mode with separate source and ground files. Generate this in Omniscape. Which function returns current Array only?
 
