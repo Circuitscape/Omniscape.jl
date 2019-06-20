@@ -6,9 +6,8 @@ clip = function(A; x_coord, y_coord, distance)
 
     clipped = deepcopy(A)
     clipped[dist .> distance] .= -9999
-
-    output = reshape(clipped, dim1, dim2)
-    output
+    
+    clipped
 end
 
 
