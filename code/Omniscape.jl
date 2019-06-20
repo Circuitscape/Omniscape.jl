@@ -3,8 +3,9 @@ block_size = 6
 threshold = 0.5
 sources_raw = reshape(rand(15000), 100, 150)
 resistance_raw = reshape(rand(15000), 100, 150)
-radius = 10
-buffer = 15
+radius = 10 # in number of pixels
+buffer = 15 # in number of pixels
+project_name = "test"
 ## end inputs
 
 ## Derived variables
@@ -17,8 +18,14 @@ ncols = size(sources_raw, 2)
 block_radius = (block_size - 1) / 2
 ## end dervied variables
 
+# TODO: if number of pixels in window <= 2000000, set solver to "cholmod"
+
 ## Include needed functions
 include("functions.jl")
+include("cconfig.jl")
+
+## Initialize Circuitscape configurations
+cs_cfg = init_csdict()
 
 ## Calculate targets
 targets = get_targets(source_array = sources_raw)
@@ -46,6 +53,7 @@ for i = 1:size(targets, 1)
                  x_coord = targets[i, 1],
                  y_coord = targets[i, 2],
                  distance = radius + buffer)
+    ## Write source, ground, and resistance asciis
 
     ## Call circuitscape
     # currmap = calculate_current(source, ground, resistance)
