@@ -1,3 +1,4 @@
+using Circuitscape
 ## Inputs
 block_size = 6
 threshold = 0.5
@@ -18,14 +19,15 @@ ncols = size(sources_raw, 2)
 block_radius = (block_size - 1) / 2
 ## end dervied variables
 
-# TODO: if number of pixels in window <= 2000000, set solver to "cholmod"
-
 ## Include needed functions
 include("functions.jl")
-include("cconfig.jl")
+include("config.jl")
+include("io.jl")
 
-## Initialize Circuitscape configurations
-cs_cfg = init_csdict()
+## Setup Circuitscape configurations
+cs_cfg_dict = init_csdict()
+cfg = Circuitscape.init_config()
+Circuitscape.update!(cfg, cs_cfg_dict)
 
 ## Calculate targets
 targets = get_targets(source_array = sources_raw)
@@ -33,8 +35,8 @@ targets = get_targets(source_array = sources_raw)
 ## Initialize cumulative current map
 cum_currmap = fill(0., nrows, ncols)
 
-## Initialize Circtuiscape options
-#csopts = initialize_csopts()
+## Initialize temporary ascii header for CS advanced mode
+temp_header = init_temp_ascii_header()
 
 ## Circuitscape calls in loop over targets
 for i = 1:size(targets, 1)
@@ -53,22 +55,43 @@ for i = 1:size(targets, 1)
                  x_coord = targets[i, 1],
                  y_coord = targets[i, 2],
                  distance = radius + buffer)
+    grid_size = size(source)
+    n_cells = prod(grid_size)
+
+    if n_cells <= 2000000
+        cfg["solver"] = "cholmod"
+    end
+
+    ## Update temp ascii header
+    update_ascii_header!(source, temp_header)
+
     ## Write source, ground, and resistance asciis
+    write_ascii(source, temp_header; type = "source")
+    write_ascii(ground, temp_header; type = "ground")
+    write_ascii(resistance, temp_header; type = "resistance")
 
-    ## Call circuitscape
-    # currmap = calculate_current(source, ground, resistance)
+    ## Run circuitscape
+    curr = calculate_current(cfg)
 
+    rm("scratch/temp_resistance.asc")
     ## If normalize = True, calculate null map and normalize
-    # null_resistance = fill(1, size(resistance))
-    # null_currmap = calculate_current(sources, ground, null_resistance)
-    # flow_potential = currmap ./ null_currmap
+    if normalize == true
+        null_resistance = fill(1, grid_size)
+        write_ascii(null_resistance, temp_header; type = "resistance")
 
+        flow_potential = calculate_current(cfg)
+        curr .= curr ./ flow_potential # TODO: is each window normalized or is normalization done in one step at the end
+    end
+
+    # flow_potential = currmap ./ null_currmap
+    rm("scratch/temp_source.asc")
+    rm("scratch/temp_ground.asc")
     ## Add current to cumulative map if not in parallel
-    # xlower = max(targets[i, 1] - radius - buffer, 1)
-    # xupper = max(targets[i, 1] + radius + buffer, 1)
-    # ylower = max(targets[i, 2] - radius - buffer, 1)
-    # yupper = max(targets[i, 2] + radius + buffer, 1)
-    # cum_currmap[xlower:xupper, ylower:yupper] .=
-    #     cum_currmap[xlower:xupper, ylower:yupper] .+ currmap
+    xlower = max(targets[i, 1] - radius - buffer, 1)
+    xupper = max(targets[i, 1] + radius + buffer, 1)
+    ylower = max(targets[i, 2] - radius - buffer, 1)
+    yupper = max(targets[i, 2] + radius + buffer, 1)
+    cum_currmap[xlower:xupper, ylower:yupper] .=
+        cum_currmap[xlower:xupper, ylower:yupper] .+ curr
 
 end

@@ -6,7 +6,7 @@ clip = function(A; x_coord, y_coord, distance)
 
     clipped = deepcopy(A)
     clipped[dist .> distance] .= -9999
-    
+
     clipped
 end
 
@@ -46,7 +46,7 @@ function get_targets(;source_array)
         ylower = Int64(ground_points[i, 2] - block_radius)
         yupper = min(Int64(ground_points[i, 2] + block_radius), ncols)
 
-        ground_points[i, 3] = sum(source_array[xlower:xupper, ylower:yupper]) # FIXME: Floating point rounding errors
+        ground_points[i, 3] = sum(source_array[xlower:xupper, ylower:yupper])
     end
 
     targets = ground_points[ground_points[:,3] .> 0, 1:3]
@@ -100,4 +100,78 @@ function get_ground(;x, y)
     ground[x, y] = 0
 
     ground
+end
+
+function calculate_current(cfg)
+    T = Float64
+    V = Int64
+
+    # raster_advanced(T, V, cfg)
+    rasterdata = Circuitscape.load_raster_data(T, V, cfg)
+
+    # Get flags
+    flags = Circuitscape.get_raster_flags(cfg)
+
+    # Generate advanced
+    data = Circuitscape.compute_advanced_data(rasterdata, flags)
+
+    G = data.G
+    nodemap = data.nodemap
+    polymap = data.polymap
+    hbmeta = data.hbmeta
+    sources = data.sources
+    grounds = data.grounds
+    finitegrounds = data.finite_grounds
+    cc = data.cc
+    src = data.src
+    check_node = data.check_node
+    source_map = data.source_map # Need it for one to all mode
+    cellmap = data.cellmap
+
+    # Flags
+    is_raster = flags.is_raster
+    is_alltoone = flags.is_alltoone
+    is_onetoall = flags.is_onetoall
+    write_v_maps = flags.outputflags.write_volt_maps
+    write_c_maps = flags.outputflags.write_cur_maps
+    write_cum_cur_map_only = flags.outputflags.write_cum_cur_map_only
+
+    volt = zeros(eltype(G), size(nodemap))
+    ind = findall(x->x!=0,nodemap)
+    f_local = Vector{eltype(G)}()
+    solver_called = false
+    voltages = Vector{eltype(G)}()
+    outvolt = alloc_map(hbmeta)
+    outcurr = alloc_map(hbmeta)
+
+    for c in cc
+        if check_node != -1 && !(check_node in c)
+            continue
+        end
+
+        # a_local = laplacian(G[c, c])
+        a_local = G[c,c]
+        s_local = sources[c]
+        g_local = grounds[c]
+
+        if sum(s_local) == 0 || sum(g_local) == 0
+            continue
+        end
+
+        if finitegrounds != [-9999.]
+            f_local = finitegrounds[c]
+        else
+            f_local = finitegrounds
+        end
+
+        voltages = Circuitscape.multiple_solver(cfg, a_local, s_local, g_local, f_local)
+        local_nodemap = Circuitscape.construct_local_node_map(nodemap, c, polymap)
+        solver_called = true
+
+        Circuitscape.accum_currents!(outcurr, voltages, cfg, a_local, voltages,
+                        f_local, local_nodemap, hbmeta)
+
+    end
+
+    outcurr
 end
