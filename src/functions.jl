@@ -1,8 +1,8 @@
-clip = function(A; x_coord, y_coord, distance)
+clip = function(A::Array{Float64, 2}; x::Int64, y::Int64, distance::Int64)
     dim1 = size(A)[1]
     dim2 = size(A)[2]
 
-    dist = [sqrt((i - x_coord)^2 + (j - y_coord)^2) for i = 1:dim1, j = 1:dim2]
+    dist = [sqrt((i - x)^2 + (j - y)^2) for i = 1:dim1, j = 1:dim2]
 
     clipped = deepcopy(A)
     clipped[dist .> distance] .= -9999
@@ -11,7 +11,7 @@ clip = function(A; x_coord, y_coord, distance)
 end
 
 
-function get_targets(;source_array)
+function get_targets(source_array::Array{Float64, 2},; threshold::Float64, block_size::Int64)
     source_array[source_array .< threshold] .= 0
 
     nrows = size(source_array, 1)
@@ -55,20 +55,20 @@ end
 
 # x and y defined by targets object. Ultimately the for loop will be done by
 # iterating through rows of targets object
-function get_source(;source_array, x, y, strength)
+function get_source(source_array::Array{Float64, 2},; x::Int64, y::Int64, strength::Float64)
     source_subset = clip(source_array,
                          x_coord = x,
                          y_coord = y,
                          distance = radius)
 
     # Set any sources inside target to NoData
-    xlower = Int64(x - block_radius)
-    xupper = min(Int64(x + block_radius), nrows)
-    ylower = Int64(y - block_radius)
-    yupper = min(Int64(y + block_radius), ncols)
+    xlower = x - block_radius
+    xupper = min(x + block_radius, nrows)
+    ylower = y - block_radius
+    yupper = min(y + block_radius, ncols)
 
-    source_subset[xlower:xupper, ylower:yupper] .= -9999
-    source_subset[source_subset .== 0.0] .= -9999
+    source_subset[xlower:xupper, ylower:yupper] .= -9999.
+    source_subset[source_subset .== 0.0] .= -9999.
 
     # Extract subset for faster solve times
     xlower_buffered = max(x - radius - buffer, 1)
@@ -88,19 +88,30 @@ function get_source(;source_array, x, y, strength)
     source_subset
 end
 
-function get_ground(;x, y)
-    xlower_buffered = max(x - radius - buffer, 1)
-    xupper_buffered = min(x + radius + buffer, nrows)
-    ylower_buffered = max(y - radius - buffer, 1)
-    yupper_buffered = min(y + radius + buffer, nrows)
+function get_ground(;x::Int64, y::Int64)
+    xlower_buffered = Int64(max(x - radius - buffer, 1))
+    xupper_buffered = Int64(min(x + radius + buffer, nrows))
+    ylower_buffered = Int64(max(y - radius - buffer, 1))
+    yupper_buffered = Int64(min(y + radius + buffer, nrows))
 
-    ground = fill(-9999,
-                  xupper_buffered - xlower_buffered,
-                  yupper_buffered - ylower_buffered)
-    ground[x, y] = 0
+    ground = fill(-9999.,
+                  xupper_buffered - xlower_buffered + 1,
+                  yupper_buffered - ylower_buffered + 1)
+    ground[x, y] = 0.
 
     ground
 end
+
+function get_resistance(raw_resistance::Array{Float64, 2},; x::Int64, y::Int64)
+    xlower_buffered = Int64(max(x - radius - buffer, 1))
+    xupper_buffered = Int64(min(x + radius + buffer, nrows))
+    ylower_buffered = Int64(max(y - radius - buffer, 1))
+    yupper_buffered = Int64(min(y + radius + buffer, nrows))
+
+    resistance = raw_resistance[xlower_buffered:xupper_buffered,
+                                ylower_buffered:yupper_buffered]
+end
+
 
 function calculate_current(cfg)
     T = Float64
@@ -141,8 +152,8 @@ function calculate_current(cfg)
     f_local = Vector{eltype(G)}()
     solver_called = false
     voltages = Vector{eltype(G)}()
-    outvolt = alloc_map(hbmeta)
-    outcurr = alloc_map(hbmeta)
+    outvolt = Circuitscape.alloc_map(hbmeta)
+    outcurr = Circuitscape.alloc_map(hbmeta)
 
     for c in cc
         if check_node != -1 && !(check_node in c)
@@ -170,7 +181,6 @@ function calculate_current(cfg)
 
         Circuitscape.accum_currents!(outcurr, voltages, cfg, a_local, voltages,
                         f_local, local_nodemap, hbmeta)
-
     end
 
     outcurr
