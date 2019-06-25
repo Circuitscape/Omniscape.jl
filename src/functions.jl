@@ -11,16 +11,18 @@ clip = function(A::Array{Float64, 2}; x::Int64, y::Int64, distance::Int64)
 end
 
 
-function get_targets(source_array::Array{Float64, 2},; threshold::Float64, block_size::Int64)
-    source_array[source_array .< threshold] .= 0
+function get_targets(source_array::Array{Float64, 2}, arguments::Dict{String, Int64}; threshold::Float64)
+    block_size = arguments["block_size"]
+    block_radius = arguments["block_radius"]
+    nrows = arguments["nrows"]
+    ncols = arguments["ncols"]
 
-    nrows = size(source_array, 1)
-    ncols = size(source_array, 2)
+    source_array[source_array .< threshold] .= 0
 
     start = (block_size + 1) / 2
 
-    xs = [start:block_size:nrows;]
-    ys = [start:block_size:ncols;]
+    xs = [start:block_radius:nrows;]
+    ys = [start:block_radius:ncols;]
 
     ground_points = zeros(Float64,(length(xs)*length(ys), 2))
 
@@ -55,10 +57,16 @@ end
 
 # x and y defined by targets object. Ultimately the for loop will be done by
 # iterating through rows of targets object
-function get_source(source_array::Array{Float64, 2},; x::Int64, y::Int64, strength::Float64)
+function get_source(source_array::Array{Float64, 2}, arguments::Dict{String, Int64}; x::Int64, y::Int64, strength::Float64)
+    block_radius = arguments["block_radius"]
+    radius = arguments["radius"]
+    buffer = arguments["buffer"]
+    nrows = arguments["nrows"]
+    ncols = arguments["ncols"]
+
     source_subset = clip(source_array,
-                         x_coord = x,
-                         y_coord = y,
+                         x = x,
+                         y = y,
                          distance = radius)
 
     # Set any sources inside target to NoData
@@ -72,7 +80,7 @@ function get_source(source_array::Array{Float64, 2},; x::Int64, y::Int64, streng
 
     # Extract subset for faster solve times
     xlower_buffered = max(x - radius - buffer, 1)
-    xupper_buffered = min(x + radius + buffer, nrows)
+    xupper_buffered = min(x + radius + buffer, ncols)
     ylower_buffered = max(y - radius - buffer, 1)
     yupper_buffered = min(y + radius + buffer, nrows)
 
@@ -88,9 +96,14 @@ function get_source(source_array::Array{Float64, 2},; x::Int64, y::Int64, streng
     source_subset
 end
 
-function get_ground(;x::Int64, y::Int64)
+function get_ground(arguments::Dict{String, Int64},; x::Int64, y::Int64)
+    radius = arguments["radius"]
+    buffer = arguments["buffer"]
+    nrows = arguments["nrows"]
+    ncols = arguments["ncols"]
+
     xlower_buffered = Int64(max(x - radius - buffer, 1))
-    xupper_buffered = Int64(min(x + radius + buffer, nrows))
+    xupper_buffered = Int64(min(x + radius + buffer, ncols))
     ylower_buffered = Int64(max(y - radius - buffer, 1))
     yupper_buffered = Int64(min(y + radius + buffer, nrows))
 
@@ -102,13 +115,22 @@ function get_ground(;x::Int64, y::Int64)
     ground
 end
 
-function get_resistance(raw_resistance::Array{Float64, 2},; x::Int64, y::Int64)
+function get_resistance(raw_resistance::Array{Float64, 2}, arguments::Dict{String, Int64},; x::Int64, y::Int64)
+    radius = arguments["radius"]
+    buffer = arguments["buffer"]
+    nrows = arguments["nrows"]
+    ncols = arguments["ncols"]
+
     xlower_buffered = Int64(max(x - radius - buffer, 1))
-    xupper_buffered = Int64(min(x + radius + buffer, nrows))
+    xupper_buffered = Int64(min(x + radius + buffer, ncols))
     ylower_buffered = Int64(max(y - radius - buffer, 1))
     yupper_buffered = Int64(min(y + radius + buffer, nrows))
+    resistance_clipped = clip(raw_resistance,
+                              x = x,
+                              y = y,
+                              distance = radius + buffer)
 
-    resistance = raw_resistance[xlower_buffered:xupper_buffered,
+    resistance = resistance_clipped[xlower_buffered:xupper_buffered,
                                 ylower_buffered:yupper_buffered]
 end
 
