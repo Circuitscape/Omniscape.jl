@@ -6,5 +6,6 @@ module Omniscape
     include("functions.jl")
     include("io.jl")
     include("run_omniscape.jl")
+    export run_omniscape
 
 end
