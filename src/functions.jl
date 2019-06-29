@@ -108,11 +108,13 @@ function get_ground(arguments::Dict{String, Int64},; x::Int64, y::Int64)
     yupper_buffered = Int64(min(y + radius + buffer, nrows))
 
     ground = fill(-9999.,
-                  xupper_buffered - xlower_buffered + 1,
-                  yupper_buffered - ylower_buffered + 1)
+                  nrows,
+                  ncols)
     ground[x, y] = 0.
 
-    ground
+    output = ground[xlower_buffered:xupper_buffered,
+                    ylower_buffered:yupper_buffered]
+    output
 end
 
 function get_resistance(raw_resistance::Array{Float64, 2}, arguments::Dict{String, Int64},; x::Int64, y::Int64)

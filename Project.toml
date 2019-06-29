@@ -1,11 +1,16 @@
 name = "Omniscape"
 uuid = "a38d70fc-99f5-11e9-1e3d-cbca093024c3"
+authors = ["Vincent A. Landau <vincent@csp-inc.org>"]
 version = "0.0.1"
 
 [deps]
 Circuitscape = "2b7a1792-8151-5239-925d-e2b8fdfa3201"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 Circuitscape = "≥ 5.0.0"
 julia = "≥ 1.0.0"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
