@@ -5,4 +5,4 @@
 
 
 
-The intent of this repository is to provide an open-source, updated version of [Omniscape](https://nature.org/resilienceNW) with improved reliability and speed. Documentation is currently in development.
+The intent of this repository is to provide an open-source, updated version of [Omniscape](https://conservationgateway.org/ConservationByGeography/NorthAmerica/UnitedStates/oregon/science/Documents/McRae_et_al_2016_PNW_CNS_Connectivity.pdf) with improved reliability and speed. Documentation is currently in development.
