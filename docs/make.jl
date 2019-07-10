@@ -8,6 +8,5 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/Circuitscape/Omniscape.jl.git",
-    target = "build",
+    repo = "github.com/Circuitscape/Omniscape.jl.git"
 )
