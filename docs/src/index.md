@@ -1,4 +1,4 @@
-# Overview
+# Omniscape.jl
 Package repository: https://github.com/Circuitscape/Omniscape.jl
 
 !!! note
