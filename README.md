@@ -2,6 +2,7 @@
 
 [![pipeline](https://gitlab.com/vlandau/Omniscape.jl/badges/master/pipeline.svg)](https://gitlab.com/vlandau/Omniscape.jl/pipelines?scope=branches&page=1) 
 [![codecov](https://codecov.io/gl/vlandau/Omniscape.jl/branch/master/graph/badge.svg)](https://codecov.io/gl/vlandau/Omniscape.jl)
+[![docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://Circuitscape.github.io/Omniscape.jl/dev)
 
 
 
