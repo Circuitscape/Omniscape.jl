@@ -14,7 +14,7 @@ file.ini is a file specifying input data paths and options for Omniscape. See [t
 ## Arguments
 
 #### `resistance_file`
-The path to the resistance layer input. Currently, the resistance surface must be in ASCII raster format with a NoData value of -9999 the following headier format:
+The path to the resistance layer input. Currently, the resistance surface must be in ASCII raster format with a NoData value of -9999 and the following header format:
 ```
 ncols         30
 nrows         30
