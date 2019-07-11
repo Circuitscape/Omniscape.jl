@@ -7,7 +7,7 @@ function init_cfg()
     cfg["normalize"] = "false"
     cfg["block_size"] = "1"
     cfg["radius"] = "1"
-    cfg["buffer"] = "1"
+    cfg["buffer"] = "0"
     cfg["source_threshold"] = "0"
     cfg["project_name"] = "(filename prefix for project)"
 
