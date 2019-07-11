@@ -7,6 +7,7 @@ const formats = Any[
 ]
 
 makedocs(
+	format = formats,
     modules = [Omniscape],
     authors = "Vincent A. Landau",
     sitename = "Omniscape.jl",
