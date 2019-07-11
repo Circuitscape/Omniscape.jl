@@ -26,7 +26,7 @@ nodata_value  -9999
 This is the format used by both QGIS and ArcMap GIS software.
 
 #### `source_file`
-The path to the source layer input. The source layer must also be in ASCII raster format, and all values must be ``\geq 1``. This raster must have an identical number of rows, columns, lower left corner coordinates, and cellsize as the resistance layer.
+The path to the source layer input. The source layer must also be in ASCII raster format, and all values must be ``\geq 0``. This raster must have an identical number of rows, columns, lower left corner coordinates, and cellsize as the resistance layer.
 
 #### `radius`
 A positive integer specifying the radius *in pixels* of the moving window used to identify sources to connect to each target.
