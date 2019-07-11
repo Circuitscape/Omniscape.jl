@@ -11,7 +11,8 @@ makedocs(
     modules = [Omniscape],
     authors = "Vincent A. Landau",
     sitename = "Omniscape.jl",
-    pages = ["Home" => "index.md"],
+    pages = ["Home" => "index.md",
+    		 "Usage" => "usage.md",],
 )
 
 deploydocs(
