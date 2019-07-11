@@ -1,7 +1,7 @@
 function init_cfg()
     cfg = Dict{String, String}()
 
-    cfg["resistance_file"] = "(browse to resistsance file)"
+    cfg["resistance_file"] = "(browse to resistance file)"
     cfg["source_file"] = "(browse to source file)"
 
     cfg["normalize"] = "false"
