@@ -1,5 +1,11 @@
 using Documenter, Omniscape
 
+const formats = Any[
+    Documenter.HTML(
+    	assets = ["assets/custom.css"],
+    ),
+]
+
 makedocs(
     modules = [Omniscape],
     authors = "Vincent A. Landau",
