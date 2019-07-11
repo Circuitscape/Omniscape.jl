@@ -1,5 +1,7 @@
 # Usage
 
+## Running Omniscape
+
 To use Omniscape, simply run the following code after Omniscape.jl has be installed.
 
 ```julia
