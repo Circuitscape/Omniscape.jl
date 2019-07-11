@@ -41,14 +41,14 @@ Optional (default = 0), the minimum value that a pixel must be in the source lay
 #### `project_name`
 The name of the project to use. This string will be appended as a prefix to all output files.
 
-#### `normalize`
-One of `true, false`. Specify whether to normalize current maps by flow potential.
+#### `calc_flow_potential`
+One of `true, false`. Specify whether to calculate flow potential.
 
 #### `write_raw_currmap`
 One of `true, false`. Specify whether to save the raw current map (prior to normailization by flow potential) as output.
 
 #### `write_normalized_currmap`
-One of `true, false`. Specify whether to save the normalized current map as output.
+One of `true, false`. Specify whether to save the normalized current map as output. Normalized current is calculated as raw current divided by flow potential.
 
 #### `write_flow_potential`
 One of `true, false`. Specify whether to save the raw flow potential map as output.

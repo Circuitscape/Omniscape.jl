@@ -4,7 +4,7 @@ function init_cfg()
     cfg["resistance_file"] = "(browse to resistance file)"
     cfg["source_file"] = "(browse to source file)"
 
-    cfg["normalize"] = "false"
+    cfg["calc_flow_potential"] = "false"
     cfg["block_size"] = "1"
     cfg["radius"] = "1"
     cfg["buffer"] = "0"
