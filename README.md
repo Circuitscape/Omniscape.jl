@@ -6,4 +6,4 @@
 
 
 
-The intent of this repository is to provide an open-source, updated version of [Omniscape](https://conservationgateway.org/ConservationByGeography/NorthAmerica/UnitedStates/oregon/science/Documents/McRae_et_al_2016_PNW_CNS_Connectivity.pdf) with improved reliability and speed. Documentation is currently in development.
+Omniscape.jl is a Julia package that  provides an open-source, updated version of [Omniscape](https://conservationgateway.org/ConservationByGeography/NorthAmerica/UnitedStates/oregon/science/Documents/McRae_et_al_2016_PNW_CNS_Connectivity.pdf) with improved reliability and speed. Visit https://circuitscape.github.io/Omniscape.jl/dev for documentation.
