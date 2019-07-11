@@ -1,5 +1,5 @@
 # Omniscape.jl
-Package repository: https://github.com/Circuitscape/Omniscape.jl
+Package repository: [https://github.com/Circuitscape/Omniscape.jl](https://github.com/Circuitscape/Omniscape.jl)
 
 !!! note
     This package is currently in the early stages of development. Please test it out and [post issues](https://github.com/Circuitscape/Omniscape.jl/issues/new) to the GitHub repo with any bugs, feature requests, or questions.
