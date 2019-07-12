@@ -1,6 +1,8 @@
 module Omniscape
 using Circuitscape
 using DelimitedFiles
+using Distributed
+using SharedArrays
 
 include("config.jl")
 include("functions.jl")
