@@ -32,7 +32,7 @@ The path to the source layer input. The source layer must also be in ASCII raste
 A positive integer specifying the radius *in pixels* of the moving window used to identify sources to connect to each target.
 
 #### `buffer`
-Optional (default = 0). A positive integer specifying an additional buffer distance beyond `radius`to clip the resistance and source layers to for each moving window iteration. If 0, resistance and source layers will be clipped the a circle of size `radius` for each moving window iteration.
+Optional (default = 0). A positive integer specifying an additional buffer distance beyond `radius` to clip the resistance and source layers to for each moving window iteration. If 0, resistance and source layers will be clipped the a circle of size `radius` for each moving window iteration.
 
 #### `block_size`
 An odd, positive integer specifying the side length for source layer blocking in target generation.
