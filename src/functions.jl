@@ -209,3 +209,8 @@ function calculate_current(cfg)
 
     outcurr
 end
+
+function myaddprocs(n)
+    addprocs(n)
+    @everywhere Core.eval(Main, :(using Omniscape))
+end
