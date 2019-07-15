@@ -6,9 +6,6 @@ os:
 julia:
   - 1.0
   - 1.1
-  
-script:
-- echo "skipping tests"
 
 notifications:
   email: false
