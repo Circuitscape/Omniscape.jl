@@ -10,6 +10,8 @@ julia:
 notifications:
   email: false
 
+codecov: true
+
 jobs:
   include:
     - stage: "Documentation"
