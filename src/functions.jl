@@ -35,6 +35,12 @@ struct RasterMeta
     file_type::Int
 end
 
+struct IncludeExcludePairs{V}
+    mode::Symbol
+    point_ids::Vector{V}
+    include_pairs::Matrix{V}
+end
+
 struct RasData{T,V} <: Data
     cellmap::Matrix{T}
     polymap::Matrix{V}
@@ -44,12 +50,6 @@ struct RasData{T,V} <: Data
     strengths::Matrix{T}
     included_pairs::IncludeExcludePairs{V}
     hbmeta::RasterMeta
-end
-
-struct IncludeExcludePairs{V}
-    mode::Symbol
-    point_ids::Vector{V}
-    include_pairs::Matrix{V}
 end
 
 
