@@ -1,3 +1,5 @@
+abstract type Data end
+
 struct OutputFlags
     write_volt_maps::Bool
     write_cur_maps::Bool
