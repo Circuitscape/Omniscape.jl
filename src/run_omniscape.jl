@@ -53,10 +53,10 @@ function run_omniscape(path::String)
 
     ## Define parameters for cs
     # Get flags
-    o = OutputFlags(false, false,
-                    false, false,
-                    false, false,
-                    false, false)
+    o = Circuitscape.OutputFlags(false, false,
+                                 false, false,
+                                 false, false,
+                                 false, false)
 
     for i = 1:n_targets
 
@@ -90,10 +90,10 @@ function run_omniscape(path::String)
         #     solver = "cholmod" # FIXME: solver = "cholmod" has no effect on advanced mode
         # end
 
-        flags = RasterFlags(true, false, true,
-                    false, false,
-                    false, Symbol("keepall"),
-                    false, false, solver, o)
+        flags = Circuitscape.RasterFlags(true, false, true,
+                                         false, false,
+                                         false, Symbol("keepall"),
+                                         false, false, solver, o)
 
         ## Run circuitscape
         curr = calculate_current(resistance, source, ground, solver, flags)
