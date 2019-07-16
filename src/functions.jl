@@ -52,6 +52,10 @@ struct RasData{T,V} <: Data
     hbmeta::RasterMeta
 end
 
+function IncludeExcludePairs(V)
+    IncludeExcludePairs(:undef, V[], Matrix{V}(undef,0,0))
+end
+
 
 clip = function(A::Array{Float64, 2}; x::Int64, y::Int64, distance::Int64)
     dim1 = size(A)[1]
