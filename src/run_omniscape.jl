@@ -29,8 +29,6 @@ function run_omniscape(path::String)
     int_arguments["nrows"] = size(sources_raw, 1)
     int_arguments["ncols"] = size(sources_raw, 2)
 
-    ## Make scratch directory
-    mkdir("$(project_name)_scratch")
 
     ## Setup Circuitscape configurations
     cs_cfg_dict = init_csdict(cfg)
@@ -52,6 +50,14 @@ function run_omniscape(path::String)
 
     ## Circuitscape calls in loop over targets
     n_targets = size(targets, 1)
+
+    ## Define parameters for cs
+    # Get flags
+    o = OutputFlags(false, false,
+                    false, false,
+                    false, false,
+                    false, false)
+
     for i = 1:n_targets
 
         ## get source
@@ -78,32 +84,25 @@ function run_omniscape(path::String)
         grid_size = size(source)
         n_cells = prod(grid_size)
 
-        if n_cells <= 2000000
-            cs_cfg["solver"] = "cholmod" # FIXME: solver = "cholmod" has no effect on advanced mode
-        end
+        solver = "cg+amg"
 
-        ## Update temp ascii header
-        update_ascii_header!(source, temp_header)
-        ## Write source, ground, and resistance asciis
-        write_ascii(source, "$(project_name)_scratch/temp_source.asc", temp_header)
-        write_ascii(ground, "$(project_name)_scratch/temp_ground.asc", temp_header)
-        write_ascii(resistance, "$(project_name)_scratch/temp_resistance.asc", temp_header)
+        # if n_cells <= 2000000
+        #     solver = "cholmod" # FIXME: solver = "cholmod" has no effect on advanced mode
+        # end
+
+        flags = RasterFlags(true, false, true,
+                    false, false,
+                    false, Symbol("keepall"),
+                    false, false, solver, o)
 
         ## Run circuitscape
-        curr = calculate_current(cs_cfg)
+        curr = calculate_current(resistance, source, ground, solver, flags)
 
         ## If normalize = True, calculate null map and normalize
         if calc_flow_potential == true
-            rm("$(project_name)_scratch/temp_resistance.asc")
             null_resistance = fill(1., grid_size)
-            write_ascii(null_resistance, "$(project_name)_scratch/temp_resistance.asc", temp_header)
-            flow_potential = calculate_current(cs_cfg)
+            flow_potential = calculate_current(null_resistance, source, ground, solver, flags)
         end
-
-        # flow_potential = currmap ./ null_currmap
-        rm("$(project_name)_scratch/temp_resistance.asc")
-        rm("$(project_name)_scratch/temp_source.asc")
-        rm("$(project_name)_scratch/temp_ground.asc")
 
         ## TODO: figure out parallel solution for accumulating values
         xlower = max(x_coord - int_arguments["radius"] - int_arguments["buffer"], 1)
@@ -120,7 +119,6 @@ function run_omniscape(path::String)
         end
     end
 
-    rm("$(project_name)_scratch/")
 
     if calc_flow_potential == true
         normalized_cum_currmap = cum_currmap ./ fp_cum_currmap

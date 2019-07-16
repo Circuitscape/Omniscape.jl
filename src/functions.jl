@@ -1,3 +1,56 @@
+struct OutputFlags
+    write_volt_maps::Bool
+    write_cur_maps::Bool
+    write_cum_cur_map_only::Bool
+    write_max_cur_maps::Bool
+    set_null_currents_to_nodata::Bool
+    set_null_voltages_to_nodata::Bool
+    compress_grids::Bool
+    log_transform_maps::Bool
+end
+
+struct RasterFlags
+    is_raster::Bool
+    is_pairwise::Bool
+    is_advanced::Bool
+    is_onetoall::Bool
+    is_alltoone::Bool
+    grnd_file_is_res::Bool
+    policy::Symbol
+    four_neighbors::Bool
+    avg_res::Bool
+    solver::String
+    outputflags::OutputFlags
+end
+
+struct RasterMeta
+    ncols::Int
+    nrows::Int
+    xllcorner::Float64
+    yllcorner::Float64
+    cellsize::Float64
+    nodata::Float64
+    file_type::Int
+end
+
+struct RasData{T,V} <: Data
+    cellmap::Matrix{T}
+    polymap::Matrix{V}
+    source_map::Matrix{T}
+    ground_map::Matrix{T}
+    points_rc::Tuple{Vector{V},Vector{V},Vector{V}}
+    strengths::Matrix{T}
+    included_pairs::IncludeExcludePairs{V}
+    hbmeta::RasterMeta
+end
+
+struct IncludeExcludePairs{V}
+    mode::Symbol
+    point_ids::Vector{V}
+    include_pairs::Matrix{V}
+end
+
+
 clip = function(A::Array{Float64, 2}; x::Int64, y::Int64, distance::Int64)
     dim1 = size(A)[1]
     dim2 = size(A)[2]
@@ -137,15 +190,22 @@ function get_resistance(raw_resistance::Array{Float64, 2}, arguments::Dict{Strin
 end
 
 
-function calculate_current(cfg)
+function calculate_current(resistance, source, ground, solver, flags)
     T = Float64
     V = Int64
 
-    # raster_advanced(T, V, cfg)
-    rasterdata = Circuitscape.load_raster_data(T, V, cfg)
+    # get raster data
+    cellmap = resistance
+    polymap = Matrix{V}(undef,0,0)
+    source_map = source
+    ground_map = ground
+    points_rc = (V[], V[], V[])
+    strengths = Matrix{T}(undef, 0,0)
+    included_pairs = IncludeExcludePairs(V)
+    hbmeta = RasterMeta(size(cellmap)[2], size(cellmap)[1], 0., 0., 1., -9999., 0)
 
-    # Get flags
-    flags = Circuitscape.get_raster_flags(cfg)
+    rasterdata = RasData(cellmap, polymap, source_map, ground_map, points_rc,
+                    strengths, included_pairs, hbmeta)
 
     # Generate advanced
     data = Circuitscape.compute_advanced_data(rasterdata, flags)
