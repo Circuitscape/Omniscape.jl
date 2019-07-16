@@ -52,9 +52,6 @@ struct RasData{T,V} <: Data
     hbmeta::RasterMeta
 end
 
-function IncludeExcludePairs(V)
-    IncludeExcludePairs(:undef, V[], Matrix{V}(undef,0,0))
-end
 
 
 clip = function(A::Array{Float64, 2}; x::Int64, y::Int64, distance::Int64)
@@ -207,7 +204,7 @@ function calculate_current(resistance, source, ground, solver, flags)
     ground_map = ground
     points_rc = (V[], V[], V[])
     strengths = Matrix{T}(undef, 0,0)
-    included_pairs = IncludeExcludePairs(V)
+    included_pairs = IncludeExcludePairs(:undef, V[], Matrix{V}(undef,0,0))
     hbmeta = RasterMeta(size(cellmap)[2], size(cellmap)[1], 0., 0., 1., -9999., 0)
 
     rasterdata = RasData(cellmap, polymap, source_map, ground_map, points_rc,
