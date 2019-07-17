@@ -33,15 +33,12 @@ end
 function init_csdict(cfg)
     a = Dict{String, String}()
 
-    a["source_file"] = "$(cfg["project_name"])_scratch/temp_source.asc"
-    a["ground_file"]  = "$(cfg["project_name"])_scratch/temp_ground.asc"
     a["ground_file_is_resistances"] = "True"
     a["use_direct_grounds"] = "False"
 
     a["output_file"] = "temp"
     a["write_cum_cur_map_only"] =  "False"
 
-    a["habitat_file"] = "$(cfg["project_name"])_scratch/temp_resistance.asc"
     a["scenario"] = "Advanced"
 
     a

@@ -30,7 +30,7 @@ function run_omniscape(path::String)
     int_arguments["ncols"] = size(sources_raw, 2)
 
 
-    ## Setup Circuitscape configurations
+    ## Setup Circuitscape configuration
     cs_cfg_dict = init_csdict(cfg)
     cs_cfg = Circuitscape.init_config()
     Circuitscape.update!(cs_cfg, cs_cfg_dict)
@@ -96,12 +96,12 @@ function run_omniscape(path::String)
                                          false, false, solver, o)
 
         ## Run circuitscape
-        curr = calculate_current(resistance, source, ground, solver, flags)
+        curr = calculate_current(resistance, source, ground, solver, flags, cs_cfg)
 
         ## If normalize = True, calculate null map and normalize
         if calc_flow_potential == true
             null_resistance = fill(1., grid_size)
-            flow_potential = calculate_current(null_resistance, source, ground, solver, flags)
+            flow_potential = calculate_current(null_resistance, source, ground, solver, flags, cs_cfg)
         end
 
         ## TODO: figure out parallel solution for accumulating values

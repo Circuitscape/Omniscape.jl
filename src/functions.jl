@@ -139,7 +139,7 @@ function get_resistance(raw_resistance::Array{Float64, 2}, arguments::Dict{Strin
 end
 
 
-function calculate_current(resistance, source, ground, solver, flags)
+function calculate_current(resistance, source, ground, solver, flags, cs_cfg)
     T = Float64
     V = Int64
 
@@ -208,11 +208,11 @@ function calculate_current(resistance, source, ground, solver, flags)
             f_local = finitegrounds
         end
 
-        voltages = Circuitscape.multiple_solver(cfg, a_local, s_local, g_local, f_local)
+        voltages = Circuitscape.multiple_solver(cs_cfg, a_local, s_local, g_local, f_local)
         local_nodemap = Circuitscape.construct_local_node_map(nodemap, c, polymap)
         solver_called = true
 
-        Circuitscape.accum_currents!(outcurr, voltages, cfg, a_local, voltages,
+        Circuitscape.accum_currents!(outcurr, voltages, cs_cfg, a_local, voltages,
                         f_local, local_nodemap, hbmeta)
     end
 
