@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Adding...
-- 
+- Parallelism in branch `parallel`
+
+## [0.0.2] - 2019-08-17
+### Added
+- Restructured functions to reduce I/O overhead for Circuitscape calls
 
 ## 0.0.1 - 2019-08-11
 ### Added
@@ -14,3 +18,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Basic Omniscape algorithm with option to calculate and normalize by flow potential
 
 [Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.0.1...master
+[0.0.2]: https://github.com/circuitscape/Omniscape.jl/compare/v0.0.1...0.0.2
