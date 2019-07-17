@@ -109,10 +109,10 @@ function get_ground(arguments::Dict{String, Int64},; x::Int64, y::Int64)
     ylower_buffered = Int64(max(y - radius - buffer, 1))
     yupper_buffered = Int64(min(y + radius + buffer, nrows))
 
-    ground = fill(-9999.,
+    ground = fill(0.0,
                   nrows,
                   ncols)
-    ground[x, y] = 0.
+    ground[x, y] = Inf
 
     output = ground[xlower_buffered:xupper_buffered,
                     ylower_buffered:yupper_buffered]
