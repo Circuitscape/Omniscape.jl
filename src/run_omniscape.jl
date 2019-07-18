@@ -18,15 +18,7 @@ function run_omniscape(path::String)
     write_raw_currmap = cfg["write_raw_currmap"] == "true"
 
     parallelize = cfg["parallelize"] == "true"
-    n_workers = parse(Int64, cfg["max_parallel"]))
-
-    if parallelize
-        println("Starting up Omniscape to use $(n_workers) processes in parallel")
-        myaddprocs(n_workers)
-    end
-
-    ## Make output directory
-    mkdir("$(project_name)_output")
+    n_workers = parse(Int64, cfg["max_parallel"])
 
     ## Store ascii header
     final_header = parse_ascii_header("$(cfg["resistance_file"])")
@@ -47,29 +39,6 @@ function run_omniscape(path::String)
                           int_arguments,
                           threshold = source_threshold)
 
-    ## Initialize cumulative current maps
-    if parallelize
-        for i in workers()
-            @spawnat i eval(:(cum_currmap = fill(0.,
-                                                 int_arguments["nrows"],
-                                                 int_arguments["ncols"])))
-        end
-
-        if calc_flow_potential
-            for i in workers()
-                @spawnat i eval(:(fp_cum_currmap = fill(0.,
-                                                        int_arguments["nrows"],
-                                                        int_arguments["ncols"]))
-            end
-        end
-    else
-        if calc_flow_potential
-            fp_cum_currmap = fill(0.,
-                                  int_arguments["nrows"],
-                                  int_arguments["ncols"])
-        end
-        cum_currmap = fill(0., int_arguments["nrows"], int_arguments["ncols"])
-    end
 
     ## Initialize temporary ascii header for CS advanced mode
     temp_header = init_ascii_header()
@@ -84,17 +53,52 @@ function run_omniscape(path::String)
                                  false, false,
                                  false, false)
 
+    ## Add parallel workers
+    if parallelize
+        println("Starting up Omniscape to use $(n_workers) processes in parallel")
+        myaddprocs(n_workers)
+
+        @everywhere nrows_remote = $(size(sources_raw, 1))
+        @everywhere ncols_remote = $(size(sources_raw, 2))
+
+        for i in workers()
+            @spawnat i eval(:(cum_currmap = fill(0.,
+                                                 nrows_remote,
+                                                 ncols_remote)))
+        end
+
+        if calc_flow_potential
+            for i in workers()
+                @spawnat i eval(:(fp_cum_currmap = fill(0.,
+                                                        nrows_remote,
+                                                        ncols_remote)))
+            end
+        end
+    else
+        cum_currmap = fill(0., int_arguments["nrows"], int_arguments["ncols"])
+        if calc_flow_potential
+            fp_cum_currmap = fill(0.,
+                                  int_arguments["nrows"],
+                                  int_arguments["ncols"])
+        end
+    end
+
     ## Calculate and accumulate currents on each worker
-    pmap(solve_target!, 1:n_targets; distributed = parallelize)
+    println("solving targets")
+    pmap(x -> solve_target!(x, n_targets, int_arguments, targets,
+                            sources_raw, resistance_raw, cs_cfg, o,
+                            calc_flow_potential),
+         1:n_targets; distributed = parallelize)
 
     ## Add together remote cumulative maps
     if parallelize
-        cum_currmap_local = fill(0.,
+        println("combining maps across workers")
+        global cum_currmap_local = fill(0.,
                                  int_arguments["nrows"],
                                  int_arguments["ncols"])
 
         for i in workers()
-            cum_currmap_local = cum_currmap_local .+ @fetchfrom i cum_currmap
+            global cum_currmap_local = cum_currmap_local .+ @fetchfrom i cum_currmap
         end
 
         cum_currmap = cum_currmap_local
@@ -105,15 +109,18 @@ function run_omniscape(path::String)
                                         int_arguments["ncols"])
             for i in workers()
                 fp_cum_currmap_local = fp_cum_currmap_local .+
-                                           @fetchfrom i fp_ cum_currmap
+                                           @fetchfrom i fp_cum_currmap
             end
-            fp_cum_currmap = fp_cum_currmap
+            fp_cum_currmap = fp_cum_currmap_local
         end
     end
 
     if calc_flow_potential == true
-        normalized_cum_currmap = cum_currmap ./ fp_cum_currmap
+        global normalized_cum_currmap = cum_currmap ./ fp_cum_currmap
     end
+
+    ## Make output directory
+    mkdir("$(project_name)_output")
 
     ## Write outputs
     if write_raw_currmap == true
@@ -136,4 +143,6 @@ function run_omniscape(path::String)
     else
         return cum_currmap
     end
+    println("done")
 end
+

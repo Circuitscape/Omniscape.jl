@@ -219,12 +219,9 @@ function calculate_current(resistance, source, ground, solver, flags, cs_cfg)
     outcurr
 end
 
-function myaddprocs(n)
-    addprocs(n)
-    @everywhere Core.eval(Main, :(using Omniscape))
-end
-
-function solve_target!(i)
+function solve_target!(i, n_targets, int_arguments, targets,
+                        sources_raw, resistance_raw, cs_cfg, o,
+                        calc_flow_potential)
     ## get source
     println("Solving target $(i) of $(n_targets)")
     x_coord = Int64(targets[i, 1])
@@ -275,11 +272,9 @@ function solve_target!(i)
     ylower = max(y_coord - int_arguments["radius"] - int_arguments["buffer"], 1)
     yupper = min(y_coord + int_arguments["radius"] + int_arguments["buffer"],  int_arguments["nrows"])
 
-    cum_currmap[xlower:xupper, ylower:yupper] .=
-        cum_currmap[xlower:xupper, ylower:yupper] .+ curr
+    global cum_currmap[xlower:xupper, ylower:yupper] .= cum_currmap[xlower:xupper, ylower:yupper] .+ curr
 
     if calc_flow_potential == true
-        fp_cum_currmap[xlower:xupper, ylower:yupper] .=
-            fp_cum_currmap[xlower:xupper, ylower:yupper] .+ flow_potential
+        global fp_cum_currmap[xlower:xupper, ylower:yupper] .= fp_cum_currmap[xlower:xupper, ylower:yupper] .+ flow_potential
     end
 end
