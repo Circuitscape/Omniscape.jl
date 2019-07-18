@@ -11,6 +11,9 @@ function init_cfg()
     cfg["source_threshold"] = "0"
     cfg["project_name"] = "(filename prefix for project)"
 
+    cfg["parallelize"] = "false"
+    cfg["max_parallel"] = "0"
+
     cfg
 end
 

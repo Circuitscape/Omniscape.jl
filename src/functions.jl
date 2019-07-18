@@ -223,3 +223,63 @@ function myaddprocs(n)
     addprocs(n)
     @everywhere Core.eval(Main, :(using Omniscape))
 end
+
+function solve_target!(i)
+    ## get source
+    println("Solving target $(i) of $(n_targets)")
+    x_coord = Int64(targets[i, 1])
+    y_coord = Int64(targets[i, 2])
+    source = get_source(sources_raw,
+                        int_arguments,
+                        x = x_coord,
+                        y = y_coord,
+                        strength = float(targets[i, 3]))
+
+    ## get ground
+    ground = get_ground(int_arguments,
+                        x = x_coord,
+                        y = y_coord)
+
+    ## get resistance
+    resistance = get_resistance(resistance_raw,
+                                int_arguments,
+                                x = x_coord,
+                                y = y_coord)
+
+    grid_size = size(source)
+    n_cells = prod(grid_size)
+
+    solver = "cg+amg"
+
+    # if n_cells <= 2000000
+    #     solver = "cholmod" # FIXME: "cholmod" not available in advanced mode
+    # end
+
+    flags = Circuitscape.RasterFlags(true, false, true,
+                                     false, false,
+                                     false, Symbol("keepall"),
+                                     false, false, solver, o)
+
+    ## Run circuitscape
+    curr = calculate_current(resistance, source, ground, solver, flags, cs_cfg)
+
+    ## If normalize = True, calculate null map and normalize
+    if calc_flow_potential == true
+        null_resistance = fill(1., grid_size)
+        flow_potential = calculate_current(null_resistance, source, ground, solver, flags, cs_cfg)
+    end
+
+    ## Accumulate values
+    xlower = max(x_coord - int_arguments["radius"] - int_arguments["buffer"], 1)
+    xupper = min(x_coord + int_arguments["radius"] + int_arguments["buffer"],  int_arguments["ncols"])
+    ylower = max(y_coord - int_arguments["radius"] - int_arguments["buffer"], 1)
+    yupper = min(y_coord + int_arguments["radius"] + int_arguments["buffer"],  int_arguments["nrows"])
+
+    cum_currmap[xlower:xupper, ylower:yupper] .=
+        cum_currmap[xlower:xupper, ylower:yupper] .+ curr
+
+    if calc_flow_potential == true
+        fp_cum_currmap[xlower:xupper, ylower:yupper] .=
+            fp_cum_currmap[xlower:xupper, ylower:yupper] .+ flow_potential
+    end
+end
