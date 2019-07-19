@@ -58,9 +58,3 @@ function init_ascii_header()
 
     ascii_header
 end
-
-
-function update_ascii_header!(A, ascii_header)
-    ascii_header["ncols"] = "$(size(A, 2))"
-    ascii_header["nrows"] = "$(size(A, 1))"
-end
