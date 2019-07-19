@@ -54,3 +54,9 @@ One of `true, false`. Specify whether to save the normalized current map as outp
 
 #### `write_flow_potential`
 One of `true, false`. Specify whether to save the raw flow potential map as output.
+
+#### `parallelize`
+One of `true, false`. Specify whether to use parallel processing.
+
+#### `max_parallel`
+A positive integer specifying how many workers should be used for parallel processing.
