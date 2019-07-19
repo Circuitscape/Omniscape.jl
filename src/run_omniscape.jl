@@ -82,15 +82,27 @@ function run_omniscape(path::String)
             fp_cum_currmap = fill(0.,
                                   int_arguments["nrows"],
                                   int_arguments["ncols"])
+        else
+            fp_cum_currmap = Array{Float64, 2}(undef, 1, 1)
         end
     end
 
     ## Calculate and accumulate currents on each worker
     println("solving targets")
+    if parallelize
     pmap(x -> solve_target!(x, n_targets, int_arguments, targets,
                             sources_raw, resistance_raw, cs_cfg, o,
                             calc_flow_potential),
-         1:n_targets; distributed = parallelize)
+         1:n_targets)
+    else
+        for i in 1:n_targets
+            solve_target!(i, n_targets, int_arguments, targets,
+                                    sources_raw, resistance_raw, cs_cfg, o,
+                                    calc_flow_potential, cum_currmap, fp_cum_currmap)
+        end
+    end
+
+
 
     ## Add together remote cumulative maps
     if parallelize
@@ -131,5 +143,10 @@ function run_omniscape(path::String)
     else
         return cum_currmap
     end
+
+    if parallelize
+        rmprocs(workers())
+    end
+
     println("done")
 end
