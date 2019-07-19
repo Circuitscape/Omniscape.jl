@@ -92,28 +92,11 @@ function run_omniscape(path::String)
     ## Add together remote cumulative maps
     if parallelize
         println("combining maps across workers")
-        cum_currmap_local = fill(0.,
-                                 int_arguments["nrows"],
-                                 int_arguments["ncols"])
 
-
-        for i in workers()
-            cum_currmap_local = cum_currmap_local .+ @fetchfrom i cum_currmap
-        end
-        
-        println("Done combining maps")
-
-        cum_currmap = cum_currmap_local
+        cum_currmap = sum_currmaps(int_arguments)
 
         if calc_flow_potential
-            fp_cum_currmap_local = fill(0.,
-                                        int_arguments["nrows"],
-                                        int_arguments["ncols"])
-            for i in workers()
-                fp_cum_currmap_local = fp_cum_currmap_local .+
-                                           @fetchfrom i fp_cum_currmap
-            end
-            fp_cum_currmap = fp_cum_currmap_local
+            fp_cum_currmap = sum_fpmaps(int_arguments)
         end
     end
 
