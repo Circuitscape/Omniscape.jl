@@ -53,24 +53,27 @@ function run_omniscape(path::String)
                                  false, false,
                                  false, false)
 
+
     ## Add parallel workers
     if parallelize
         println("Starting up Omniscape to use $(n_workers) processes in parallel")
         myaddprocs(n_workers)
 
-        pmap(x -> copyvars(x, sources_raw), 1:(nworkers() * 2)) ## FIXME hacky fix for broadcasting variables.
+        for i in workers()
+            remotecall(copyvars, i, sources_raw)
+        end
 
         for i in workers()
             @spawnat i eval(:(cum_currmap = fill(0.,
-                                                 nrows_remote,
-                                                 ncols_remote)))
+                                                 nrows,
+                                                 ncols)))
         end
 
         if calc_flow_potential
             for i in workers()
                 @spawnat i eval(:(fp_cum_currmap = fill(0.,
-                                                        nrows_remote,
-                                                        ncols_remote)))
+                                                        nrows,
+                                                        ncols)))
             end
         end
     else

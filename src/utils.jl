@@ -3,9 +3,9 @@ function myaddprocs(n)
     @everywhere Core.eval(Main, :(import Omniscape))
 end
 
-function copyvars(i, array)
-    global nrows_remote = size(array, 1)
-    global ncols_remote = size(array, 2)
+function copyvars(array)
+    global nrows = size(array, 1)
+    global ncols = size(array, 2)
 end
 
 function sum_currmaps(args::Dict{String, Int64})
@@ -23,5 +23,3 @@ function sum_fpmaps(args::Dict{String, Int64})
     end
     fp_cum_currmap_local
 end
-
-
