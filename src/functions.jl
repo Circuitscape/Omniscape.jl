@@ -272,9 +272,9 @@ function solve_target!(i, n_targets, int_arguments, targets,
     ylower = max(y_coord - int_arguments["radius"] - int_arguments["buffer"], 1)
     yupper = min(y_coord + int_arguments["radius"] + int_arguments["buffer"],  int_arguments["nrows"])
 
-    global cum_currmap[xlower:xupper, ylower:yupper] .= cum_currmap[xlower:xupper, ylower:yupper] .+ curr
+    cum_currmap[xlower:xupper, ylower:yupper] .= cum_currmap[xlower:xupper, ylower:yupper] .+ curr
 
     if calc_flow_potential == true
-        global fp_cum_currmap[xlower:xupper, ylower:yupper] .= fp_cum_currmap[xlower:xupper, ylower:yupper] .+ flow_potential
+        fp_cum_currmap[xlower:xupper, ylower:yupper] .= fp_cum_currmap[xlower:xupper, ylower:yupper] .+ flow_potential
     end
 end

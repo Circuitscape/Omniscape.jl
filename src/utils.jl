@@ -7,4 +7,3 @@ function copyvars(i, array)
     global nrows_remote = size(array, 1)
     global ncols_remote = size(array, 2)
 end
-
