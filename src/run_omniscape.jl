@@ -58,8 +58,7 @@ function run_omniscape(path::String)
         println("Starting up Omniscape to use $(n_workers) processes in parallel")
         myaddprocs(n_workers)
 
-        @everywhere nrows_remote = $(size(sources_raw, 1))
-        @everywhere ncols_remote = $(size(sources_raw, 2))
+        pmap(x -> copyvars(x, sources_raw), 1:(nworkers() * 2)) ## FIXME hacky fix for broadcasting variables.
 
         for i in workers()
             @spawnat i eval(:(cum_currmap = fill(0.,
@@ -93,13 +92,16 @@ function run_omniscape(path::String)
     ## Add together remote cumulative maps
     if parallelize
         println("combining maps across workers")
-        global cum_currmap_local = fill(0.,
+        cum_currmap_local = fill(0.,
                                  int_arguments["nrows"],
                                  int_arguments["ncols"])
 
+
         for i in workers()
-            global cum_currmap_local = cum_currmap_local .+ @fetchfrom i cum_currmap
+            cum_currmap_local = cum_currmap_local .+ @fetchfrom i cum_currmap
         end
+        
+        println("Done combining maps")
 
         cum_currmap = cum_currmap_local
 
@@ -116,7 +118,7 @@ function run_omniscape(path::String)
     end
 
     if calc_flow_potential == true
-        global normalized_cum_currmap = cum_currmap ./ fp_cum_currmap
+        normalized_cum_currmap = cum_currmap ./ fp_cum_currmap
     end
 
     ## Make output directory
@@ -145,4 +147,3 @@ function run_omniscape(path::String)
     end
     println("done")
 end
-
