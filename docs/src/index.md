@@ -9,7 +9,7 @@ Package repository: [https://github.com/Circuitscape/Omniscape.jl](https://githu
 
 ## Installation
 ```julia
-using Pkg; Pkg.add(PackageSpec(url = "https://github.com/Circuitscape/Omniscape.jl", rev = "v0.0.3"))
+using Pkg; Pkg.add(PackageSpec(url = "https://github.com/Circuitscape/Omniscape.jl", rev = "v0.1.0"))
 ```
 
 ## Overview

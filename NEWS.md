@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Adding...
 - 
 
-## [0.0.3] - 2019-08-22
+## [0.1.0] - 2019-08-22
 ### Added
 - Parallel processing capabilities now available -- controlled by `parallelize` and `max_parallel` arguments in .ini configuration file.
 
@@ -21,6 +21,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - First release
 - Basic Omniscape algorithm with option to calculate and normalize by flow potential
 
-[Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.0.3...master
+[Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.0...master
 [0.0.2]: https://github.com/circuitscape/Omniscape.jl/compare/v0.0.1...v0.0.2
-[0.0.3]: https://github.com/circuitscape/Omniscape.jl/compare/v0.0.2...v0.0.3
+[0.1.0]: https://github.com/circuitscape/Omniscape.jl/compare/v0.0.2...v0.1.0
