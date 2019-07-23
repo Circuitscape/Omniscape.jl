@@ -25,8 +25,8 @@ function parse_cfg(path::String)
             continue
         end
         idx = something(findfirst(isequal('='), i), 0)
-        var = rstrip(i[1:idx-1])
-        val = strip(i[idx+1:end])
+        var = rstrip(i[1:idx - 1])
+        val = strip(i[idx + 1:end])
         cf[var] = val
     end
     close(f)

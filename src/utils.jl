@@ -19,7 +19,8 @@ end
 function sum_fpmaps(args::Dict{String, Int64})
     fp_cum_currmap_local = fill(0., args["nrows"], args["ncols"])
     for i in workers()
-        fp_cum_currmap_local = fp_cum_currmap_local .+ @fetchfrom i fp_cum_currmap
+        fp_cum_currmap_local =
+            fp_cum_currmap_local .+ @fetchfrom i fp_cum_currmap
     end
     fp_cum_currmap_local
 end

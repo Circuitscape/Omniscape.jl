@@ -1,23 +1,31 @@
 function run_omniscape(path::String)
     cfg = parse_cfg(path)
+
+    ## Parse commonly called integer arguments
     int_arguments = Dict{String, Int64}()
-    int_arguments["block_size"] = Int64(round(parse(Float64, cfg["block_size"])))
+
+    int_arguments["block_size"] = Int64(round(parse(Float64,
+                                                    cfg["block_size"])))
+
     if iseven(int_arguments["block_size"])
         @warn "Block_size is even, but must be odd. Using block_size + 1."
         int_arguments["block_size"] = int_arguments["block_size"] + 1
     end
+
     int_arguments["block_radius"] = Int64((int_arguments["block_size"] - 1) / 2)
     int_arguments["radius"] = Int64(round(parse(Float64, cfg["radius"])))
     int_arguments["buffer"] = Int64(round(parse(Float64, cfg["buffer"])))
 
-    source_threshold = Float64(parse(Float64, cfg["source_threshold"]))
-    project_name = cfg["project_name"]
+    ## Parse other arguments
+    # flags
     calc_flow_potential = cfg["calc_flow_potential"] == "true"
     write_flow_potential = cfg["write_flow_potential"] == "true"
     write_normalized_currmap = cfg["write_normalized_currmap"] == "true"
     write_raw_currmap = cfg["write_raw_currmap"] == "true"
-
     parallelize = cfg["parallelize"] == "true"
+    # other
+    source_threshold = Float64(parse(Float64, cfg["source_threshold"]))
+    project_name = cfg["project_name"]
     n_workers = parse(Int64, cfg["max_parallel"])
 
     ## Store ascii header
@@ -96,9 +104,17 @@ function run_omniscape(path::String)
          1:n_targets)
     else
         for i in 1:n_targets
-            solve_target!(i, n_targets, int_arguments, targets,
-                                    sources_raw, resistance_raw, cs_cfg, o,
-                                    calc_flow_potential, cum_currmap, fp_cum_currmap)
+            solve_target!(i,
+                          n_targets,
+                          int_arguments,
+                          targets,
+                          sources_raw,
+                          resistance_raw,
+                          cs_cfg,
+                          o,
+                          calc_flow_potential,
+                          cum_currmap,
+                          fp_cum_currmap)
         end
     end
 
@@ -124,16 +140,22 @@ function run_omniscape(path::String)
 
     ## Write outputs
     if write_raw_currmap == true
-        write_ascii(cum_currmap, "$(project_name)_output/cum_currmap.asc", final_header)
+        write_ascii(cum_currmap,
+                    "$(project_name)_output/cum_currmap.asc",
+                    final_header)
     end
 
     if calc_flow_potential == true
         if write_flow_potential == true
-            write_ascii(fp_cum_currmap, "$(project_name)_output/flow_potential.asc", final_header)
+            write_ascii(fp_cum_currmap,
+                        "$(project_name)_output/flow_potential.asc",
+                        final_header)
         end
 
         if write_normalized_currmap == true
-            write_ascii(normalized_cum_currmap, "$(project_name)_output/normalized_cum_currmap.asc", final_header)
+            write_ascii(normalized_cum_currmap,
+                        "$(project_name)_output/normalized_cum_currmap.asc",
+                        final_header)
         end
     end
 
