@@ -89,14 +89,15 @@ function get_source(
                          y = y,
                          distance = radius)
 
+    source_subset[source_subset .== -9999] .= 0.0
     # Set any sources inside target to NoData
     xlower = x - block_radius
     xupper = min(x + block_radius, nrows)
     ylower = y - block_radius
     yupper = min(y + block_radius, ncols)
 
-    source_subset[xlower:xupper, ylower:yupper] .= -9999.
-    source_subset[source_subset .== 0.0] .= -9999.
+    source_subset[xlower:xupper, ylower:yupper] .= 0
+    source_subset[source_subset .== 0.0] .= 0
 
     # Extract subset for faster solve times
     xlower_buffered = max(x - radius - buffer, 1)
