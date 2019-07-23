@@ -89,14 +89,15 @@ function get_source(
                          y = y,
                          distance = radius)
 
+    source_subset[source_subset .== -9999] .= 0.0
     # Set any sources inside target to NoData
     xlower = x - block_radius
     xupper = min(x + block_radius, nrows)
     ylower = y - block_radius
     yupper = min(y + block_radius, ncols)
 
-    source_subset[xlower:xupper, ylower:yupper] .= -9999.
-    source_subset[source_subset .== 0.0] .= -9999.
+    source_subset[xlower:xupper, ylower:yupper] .= 0
+    source_subset[source_subset .== 0.0] .= 0
 
     # Extract subset for faster solve times
     xlower_buffered = max(x - radius - buffer, 1)
@@ -173,7 +174,6 @@ function calculate_current(
         resistance::Array{Float64, 2},
         source::Array{Float64, 2},
         ground::Array{Float64, 2},
-        solver::String,
         flags::Circuitscape.RasterFlags,
         cs_cfg::Dict{String, String}
     )
@@ -337,7 +337,7 @@ function solve_target!(
                                      false, false, solver, o)
 
     ## Run circuitscape
-    curr = calculate_current(resistance, source, ground, solver, flags, cs_cfg)
+    curr = calculate_current(resistance, source, ground, flags, cs_cfg)
 
     ## If normalize = True, calculate null map and normalize
     if calc_flow_potential == true
@@ -346,7 +346,6 @@ function solve_target!(
         flow_potential = calculate_current(null_resistance,
                                            source,
                                            ground,
-                                           solver,
                                            flags,
                                            cs_cfg)
     end
@@ -418,7 +417,7 @@ function solve_target!(
                                      false, false, solver, o)
 
     ## Run circuitscape
-    curr = calculate_current(resistance, source, ground, solver, flags, cs_cfg)
+    curr = calculate_current(resistance, source, ground, flags, cs_cfg)
 
     ## If normalize = True, calculate null map and normalize
     if calc_flow_potential == true
@@ -427,7 +426,6 @@ function solve_target!(
         flow_potential = calculate_current(null_resistance,
                                            source,
                                            ground,
-                                           solver,
                                            flags,
                                            cs_cfg)
     end
@@ -449,4 +447,96 @@ function solve_target!(
         fp_cum_currmap[xlower:xupper, ylower:yupper] .=
             fp_cum_currmap[xlower:xupper, ylower:yupper] .+ flow_potential
     end
+end
+
+function calc_correction(
+        arguments::Dict{String, Int64},
+        cs_cfg::Dict{String, String}
+    )
+
+    # This may not apply seamlessly in the case (if I add the option) that source strengths
+    # are not adjusted by target weight, but stay the same according to their
+    # original values. Something to keep in mind...
+
+    solver = "cg+amg"
+
+    # if (arguments["radius"]+1)^2 <= 2000000
+    #     solver = "cholmod" # FIXME: "cholmod" not available in advanced mode
+    # end
+
+    flags = Circuitscape.RasterFlags(true, false, true,
+                                     false, false,
+                                     false, Symbol("keepall"),
+                                     false, false, solver, o)
+
+    temp_source = fill(1.,
+                       arguments["radius"] * 2 + arguments["buffer"] * 2 + 1,
+                       arguments["radius"] * 2 + arguments["buffer"] * 2 + 1)
+
+    temp_source_clip = clip(temp_source,
+                            x = arguments["radius"] + arguments["buffer"] + 1,
+                            y = arguments["radius"] + arguments["buffer"] + 1,
+                            distance = arguments["radius"])
+
+    source_null = deepcopy(temp_source_clip)
+    n_sources = sum(source_null[source_null .!= -9999])
+
+    source_null[source_null .== -9999] .= 0.0
+    source_null[arguments["radius"] + arguments["buffer"] + 1,
+                arguments["radius"] + arguments["buffer"] + 1] = 0.0
+    source_null[source_null .!= 0.0] .= 1 / (n_sources - 1)
+
+    source_block = get_source(temp_source,
+                              arguments;
+                              x = (arguments["radius"] + arguments["buffer"] + 1),
+                              y = (arguments["radius"] + arguments["buffer"] + 1),
+                              strength = float(arguments["block_size"] ^ 2))
+
+    resistance = clip(temp_source,
+                      x = arguments["radius"] + arguments["buffer"] + 1,
+                      y = arguments["radius"] + arguments["buffer"] + 1,
+                      distance = arguments["radius"] + arguments["buffer"])
+
+    ground = fill(0.0,
+                  size(source_null))
+
+    ground[arguments["radius"] + arguments["buffer"] + 1,
+           arguments["radius"] + arguments["buffer"] + 1] = Inf
+
+    source_massive = deepcopy(source_block)
+    source_massive[source_massive .!= -9999.] .= 5
+    block_null_current = calculate_current(resistance,
+                                           source_block,
+                                           ground,
+                                           flags,
+                                           cs_cfg)
+
+    null_current =  calculate_current(resistance,
+                                      source_null,
+                                      ground,
+                                      flags,
+                                      cs_cfg)
+    null_current_total = fill(0.,
+                              arguments["radius"] * 2 + arguments["buffer"] * 2 + arguments["block_size"],
+                              arguments["radius"] * 2 + arguments["buffer"] * 2 + arguments["block_size"])
+
+    for i in 1:arguments["block_size"]
+        for j in 1:arguments["block_size"]
+            null_current_total[i:(i + arguments["radius"] * 2 + arguments["buffer"] * 2),
+                               j:(j + arguments["radius"] * 2 + arguments["buffer"] * 2)] += null_current
+        end
+    end
+
+    null_current_total = null_current_total[(arguments["block_radius"] + 1):size(null_current, 1) + 1,
+                                             (arguments["block_radius"] + 1):size(null_current, 2) + 1]
+
+    null_current_total[block_null_current .== 0.] .= 0
+
+    null_current_total[null_current_total .== 0.0] .= 1.0
+    block_null_current[block_null_current .== 0.0] .= 1.0
+
+    correction = null_current_total ./ block_null_current
+
+
+    correction
 end
