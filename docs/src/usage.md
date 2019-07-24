@@ -60,3 +60,6 @@ One of `true, false`. Specify whether to use parallel processing.
 
 #### `max_parallel`
 A positive integer specifying how many workers should be used for parallel processing.
+
+#### `correct_artifacts`
+One of `true, false`. Specify if artifacts introduced from using `block_size` greater than 1 should be corrected. Recommended `true`.

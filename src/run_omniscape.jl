@@ -25,6 +25,11 @@ function run_omniscape(path::String)
     write_raw_currmap = cfg["write_raw_currmap"] == "true"
     parallelize = cfg["parallelize"] == "true"
     correct_artifacts = cfg["correct_artifacts"] == "true"
+
+    if int_arguments["block_size"] == 1
+        correct_artifacts = false
+    end
+
     # other
     source_threshold = Float64(parse(Float64, cfg["source_threshold"]))
     project_name = cfg["project_name"]
