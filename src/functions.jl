@@ -342,6 +342,7 @@ function solve_target!(
 
     ## If normalize = True, calculate null map and normalize
     if calc_flow_potential == true
+        println("    calculating flow potential")
         null_resistance = fill(1., grid_size)
 
         flow_potential = calculate_current(null_resistance,
@@ -423,6 +424,7 @@ function solve_target!(
 
     ## If normalize = True, calculate null map and normalize
     if calc_flow_potential == true
+        println("    calculating flow potential")
         null_resistance = fill(1., grid_size)
 
         flow_potential = calculate_current(null_resistance,
