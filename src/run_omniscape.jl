@@ -1,3 +1,11 @@
+"""
+    run_omniscape("path/to/config.ini")
+
+Run the Omniscape algorithm using the files and options specified in a .ini file
+
+Please visit https://circuitscape.github.io/Omniscape.jl/stable for the latest
+documentation
+"""
 function run_omniscape(path::String)
     start_time = time()
     cfg = parse_cfg(path)
