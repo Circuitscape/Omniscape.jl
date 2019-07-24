@@ -1,4 +1,5 @@
 function run_omniscape(path::String)
+    start_time = time()
     cfg = parse_cfg(path)
 
     ## Parse commonly called integer arguments
@@ -23,6 +24,7 @@ function run_omniscape(path::String)
     write_normalized_currmap = cfg["write_normalized_currmap"] == "true"
     write_raw_currmap = cfg["write_raw_currmap"] == "true"
     parallelize = cfg["parallelize"] == "true"
+    correct_artifacts = cfg["correct_artifacts"] == "true"
     # other
     source_threshold = Float64(parse(Float64, cfg["source_threshold"]))
     project_name = cfg["project_name"]
@@ -61,7 +63,6 @@ function run_omniscape(path::String)
                                  false, false,
                                  false, false)
 
-
     ## Add parallel workers
     if parallelize
         println("Starting up Omniscape to use $(n_workers) processes in parallel")
@@ -95,12 +96,22 @@ function run_omniscape(path::String)
         end
     end
 
+    if correct_artifacts
+        println("Computing artifact correction raster")
+        correction_array = calc_correction(int_arguments,
+                                           cs_cfg,
+                                           o)
+    else
+        correction_array = Array{Float64, 2}(undef, 1, 1)
+    end
+
     ## Calculate and accumulate currents on each worker
-    println("solving targets")
+    println("Solving targets")
     if parallelize
     pmap(x -> solve_target!(x, n_targets, int_arguments, targets,
                             sources_raw, resistance_raw, cs_cfg, o,
-                            calc_flow_potential),
+                            calc_flow_potential, correct_artifacts,
+                            correction_array),
          1:n_targets)
     else
         for i in 1:n_targets
@@ -113,6 +124,8 @@ function run_omniscape(path::String)
                           cs_cfg,
                           o,
                           calc_flow_potential,
+                          correct_artifacts,
+                          correction_array,
                           cum_currmap,
                           fp_cum_currmap)
         end
@@ -122,7 +135,7 @@ function run_omniscape(path::String)
 
     ## Add together remote cumulative maps
     if parallelize
-        println("combining maps across workers")
+        println("Combining maps across workers")
 
         cum_currmap = sum_currmaps(int_arguments)
 
@@ -159,16 +172,18 @@ function run_omniscape(path::String)
         end
     end
 
+
+    if parallelize
+        rmprocs(workers())
+    end
+
+    println("Done")
+    println("Time taken to complete job: $(round(time() - start_time; digits = 1)) seconds")
+
     ## Return outputs
     if calc_flow_potential == true
         return normalized_cum_currmap, cum_currmap, fp_cum_currmap
     else
         return cum_currmap
     end
-
-    if parallelize
-        rmprocs(workers())
-    end
-
-    println("done")
 end

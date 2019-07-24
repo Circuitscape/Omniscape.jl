@@ -297,6 +297,8 @@ function solve_target!(
         cs_cfg::Dict{String, String},
         o::Circuitscape.OutputFlags,
         calc_flow_potential::Bool,
+        correct_artifacts::Bool,
+        correction_array::Array{Float64, 2},
         cum_currmap::Array{Float64, 2},
         fp_cum_currmap::Array{Float64, 2}
     )
@@ -351,6 +353,41 @@ function solve_target!(
                                            cs_cfg)
     end
 
+    if correct_artifacts
+        correction_array2 = deepcopy(correction_array)
+        lowerxcut = 1
+        upperxcut = size(correction_array, 1)
+        lowerycut = 1
+        upperycut = size(correction_array, 2)
+
+        if x_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
+            lowerxcut = upperxcut - grid_size[1] + 1
+        end
+
+        if x_coord > int_arguments["nrows"] - (int_arguments["radius"] + int_arguments["buffer"])
+            upperxcut = upperxcut -
+                            (upperxcut - grid_size[1])
+        end
+
+        if y_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
+            lowerycut = upperycut - grid_size[2] + 1
+        end
+
+        if y_coord > int_arguments["ncols"] - (int_arguments["radius"] + int_arguments["buffer"])
+            upperycut = upperycut -
+                            (upperycut - grid_size[2])
+        end
+
+        correction_array2 = correction_array[lowerxcut:upperxcut,
+                                             lowerycut:upperycut]
+
+        curr = curr .* correction_array2
+
+        if calc_flow_potential
+            flow_potential = flow_potential .* correction_array2
+        end
+    end
+
     ## Accumulate values
     xlower = max(x_coord - int_arguments["radius"] - int_arguments["buffer"],
                  1)
@@ -379,7 +416,9 @@ function solve_target!(
         resistance_raw::Array{Float64, 2},
         cs_cfg::Dict{String, String},
         o::Circuitscape.OutputFlags,
-        calc_flow_potential::Bool
+        calc_flow_potential::Bool,
+        correct_artifacts::Bool,
+        correction_array::Array{Float64, 2}
     )
 
     ## get source
@@ -432,6 +471,41 @@ function solve_target!(
                                            cs_cfg)
     end
 
+    if correct_artifacts
+        correction_array2 = deepcopy(correction_array)
+        lowerxcut = 1
+        upperxcut = size(correction_array, 1)
+        lowerycut = 1
+        upperycut = size(correction_array, 2)
+
+        if x_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
+            lowerxcut = upperxcut - grid_size[1] + 1
+        end
+
+        if x_coord > int_arguments["nrows"] - (int_arguments["radius"] + int_arguments["buffer"])
+            upperxcut = upperxcut -
+                            (upperxcut - grid_size[1])
+        end
+
+        if y_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
+            lowerycut = upperycut - grid_size[2] + 1
+        end
+
+        if y_coord > int_arguments["ncols"] - (int_arguments["radius"] + int_arguments["buffer"])
+            upperycut = upperycut -
+                            (upperycut - grid_size[2])
+        end
+
+        correction_array2 = correction_array[lowerxcut:upperxcut,
+                                             lowerycut:upperycut]
+
+        curr = curr .* correction_array2
+
+        if calc_flow_potential
+            flow_potential = flow_potential .* correction_array2
+        end
+    end
+
     ## Accumulate values
     xlower = max(x_coord - int_arguments["radius"] - int_arguments["buffer"],
                  1)
@@ -453,7 +527,8 @@ end
 
 function calc_correction(
         arguments::Dict{String, Int64},
-        cs_cfg::Dict{String, String}
+        cs_cfg::Dict{String, String},
+        o
     )
 
     # This may not apply seamlessly in the case (if I add the option) that source strengths
@@ -538,7 +613,6 @@ function calc_correction(
     block_null_current[block_null_current .== 0.0] .= 1.0
 
     correction = null_current_total ./ block_null_current
-
 
     correction
 end
