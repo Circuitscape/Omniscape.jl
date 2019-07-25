@@ -10,7 +10,7 @@ function clip(
     dim1 = size(A)[1]
     dim2 = size(A)[2]
 
-    dist = [sqrt((i - x)^2 + (j - y)^2) for i = 1:dim1, j = 1:dim2]
+    dist = [sqrt((j - x)^2 + (i - y)^2) for i = 1:dim1, j = 1:dim2]
 
     clipped = deepcopy(A)
     clipped[dist .> distance] .= -9999
@@ -34,8 +34,8 @@ function get_targets(
 
     start = (block_size + 1) / 2
 
-    xs = [start:block_radius:nrows;]
-    ys = [start:block_radius:ncols;]
+    xs = [start:block_radius:ncols;]
+    ys = [start:block_radius:nrows;]
 
     ground_points = zeros(Float64,(length(xs)*length(ys), 2))
 
@@ -57,11 +57,11 @@ function get_targets(
 
     for i = 1:size(ground_points)[1]
         xlower = Int64(ground_points[i, 1] - block_radius)
-        xupper = min(Int64(ground_points[i, 1] + block_radius), nrows)
+        xupper = min(Int64(ground_points[i, 1] + block_radius), ncols)
         ylower = Int64(ground_points[i, 2] - block_radius)
-        yupper = min(Int64(ground_points[i, 2] + block_radius), ncols)
+        yupper = min(Int64(ground_points[i, 2] + block_radius), nrows)
 
-        ground_points[i, 3] = sum(source_array[xlower:xupper, ylower:yupper])
+        ground_points[i, 3] = sum(source_array[ylower:yupper, xlower:xupper])
     end
 
     targets = ground_points[ground_points[:, 3] .> 0, 1:3]
@@ -92,11 +92,11 @@ function get_source(
     source_subset[source_subset .== -9999] .= 0.0
     # Set any sources inside target to NoData
     xlower = x - block_radius
-    xupper = min(x + block_radius, nrows)
+    xupper = min(x + block_radius, ncols)
     ylower = y - block_radius
-    yupper = min(y + block_radius, ncols)
+    yupper = min(y + block_radius, nrows)
 
-    source_subset[xlower:xupper, ylower:yupper] .= 0
+    source_subset[ylower:yupper, xlower:xupper] .= 0
     source_subset[source_subset .== 0.0] .= 0
 
     # Extract subset for faster solve times
@@ -105,8 +105,8 @@ function get_source(
     ylower_buffered = max(y - radius - buffer, 1)
     yupper_buffered = min(y + radius + buffer, nrows)
 
-    source_subset = source_subset[xlower_buffered:xupper_buffered,
-                                  ylower_buffered:yupper_buffered]
+    source_subset = source_subset[ylower_buffered:yupper_buffered,
+                                  xlower_buffered:xupper_buffered]
 
     # allocate total current equal to target "strength", divide among sources
     # according to their source strengths
@@ -136,10 +136,10 @@ function get_ground(
     ground = fill(0.0,
                   nrows,
                   ncols)
-    ground[x, y] = Inf
+    ground[y, x] = Inf
 
-    output = ground[xlower_buffered:xupper_buffered,
-                    ylower_buffered:yupper_buffered]
+    output = ground[ylower_buffered:yupper_buffered,
+                    xlower_buffered:xupper_buffered]
     output
 end
 
@@ -165,8 +165,8 @@ function get_resistance(
                               y = y,
                               distance = radius + buffer)
 
-    resistance = resistance_clipped[xlower_buffered:xupper_buffered,
-                                ylower_buffered:yupper_buffered]
+    resistance = resistance_clipped[ylower_buffered:yupper_buffered,
+                                    xlower_buffered:xupper_buffered]
 end
 
 
@@ -356,30 +356,30 @@ function solve_target!(
     if correct_artifacts
         correction_array2 = deepcopy(correction_array)
         lowerxcut = 1
-        upperxcut = size(correction_array, 1)
+        upperxcut = size(correction_array, 2)
         lowerycut = 1
-        upperycut = size(correction_array, 2)
+        upperycut = size(correction_array, 1)
 
         if x_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
-            lowerxcut = upperxcut - grid_size[1] + 1
+            lowerxcut = upperxcut - grid_size[2] + 1
         end
 
-        if x_coord > int_arguments["nrows"] - (int_arguments["radius"] + int_arguments["buffer"])
+        if x_coord > int_arguments["ncols"] - (int_arguments["radius"] + int_arguments["buffer"])
             upperxcut = upperxcut -
-                            (upperxcut - grid_size[1])
+                            (upperxcut - grid_size[2])
         end
 
         if y_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
-            lowerycut = upperycut - grid_size[2] + 1
+            lowerycut = upperycut - grid_size[1] + 1
         end
 
-        if y_coord > int_arguments["ncols"] - (int_arguments["radius"] + int_arguments["buffer"])
+        if y_coord > int_arguments["nrows"] - (int_arguments["radius"] + int_arguments["buffer"])
             upperycut = upperycut -
-                            (upperycut - grid_size[2])
+                            (upperycut - grid_size[1])
         end
 
-        correction_array2 = correction_array[lowerxcut:upperxcut,
-                                             lowerycut:upperycut]
+        correction_array2 = correction_array[lowerycut:upperycut,
+                                             lowerxcut:upperxcut]
 
         curr = curr .* correction_array2
 
@@ -398,12 +398,12 @@ function solve_target!(
     yupper = min(y_coord + int_arguments["radius"] + int_arguments["buffer"],
                  int_arguments["nrows"])
 
-    cum_currmap[xlower:xupper, ylower:yupper] .=
-        cum_currmap[xlower:xupper, ylower:yupper] .+ curr
+    cum_currmap[ylower:yupper, xlower:xupper] .=
+        cum_currmap[ylower:yupper, xlower:xupper] .+ curr
 
     if calc_flow_potential == true
-        fp_cum_currmap[xlower:xupper, ylower:yupper] .=
-            fp_cum_currmap[xlower:xupper, ylower:yupper] .+ flow_potential
+        fp_cum_currmap[ylower:yupper, xlower:xupper] .=
+            fp_cum_currmap[ylower:yupper, xlower:xupper] .+ flow_potential
     end
 end
 
@@ -474,30 +474,30 @@ function solve_target!(
     if correct_artifacts
         correction_array2 = deepcopy(correction_array)
         lowerxcut = 1
-        upperxcut = size(correction_array, 1)
+        upperxcut = size(correction_array, 2)
         lowerycut = 1
-        upperycut = size(correction_array, 2)
+        upperycut = size(correction_array, 1)
 
         if x_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
-            lowerxcut = upperxcut - grid_size[1] + 1
+            lowerxcut = upperxcut - grid_size[2] + 1
         end
 
-        if x_coord > int_arguments["nrows"] - (int_arguments["radius"] + int_arguments["buffer"])
+        if x_coord > int_arguments["ncols"] - (int_arguments["radius"] + int_arguments["buffer"])
             upperxcut = upperxcut -
-                            (upperxcut - grid_size[1])
+                            (upperxcut - grid_size[2])
         end
 
         if y_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
-            lowerycut = upperycut - grid_size[2] + 1
+            lowerycut = upperycut - grid_size[1] + 1
         end
 
-        if y_coord > int_arguments["ncols"] - (int_arguments["radius"] + int_arguments["buffer"])
+        if y_coord > int_arguments["nrows"] - (int_arguments["radius"] + int_arguments["buffer"])
             upperycut = upperycut -
-                            (upperycut - grid_size[2])
+                            (upperycut - grid_size[1])
         end
 
-        correction_array2 = correction_array[lowerxcut:upperxcut,
-                                             lowerycut:upperycut]
+        correction_array2 = correction_array[lowerycut:upperycut,
+                                             lowerxcut:upperxcut]
 
         curr = curr .* correction_array2
 
@@ -516,12 +516,12 @@ function solve_target!(
     yupper = min(y_coord + int_arguments["radius"] + int_arguments["buffer"],
                  int_arguments["nrows"])
 
-    cum_currmap[xlower:xupper, ylower:yupper] .=
-        cum_currmap[xlower:xupper, ylower:yupper] .+ curr
+    cum_currmap[ylower:yupper, xlower:xupper] .=
+        cum_currmap[ylower:yupper, xlower:xupper] .+ curr
 
     if calc_flow_potential == true
-        fp_cum_currmap[xlower:xupper, ylower:yupper] .=
-            fp_cum_currmap[xlower:xupper, ylower:yupper] .+ flow_potential
+        fp_cum_currmap[ylower:yupper, xlower:xupper] .=
+            fp_cum_currmap[ylower:yupper, xlower:xupper] .+ flow_potential
     end
 end
 

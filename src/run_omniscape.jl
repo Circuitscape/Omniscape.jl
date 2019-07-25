@@ -17,7 +17,7 @@ function run_omniscape(path::String)
                                                     cfg["block_size"])))
 
     if iseven(int_arguments["block_size"])
-        @warn "Block_size is even, but must be odd. Using block_size + 1."
+        @warn "block_size is even, but must be odd. Using block_size + 1."
         int_arguments["block_size"] = int_arguments["block_size"] + 1
     end
 
