@@ -3,7 +3,7 @@
 
 Run the Omniscape algorithm using the files and options specified in a .ini file
 
-Please visit https://circuitscape.github.io/Omniscape.jl/stable for the latest
+Visit https://circuitscape.github.io/Omniscape.jl/stable for detailed
 documentation
 """
 function run_omniscape(path::String)
@@ -27,28 +27,37 @@ function run_omniscape(path::String)
 
     ## Parse other arguments
     # flags
-    calc_flow_potential = cfg["calc_flow_potential"] == "true"
-    write_flow_potential = cfg["write_flow_potential"] == "true"
-    write_normalized_currmap = cfg["write_normalized_currmap"] == "true"
-    write_raw_currmap = cfg["write_raw_currmap"] == "true"
-    parallelize = cfg["parallelize"] == "true"
-    correct_artifacts = cfg["correct_artifacts"] == "true"
-
+    calc_flow_potential = lowercase(cfg["calc_flow_potential"]) == "true"
+    write_flow_potential = lowercase(cfg["write_flow_potential"]) == "true"
+    write_normalized_currmap = lowercase(cfg["write_normalized_currmap"]) == "true"
+    write_raw_currmap = lowercase(cfg["write_raw_currmap"]) == "true"
+    parallelize = lowercase(cfg["parallelize"]) == "true"
+    correct_artifacts = lowercase(cfg["correct_artifacts"]) == "true"
+    source_from_resistance = lowercase(cfg["source_from_resistance"]) == "true"
     if int_arguments["block_size"] == 1
         correct_artifacts = false
     end
 
     # other
-    source_threshold = Float64(parse(Float64, cfg["source_threshold"]))
+    source_threshold = parse(Float64, cfg["source_threshold"])
     project_name = cfg["project_name"]
     n_workers = parse(Int64, cfg["max_parallel"])
+    r_cutoff = parse(Float64, cfg["r_cutoff"])
 
     ## Store ascii header
     final_header = parse_ascii_header("$(cfg["resistance_file"])")
 
     ## Import sources and resistances
-    sources_raw = float(read_ascii("$(cfg["source_file"])"))
     resistance_raw = float(read_ascii("$(cfg["resistance_file"])"))
+
+    if source_from_resistance
+        sources_raw = deepcopy(resistance_raw)
+        sources_raw = 1.0 ./ sources_raw
+        sources_raw[resistance_raw .> r_cutoff] .= 0.0
+    else
+        sources_raw = float(read_ascii("$(cfg["source_file"])"))
+    end
+
     int_arguments["nrows"] = size(sources_raw, 1)
     int_arguments["ncols"] = size(sources_raw, 2)
 
@@ -110,10 +119,11 @@ function run_omniscape(path::String)
     end
 
     if correct_artifacts
-        println("Computing artifact correction raster")
+        art_start = time()
         correction_array = calc_correction(int_arguments,
                                            cs_cfg,
                                            o)
+        println("time taken to calculate artifact correction array: $(time()- art_start) seconds")
     else
         correction_array = Array{Float64, 2}(undef, 1, 1)
     end
