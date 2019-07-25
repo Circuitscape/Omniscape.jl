@@ -54,6 +54,7 @@ function run_omniscape(path::String)
         sources_raw = deepcopy(resistance_raw)
         sources_raw = 1.0 ./ sources_raw
         sources_raw[resistance_raw .> r_cutoff] .= 0.0
+        sources_raw[resistance_raw .== -9999] .= 0.0
     else
         sources_raw = float(read_ascii("$(cfg["source_file"])"))
     end
