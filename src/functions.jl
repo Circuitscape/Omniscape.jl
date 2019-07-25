@@ -604,8 +604,8 @@ function calc_correction(
         end
     end
 
-    null_current_total = null_current_total[(arguments["block_radius"] + 1):size(null_current, 1) + 1,
-                                             (arguments["block_radius"] + 1):size(null_current, 2) + 1]
+    null_current_total = null_current_total[(arguments["block_radius"] + 1):(size(null_current, 1) + arguments["block_radius"]),
+                                             (arguments["block_radius"] + 1):(size(null_current, 2) + arguments["block_radius"])]
 
     null_current_total[block_null_current .== 0.] .= 0
 
