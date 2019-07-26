@@ -478,22 +478,22 @@ function solve_target!(
         lowerycut = 1
         upperycut = size(correction_array, 1)
 
-        if x_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
-            lowerxcut = upperxcut - grid_size[2] + 1
-        end
-
         if x_coord > int_arguments["ncols"] - (int_arguments["radius"] + int_arguments["buffer"])
             upperxcut = upperxcut -
                             (upperxcut - grid_size[2])
         end
 
-        if y_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
-            lowerycut = upperycut - grid_size[1] + 1
+        if x_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
+            lowerxcut = upperxcut - grid_size[2] + 1
         end
 
         if y_coord > int_arguments["nrows"] - (int_arguments["radius"] + int_arguments["buffer"])
             upperycut = upperycut -
                             (upperycut - grid_size[1])
+        end
+
+        if y_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
+            lowerycut = upperycut - grid_size[1] + 1
         end
 
         correction_array2 = correction_array[lowerycut:upperycut,
