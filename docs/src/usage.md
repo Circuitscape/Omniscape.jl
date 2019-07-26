@@ -44,22 +44,28 @@ Optional (default = 0), the minimum value that a pixel must be in the source lay
 The name of the project to use. This string will be appended as a prefix to all output files.
 
 #### `calc_flow_potential`
-One of `true, false`. Specify whether to calculate flow potential.
+One of true, false. Specify whether to calculate flow potential.
 
 #### `write_raw_currmap`
-One of `true, false`. Specify whether to save the raw current map (prior to normailization by flow potential) as output.
+One of true, false. Specify whether to save the raw current map (prior to normailization by flow potential) as output.
 
 #### `write_normalized_currmap`
-One of `true, false`. Specify whether to save the normalized current map as output. Normalized current is calculated as raw current divided by flow potential.
+One of true, false. Specify whether to save the normalized current map as output. Normalized current is calculated as raw current divided by flow potential.
 
 #### `write_flow_potential`
-One of `true, false`. Specify whether to save the raw flow potential map as output.
+One of true, false. Specify whether to save the raw flow potential map as output.
 
 #### `parallelize`
-One of `true, false`. Specify whether to use parallel processing.
+One of true, false. Specify whether to use parallel processing.
 
 #### `max_parallel`
 A positive integer specifying how many workers should be used for parallel processing.
 
 #### `correct_artifacts`
-One of `true, false`. Specify if artifacts introduced from using `block_size` greater than 1 should be corrected. Recommended `true`.
+One of true, false. Specify if artifacts introduced from using `block_size` greater than 1 should be corrected. Recommended true.
+
+#### `source_from_resistance`
+One of true, false. Should a source layer be derived using the resistance layer? If true, sources are calculated as the inverse of the resistance layer, and therefore it is not recommended that your resistance layer contain values less than 1. Sources will be set to 0 for all cells with a resistance greater than `r_cutoff`.
+
+#### `r_cutoff`
+The maximum resistance value a cell can have to be considered as a source. Only applies when `source_from_resistance` = true.
