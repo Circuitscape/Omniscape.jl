@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Omniscape algorithm with parallel processing
 - method for block artifact correction
-### Adding
+- error and bug fixes
 - option to use resistance surface to assign source weights
+### Adding
 
 [Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.0...master
