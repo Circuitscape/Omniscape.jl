@@ -133,10 +133,10 @@ function get_ground(
     ylower_buffered = Int64(max(y - radius - buffer, 1))
     yupper_buffered = Int64(min(y + radius + buffer, nrows))
 
-    ground = fill(-9999.0,
+    ground = fill(0.0,
                   nrows,
                   ncols)
-    ground[y, x] = 0.0
+    ground[y, x] = Inf
 
     output = ground[ylower_buffered:yupper_buffered,
                     xlower_buffered:xupper_buffered]
@@ -165,7 +165,7 @@ function get_resistance(
                               y = y,
                               distance = radius + buffer)
 
-    resistance = resistance_clipped[ylower_buffered:yupper_buffered,
+    resistance = 1 ./ resistance_clipped[ylower_buffered:yupper_buffered,
                                     xlower_buffered:xupper_buffered]
 end
 
@@ -335,7 +335,7 @@ function solve_target!(
 
     flags = Circuitscape.RasterFlags(true, false, true,
                                      false, false,
-                                     true, Symbol("keepall"),
+                                     false, Symbol("rmvsrc"),
                                      false, false, solver, o)
 
     ## Run circuitscape
