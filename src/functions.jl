@@ -334,7 +334,7 @@ function solve_target!(
     # end
 
     flags = Circuitscape.RasterFlags(true, false, true,
-                                     false, false,
+                                     false, true,
                                      false, Symbol("keepall"),
                                      false, false, solver, o)
 
