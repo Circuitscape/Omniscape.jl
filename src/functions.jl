@@ -136,7 +136,7 @@ function get_ground(
     ground = fill(-9999.0,
                   nrows,
                   ncols)
-    ground[y, x] = 0.0
+    ground[y, x] = Inf
 
     output = ground[ylower_buffered:yupper_buffered,
                     xlower_buffered:xupper_buffered]
@@ -334,8 +334,8 @@ function solve_target!(
     # end
 
     flags = Circuitscape.RasterFlags(true, false, true,
-                                     false, true,
-                                     false, Symbol("keepall"),
+                                     false, false,
+                                     true, Symbol("keepall"),
                                      false, false, solver, o)
 
     ## Run circuitscape
