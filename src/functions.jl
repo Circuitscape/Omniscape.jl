@@ -136,7 +136,7 @@ function get_ground(
     ground = fill(-9999.0,
                   nrows,
                   ncols)
-    ground[y, x] = Inf
+    ground[y, x] = 0.0
 
     output = ground[ylower_buffered:yupper_buffered,
                     xlower_buffered:xupper_buffered]
