@@ -133,10 +133,10 @@ function get_ground(
     ylower_buffered = Int64(max(y - radius - buffer, 1))
     yupper_buffered = Int64(min(y + radius + buffer, nrows))
 
-    ground = fill(0.0,
+    ground = fill(-9999.0,
                   nrows,
                   ncols)
-    ground[y, x] = Inf
+    ground[y, x] = 0.0
 
     output = ground[ylower_buffered:yupper_buffered,
                     xlower_buffered:xupper_buffered]
