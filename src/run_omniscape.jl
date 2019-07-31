@@ -8,7 +8,10 @@ documentation
 """
 function run_omniscape(path::String)
     start_time = time()
-    cfg = parse_cfg(path)
+
+    cfg_user = parse_cfg(path)
+    cfg = init_cfg()
+    update_cfg!(cfg, cfg_user)
 
     ## Parse commonly called integer arguments
     int_arguments = Dict{String, Int64}()

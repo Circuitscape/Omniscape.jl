@@ -32,40 +32,40 @@ The path to the source layer input. The source layer must also be in ASCII raste
 A positive integer specifying the radius *in pixels* of the moving window used to identify sources to connect to each target.
 
 #### `buffer`
-Optional (default = 0). A positive integer specifying an additional buffer distance beyond `radius` to clip the resistance and source layers to for each moving window iteration. If 0, resistance and source layers will be clipped the a circle of size `radius` for each moving window iteration.
+Defaults to 0. A positive integer specifying an additional buffer distance beyond `radius` to clip the resistance and source layers to for each moving window iteration. If 0, resistance and source layers will be clipped the a circle of size `radius` for each moving window iteration.
 
 #### `block_size`
-An odd, positive integer specifying the side length for source layer blocking in target generation.
+An odd, positive integer specifying the side length for source layer blocking in target generation. Defaults to 1.
 
 #### `source_threshold`
-Optional (default = 0), the minimum value that a pixel must be in the source layer to be included as a source.
+Defaults to 0. The minimum value that a pixel must be in the source layer to be included as a source.
 
 #### `project_name`
 The name of the project to use. This string will be appended as a prefix to all output files.
 
 #### `calc_flow_potential`
-One of true, false. Specify whether to calculate flow potential.
+One of true, false. Specify whether to calculate flow potential. Defaults to true.
 
 #### `write_raw_currmap`
-One of true, false. Specify whether to save the raw current map (prior to normailization by flow potential) as output.
+One of true, false. Specify whether to save the raw current map (prior to normailization by flow potential) as output. Defaults to true.
 
 #### `write_normalized_currmap`
-One of true, false. Specify whether to save the normalized current map as output. Normalized current is calculated as raw current divided by flow potential.
+One of true, false. Specify whether to save the normalized current map as output. Normalized current is calculated as raw current divided by flow potential. Defaults to true.
 
 #### `write_flow_potential`
-One of true, false. Specify whether to save the raw flow potential map as output.
+One of true, false. Specify whether to save the raw flow potential map as output. Defaults to true.
 
 #### `parallelize`
-One of true, false. Specify whether to use parallel processing.
+One of true, false. Specify whether to use parallel processing. Defaults to false.
 
 #### `max_parallel`
-A positive integer specifying how many workers should be used for parallel processing.
+A positive integer specifying how many workers should be used for parallel processing. Applies only if `parallelize` is true.
 
 #### `correct_artifacts`
-One of true, false. Specify if artifacts introduced from using `block_size` greater than 1 should be corrected. Recommended true.
+One of true, false. Specify if artifacts introduced from using `block_size` greater than 1 should be corrected. Defaults to true.
 
 #### `source_from_resistance`
-One of true, false. Should a source layer be derived using the resistance layer? If true, sources are calculated as the inverse of the resistance layer, and therefore it is not recommended that your resistance layer contain values less than 1. Sources will be set to 0 for all cells with a resistance greater than `r_cutoff`.
+One of true, false. Should a source layer be derived using the resistance layer? If true, sources are calculated as the inverse of the resistance layer, and therefore it is not recommended that your resistance layer contain values less than 1. Sources will be set to 0 for all cells with a resistance greater than `r_cutoff`. Defaults to false.
 
 #### `r_cutoff`
 The maximum resistance value a cell can have to be considered as a source. Only applies when `source_from_resistance` = true.

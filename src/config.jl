@@ -3,18 +3,32 @@ function init_cfg()
 
     cfg["resistance_file"] = "(browse to resistance file)"
     cfg["source_file"] = "(browse to source file)"
-
-    cfg["calc_flow_potential"] = "false"
-    cfg["block_size"] = "1"
-    cfg["radius"] = "1"
-    cfg["buffer"] = "0"
-    cfg["source_threshold"] = "0"
     cfg["project_name"] = "(filename prefix for project)"
 
     cfg["parallelize"] = "false"
     cfg["max_parallel"] = "0"
 
+    cfg["block_size"] = "1"
+    cfg["radius"] = "(choose source radius)"
+    cfg["buffer"] = "0"
+    cfg["source_threshold"] = "0"
+    cfg["source_from_resistance"] = "false"
+    cfg["r_cutoff"] = "0.0"
+
+    cfg["calc_flow_potential"] = "true"
+    cfg["correct_artifacts"] = "true"
+
+    cfg["write_raw_currmap"] = "true"
+    cfg["write_normalized_currmap"] = "true"
+    cfg["write_flow_potential"] = "true"
+
     cfg
+end
+
+function update_cfg!(cfg, cfg_new)
+    for (key,val) in cfg_new
+        cfg[key] = val
+    end
 end
 
 function parse_cfg(path::String)
