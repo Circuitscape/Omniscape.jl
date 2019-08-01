@@ -2,11 +2,11 @@
 
 ## Running Omniscape
 
-To use Omniscape, simply run the following code after Omniscape.jl has be installed.
+To use Omniscape, simply run the following Julia code after Omniscape.jl has been installed.
 
 ```julia
-julia> using Omniscape
-julia> run_omniscape("path/to/config/file.ini")
+using Omniscape
+run_omniscape("path/to/config/file.ini")
 ```
 
 file.ini is a file specifying input data paths and options for Omniscape. See [this link](https://github.com/Circuitscape/Omniscape.jl/blob/master/test/input/config.ini) for an example `.ini` file. The arguments specified in the .ini file are described in detail below.
