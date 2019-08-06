@@ -8,7 +8,7 @@ documentation
 """
 function run_omniscape(path::String)
     start_time = time()
-
+    n_threads = nthreads()
     cfg_user = parse_cfg(path)
     cfg = init_cfg()
     update_cfg!(cfg, cfg_user)
@@ -44,7 +44,6 @@ function run_omniscape(path::String)
     # other
     source_threshold = parse(Float64, cfg["source_threshold"])
     project_name = cfg["project_name"]
-    n_workers = parse(Int64, cfg["max_parallel"])
     r_cutoff = parse(Float64, cfg["r_cutoff"])
 
     ## Store ascii header
@@ -91,34 +90,34 @@ function run_omniscape(path::String)
 
     ## Add parallel workers
     if parallelize
-        println("Starting up Omniscape to use $(n_workers) processes in parallel")
-        myaddprocs(n_workers)
+        println("Starting up Omniscape. Using $(n_threads) processes in parallel")
 
-        for i in workers()
-            remotecall(copyvars, i, sources_raw)
-        end
+        cum_currmap = fill(0.,
+                           int_arguments["nrows"],
+                           int_arguments["ncols"],
+                           n_threads)
 
-        for i in workers()
-            @spawnat i eval(:(cum_currmap = fill(0.,
-                                                 nrows,
-                                                 ncols)))
-        end
-
-        if calc_flow_potential
-            for i in workers()
-                @spawnat i eval(:(fp_cum_currmap = fill(0.,
-                                                        nrows,
-                                                        ncols)))
-            end
-        end
-    else
-        cum_currmap = fill(0., int_arguments["nrows"], int_arguments["ncols"])
         if calc_flow_potential
             fp_cum_currmap = fill(0.,
                                   int_arguments["nrows"],
-                                  int_arguments["ncols"])
+                                  int_arguments["ncols"],
+                                  n_threads)
         else
-            fp_cum_currmap = Array{Float64, 2}(undef, 1, 1)
+            fp_cum_currmap = Array{Float64, 3}(undef, 1, 1, 1)
+        end
+    else
+        cum_currmap = fill(0.,
+                          int_arguments["nrows"],
+                          int_arguments["ncols"],
+                          1)
+
+        if calc_flow_potential
+            fp_cum_currmap = fill(0.,
+                                  int_arguments["nrows"],
+                                  int_arguments["ncols"],
+                                  1)
+        else
+            fp_cum_currmap = Array{Float64, 3}(undef, 1, 1, 1)
         end
     end
 
@@ -135,11 +134,21 @@ function run_omniscape(path::String)
     ## Calculate and accumulate currents on each worker
     println("Solving targets")
     if parallelize
-    pmap(x -> solve_target!(x, n_targets, int_arguments, targets,
-                            sources_raw, resistance_raw, cs_cfg, o,
-                            calc_flow_potential, correct_artifacts,
-                            correction_array),
-         1:n_targets)
+        @threads for i in 1:n_targets
+            solve_target!(i,
+                          n_targets,
+                          int_arguments,
+                          targets,
+                          sources_raw,
+                          resistance_raw,
+                          cs_cfg,
+                          o,
+                          calc_flow_potential,
+                          correct_artifacts,
+                          correction_array,
+                          cum_currmap,
+                          fp_cum_currmap)
+        end
     else
         for i in 1:n_targets
             solve_target!(i,
@@ -158,19 +167,14 @@ function run_omniscape(path::String)
         end
     end
 
+    ## Collapse 3-dim cum current arrays to 2-dim via sum
+    cum_currmap = dropdims(sum(cum_currmap, dims = 3), dims = 3)
 
-
-    ## Add together remote cumulative maps
-    if parallelize
-        println("Combining maps across workers")
-
-        cum_currmap = sum_currmaps(int_arguments)
-
-        if calc_flow_potential
-            fp_cum_currmap = sum_fpmaps(int_arguments)
-        end
+    if calc_flow_potential
+        fp_cum_currmap = dropdims(sum(fp_cum_currmap, dims = 3), dims = 3)
     end
 
+    ## Normalize by flow potential
     if calc_flow_potential == true
         normalized_cum_currmap = cum_currmap ./ fp_cum_currmap
     end
@@ -197,11 +201,6 @@ function run_omniscape(path::String)
                         "$(project_name)_output/normalized_cum_currmap.asc",
                         final_header)
         end
-    end
-
-
-    if parallelize
-        rmprocs(workers())
     end
 
     println("Done")

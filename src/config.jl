@@ -5,8 +5,7 @@ function init_cfg()
     cfg["source_file"] = "(browse to source file)"
     cfg["project_name"] = "(filename prefix for project)"
 
-    cfg["parallelize"] = "false"
-    cfg["max_parallel"] = "0"
+    cfg["parallelize"] = "true"
 
     cfg["block_size"] = "1"
     cfg["radius"] = "(choose source radius)"

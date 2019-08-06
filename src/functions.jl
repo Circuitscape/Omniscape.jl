@@ -299,8 +299,8 @@ function solve_target!(
         calc_flow_potential::Bool,
         correct_artifacts::Bool,
         correction_array::Array{Float64, 2},
-        cum_currmap::Array{Float64, 2},
-        fp_cum_currmap::Array{Float64, 2}
+        cum_currmap::Array{Float64, 3},
+        fp_cum_currmap::Array{Float64, 3}
     )
 
     ## get source
@@ -398,130 +398,12 @@ function solve_target!(
     yupper = min(y_coord + int_arguments["radius"] + int_arguments["buffer"],
                  int_arguments["nrows"])
 
-    cum_currmap[ylower:yupper, xlower:xupper] .=
-        cum_currmap[ylower:yupper, xlower:xupper] .+ curr
+    cum_currmap[ylower:yupper, xlower:xupper, threadid()] .=
+        cum_currmap[ylower:yupper, xlower:xupper, threadid()] .+ curr
 
     if calc_flow_potential == true
-        fp_cum_currmap[ylower:yupper, xlower:xupper] .=
-            fp_cum_currmap[ylower:yupper, xlower:xupper] .+ flow_potential
-    end
-end
-
-function solve_target!(
-        i::Int64,
-        n_targets::Int64,
-        int_arguments::Dict{String, Int64},
-        targets::Array{Float64, 2},
-        sources_raw::Array{Float64, 2},
-        resistance_raw::Array{Float64, 2},
-        cs_cfg::Dict{String, String},
-        o::Circuitscape.OutputFlags,
-        calc_flow_potential::Bool,
-        correct_artifacts::Bool,
-        correction_array::Array{Float64, 2}
-    )
-
-    ## get source
-    println("Solving target $(i) of $(n_targets)")
-    x_coord = Int64(targets[i, 1])
-    y_coord = Int64(targets[i, 2])
-    source = get_source(sources_raw,
-                        int_arguments,
-                        x = x_coord,
-                        y = y_coord,
-                        strength = float(targets[i, 3]))
-
-    ## get ground
-    ground = get_ground(int_arguments,
-                        x = x_coord,
-                        y = y_coord)
-
-    ## get resistance
-    resistance = get_resistance(resistance_raw,
-                                int_arguments,
-                                x = x_coord,
-                                y = y_coord)
-
-    grid_size = size(source)
-    n_cells = prod(grid_size)
-
-    solver = "cg+amg"
-
-    # if n_cells <= 2000000
-    #     solver = "cholmod" # FIXME: "cholmod" not available in advanced mode
-    # end
-
-    flags = Circuitscape.RasterFlags(true, false, true,
-                                     false, false,
-                                     false, Symbol("keepall"),
-                                     false, false, solver, o)
-
-    ## Run circuitscape
-    curr = calculate_current(resistance, source, ground, flags, cs_cfg)
-
-    ## If normalize = True, calculate null map and normalize
-    if calc_flow_potential == true
-        println("    calculating flow potential")
-        null_resistance = fill(1., grid_size)
-
-        flow_potential = calculate_current(null_resistance,
-                                           source,
-                                           ground,
-                                           flags,
-                                           cs_cfg)
-    end
-
-    if correct_artifacts
-        correction_array2 = deepcopy(correction_array)
-        lowerxcut = 1
-        upperxcut = size(correction_array, 2)
-        lowerycut = 1
-        upperycut = size(correction_array, 1)
-
-        if x_coord > int_arguments["ncols"] - (int_arguments["radius"] + int_arguments["buffer"])
-            upperxcut = upperxcut -
-                            (upperxcut - grid_size[2])
-        end
-
-        if x_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
-            lowerxcut = upperxcut - grid_size[2] + 1
-        end
-
-        if y_coord > int_arguments["nrows"] - (int_arguments["radius"] + int_arguments["buffer"])
-            upperycut = upperycut -
-                            (upperycut - grid_size[1])
-        end
-
-        if y_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
-            lowerycut = upperycut - grid_size[1] + 1
-        end
-
-        correction_array2 = correction_array[lowerycut:upperycut,
-                                             lowerxcut:upperxcut]
-
-        curr = curr .* correction_array2
-
-        if calc_flow_potential
-            flow_potential = flow_potential .* correction_array2
-        end
-    end
-
-    ## Accumulate values
-    xlower = max(x_coord - int_arguments["radius"] - int_arguments["buffer"],
-                 1)
-    xupper = min(x_coord + int_arguments["radius"] + int_arguments["buffer"],
-                 int_arguments["ncols"])
-    ylower = max(y_coord - int_arguments["radius"] - int_arguments["buffer"],
-                 1)
-    yupper = min(y_coord + int_arguments["radius"] + int_arguments["buffer"],
-                 int_arguments["nrows"])
-
-    cum_currmap[ylower:yupper, xlower:xupper] .=
-        cum_currmap[ylower:yupper, xlower:xupper] .+ curr
-
-    if calc_flow_potential == true
-        fp_cum_currmap[ylower:yupper, xlower:xupper] .=
-            fp_cum_currmap[ylower:yupper, xlower:xupper] .+ flow_potential
+        fp_cum_currmap[ylower:yupper, xlower:xupper, threadid()] .=
+            fp_cum_currmap[ylower:yupper, xlower:xupper, threadid()] .+ flow_potential
     end
 end
 

@@ -1,11 +1,9 @@
 module Omniscape
 using Circuitscape
 using DelimitedFiles
-using Distributed
-using SharedArrays
+using Base.Threads
 
 include("config.jl")
-include("utils.jl")
 include("functions.jl")
 include("io.jl")
 include("run_omniscape.jl")
