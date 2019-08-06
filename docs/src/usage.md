@@ -11,6 +11,22 @@ run_omniscape("path/to/config/file.ini")
 
 file.ini is a file specifying input data paths and options for Omniscape. See [this link](https://github.com/Circuitscape/Omniscape.jl/blob/master/test/input/config.ini) for an example `.ini` file. The arguments specified in the .ini file are described in detail below.
 
+#### Parallel Processing
+
+Omniscape uses parallel processing by default, but currently, Julia requires that the number of parallel threads to use be specified outside of via an environment variable called `JULIA_NUM_THREADS`. This environment variable needs to be defined prior to launching Julia from the terminal.
+
+**Example to set up Julia with 4 threads**:
+On Linux/Mac:
+```bash
+export JULIA_NUM_THREADS=4
+julia
+```
+On Windows:
+```bash
+set JULIA_NUM_THREADS=4
+julia
+```
+
 ## Arguments
 
 #### `resistance_file`
@@ -56,10 +72,7 @@ One of true, false. Specify whether to save the normalized current map as output
 One of true, false. Specify whether to save the raw flow potential map as output. Defaults to true.
 
 #### `parallelize`
-One of true, false. Specify whether to use parallel processing. Defaults to false.
-
-#### `max_parallel`
-A positive integer specifying how many workers should be used for parallel processing. Applies only if `parallelize` is true.
+One of true, false. Specify whether to use parallel processing. Defaults to true.
 
 #### `correct_artifacts`
 One of true, false. Specify if artifacts introduced from using `block_size` greater than 1 should be corrected. Defaults to true.
