@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Adding
 - Option to do climate-based connectivity
+- Parallelism via multi-threading
 
 ## v0.1.0
 - Omniscape algorithm with parallel processing
