@@ -9,6 +9,5 @@ Omniscape.jl is a Julia package that  provides an open-source, updated version o
 ## Installation
 Enter the following into a Julia terminal to install Omniscape.jl.
 ```julia
-using Pkg; Pkg.add(PackageSpec(url = "https://github.com/Circuitscape/Omniscape.jl", rev = "v0.1.0"))
-
+using Pkg; Pkg.add("Omniscape")
 ```
