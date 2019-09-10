@@ -57,7 +57,7 @@ RUN julia -e 'using Pkg; Pkg.add(["Juno","Atom","BinaryProvider","DocSeeker", \
 # Install Circuitscape and dependencies
 
 RUN apt-get update && apt-get install -y zlib1g-dev
-RUN julia -e 'using Pkg; Pkg.add(["Circuitscape", "BenchmarkTools", "test"])'
+RUN julia -e 'using Pkg; Pkg.add(["Circuitscape", "BenchmarkTools", "Test"])'
 
 ENV JULIA_NUM_THREADS=12
 CMD ["/usr/bin/atom","-f"]
