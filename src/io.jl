@@ -14,9 +14,9 @@ end
 
 function parse_ascii_header(path::String)
     cf = init_ascii_header()
-    header = readlines(path)[1:6]
+    f = open(path, "r")
     for i = 1:6
-        key_val = split(header[i])
+        key_val = split(readline(f))
         cf["$(key_val[1])"] = key_val[2]
     end
     cf
