@@ -30,7 +30,7 @@ julia
 ## Arguments
 
 #### `resistance_file`
-The path to the resistance layer input. Currently, the resistance surface must be in ASCII raster format with a NoData value of -9999 and the following header format:
+The path to the resistance layer input. Currently, the resistance surface must be in ASCII raster format with the following header format:
 ```
 ncols         30
 nrows         30
