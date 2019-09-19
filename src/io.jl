@@ -17,8 +17,10 @@ function parse_ascii_header(path::String)
     f = open(path, "r")
     for i = 1:6
         key_val = split(readline(f))
+        key_val[1] = lowercase(key_val[1])
         cf["$(key_val[1])"] = key_val[2]
     end
+
     cf
 end
 

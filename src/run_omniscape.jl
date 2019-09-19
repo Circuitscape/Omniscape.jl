@@ -53,6 +53,13 @@ function run_omniscape(path::String)
     ## Import sources and resistances
     resistance_raw = float(read_ascii("$(cfg["resistance_file"])"))
 
+    # Adjust nodata value if not already -9999
+    if parse(Int64, final_header["nodata_value"]) != -9999
+        no_data_val = parse(Float64, final_header["nodata_value"])
+        resistance_raw[resistance_raw .== no_data_val] .= -9999
+        final_header["nodata_value"] = "-9999"
+    end
+
     if source_from_resistance
         sources_raw = deepcopy(resistance_raw)
         sources_raw = 1.0 ./ sources_raw
