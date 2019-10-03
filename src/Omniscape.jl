@@ -1,6 +1,7 @@
 module Omniscape
 using Circuitscape
 using DelimitedFiles
+using LinearAlgebra.BLAS
 using Base.Threads
 
 

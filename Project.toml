@@ -1,13 +1,13 @@
 name = "Omniscape"
 uuid = "a38d70fc-99f5-11e9-1e3d-cbca093024c3"
 authors = ["Vincent A. Landau <vincent@csp-inc.org>"]
-version = "0.1.1"
+version = "0.2.0"
 
 [deps]
 Circuitscape = "2b7a1792-8151-5239-925d-e2b8fdfa3201"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
-Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [compat]
 Circuitscape = "≥ 5.5.3"

@@ -13,6 +13,9 @@ function run_omniscape(path::String)
     cfg = init_cfg()
     update_cfg!(cfg, cfg_user)
 
+    ## Set number of BLAS threads to 1
+    BLAS.set_num_threads(1)
+    
     ## Parse commonly called integer arguments
     int_arguments = Dict{String, Int64}()
 
