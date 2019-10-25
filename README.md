@@ -6,8 +6,29 @@
 
 Omniscape.jl is a Julia package that  provides an open-source, updated version of [Omniscape](https://conservationgateway.org/ConservationByGeography/NorthAmerica/UnitedStates/oregon/science/Documents/McRae_et_al_2016_PNW_CNS_Connectivity.pdf) with improved reliability and speed. Visit https://circuitscape.github.io/Omniscape.jl/stable for documentation.
 
+<br>
 ## Installation
 Enter the following into a Julia terminal to install Omniscape.jl.
 ```julia
 using Pkg; Pkg.add("Omniscape")
 ```
+<br>
+## Using via Docker
+A Docker image with the latest version of Omniscape is [available on Docker Hub](www.hub.docker.com/r/vlandau/omniscape). To pull the image and start an Omniscape Docker container from your terminal, navigate to the directory containing your Omniscape input files (via `cd`) and run the following:
+
+On Linux/Mac:
+```
+docker run -it --rm \
+	-v $(pwd):/home/omniscape \
+	vlandau/omniscape:latest
+```
+
+On Windows (via Windows Command Line):
+```
+docker run -it --rm^
+ -v %cd%:/home/omniscape^
+ vlandau/omniscape:latest
+```
+
+Note that this will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory containing all needed input files).
+

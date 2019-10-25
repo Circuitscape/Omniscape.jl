@@ -14,4 +14,4 @@ RUN ln -s /julia-1.3.0-rc4/bin/julia /usr/bin/julia
 # Install Omniscape
 RUN julia -e 'using Pkg; Pkg.add(["Omniscape", "Test", "BenchmarkTools"])'
 
-CMD ["/usr/bin/julia","-f"]
+CMD ["/usr/bin/julia"]
