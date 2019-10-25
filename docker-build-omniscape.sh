@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 mkdir build-dir
 cd build-dir
 cp ../Dockerfile Dockerfile
