@@ -13,7 +13,7 @@ using Pkg; Pkg.add("Omniscape")
 ```
 ## Using via Docker
 
-A Docker image with the latest version of Omniscape is [available on Docker Hub](www.hub.docker.com/r/vlandau/omniscape). To pull the image and start an Omniscape Docker container from your terminal, navigate to the directory containing your Omniscape input files (via `cd`) and run the following:
+A Docker image with the latest version of Omniscape is [available on Docker Hub](https://hub.docker.com/r/vlandau/omniscape). To pull the image and start an Omniscape Docker container from your terminal, navigate to the directory containing your Omniscape input files (via `cd`) and run the following:
 
 On Linux/Mac:
 ```
