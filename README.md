@@ -30,5 +30,5 @@ docker run -it --rm^
  vlandau/omniscape:latest
 ```
 
-Note that this will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory containing all needed input files).
+Note that the `-v` flag and subsequent code will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory containing all needed input files).
 
