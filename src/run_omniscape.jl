@@ -145,20 +145,28 @@ function run_omniscape(path::String)
     ## Calculate and accumulate currents on each worker
     println("Solving targets")
     if parallelize
-        @threads for i in 1:n_targets
-            solve_target!(i,
-                          n_targets,
-                          int_arguments,
-                          targets,
-                          sources_raw,
-                          resistance_raw,
-                          cs_cfg,
-                          o,
-                          calc_flow_potential,
-                          correct_artifacts,
-                          correction_array,
-                          cum_currmap,
-                          fp_cum_currmap)
+        batch_size = Int64(round(parse(Float64, cfg["batch_size"])))
+        n_batches = Int(ceil(n_targets / batch_size))
+
+        @threads for i in 0:(n_batches - 1)
+            start_ind = batch_size * i + 1
+            end_ind = min(n_targets, start_ind + batch_size - 1)
+
+            for j in start_ind:end_ind
+                solve_target!(j,
+                              n_targets,
+                              int_arguments,
+                              targets,
+                              sources_raw,
+                              resistance_raw,
+                              cs_cfg,
+                              o,
+                              calc_flow_potential,
+                              correct_artifacts,
+                              correction_array,
+                              cum_currmap,
+                              fp_cum_currmap)
+            end
         end
     else
         for i in 1:n_targets
