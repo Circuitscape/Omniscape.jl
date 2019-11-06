@@ -6,7 +6,7 @@ function init_cfg()
     cfg["project_name"] = "(filename prefix for project)"
 
     cfg["parallelize"] = "true"
-    cfg["batch_size"] = "10"
+    cfg["parallel_batch_size"] = "10"
 
     cfg["block_size"] = "1"
     cfg["radius"] = "(choose source radius)"
