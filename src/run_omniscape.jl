@@ -15,7 +15,7 @@ function run_omniscape(path::String)
 
     ## Set number of BLAS threads to 1
     BLAS.set_num_threads(1)
-    
+
     ## Parse commonly called integer arguments
     int_arguments = Dict{String, Int64}()
 
@@ -113,6 +113,7 @@ function run_omniscape(path::String)
                                   int_arguments["ncols"],
                                   n_threads)
         else
+            # Hacky fix -- a later function needs fp_cum_currmap to be an array
             fp_cum_currmap = Array{Float64, 3}(undef, 1, 1, 1)
         end
     else
