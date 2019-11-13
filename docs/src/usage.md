@@ -74,6 +74,9 @@ One of true, false. Specify whether to save the raw flow potential map as output
 #### `parallelize`
 One of true, false. Specify whether to use parallel processing. Defaults to true.
 
+#### `parallel_batch_size`
+The batch size (number of jobs) to send to each parallel worker. Particularly in cases where single solves are very fast, setting this to a larger number can reduce I/O overhead when scheduling/sending jobs to parallel workers. If set too high, then you will not be fully utilizing parallel workers. Defaults to 10.
+
 #### `correct_artifacts`
 One of true, false. Specify if artifacts introduced from using `block_size` greater than 1 should be corrected. Defaults to true.
 

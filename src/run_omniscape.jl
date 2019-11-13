@@ -15,7 +15,7 @@ function run_omniscape(path::String)
 
     ## Set number of BLAS threads to 1
     BLAS.set_num_threads(1)
-    
+
     ## Parse commonly called integer arguments
     int_arguments = Dict{String, Int64}()
 
@@ -113,6 +113,7 @@ function run_omniscape(path::String)
                                   int_arguments["ncols"],
                                   n_threads)
         else
+            # Hacky fix -- a later function needs fp_cum_currmap to be an array
             fp_cum_currmap = Array{Float64, 3}(undef, 1, 1, 1)
         end
     else
@@ -144,20 +145,28 @@ function run_omniscape(path::String)
     ## Calculate and accumulate currents on each worker
     println("Solving targets")
     if parallelize
-        @threads for i in 1:n_targets
-            solve_target!(i,
-                          n_targets,
-                          int_arguments,
-                          targets,
-                          sources_raw,
-                          resistance_raw,
-                          cs_cfg,
-                          o,
-                          calc_flow_potential,
-                          correct_artifacts,
-                          correction_array,
-                          cum_currmap,
-                          fp_cum_currmap)
+        parallel_batch_size = Int64(round(parse(Float64, cfg["parallel_batch_size"])))
+        n_batches = Int(ceil(n_targets / parallel_batch_size))
+
+        @threads for i in 0:(n_batches - 1)
+            start_ind = parallel_batch_size * i + 1
+            end_ind = min(n_targets, start_ind + parallel_batch_size - 1)
+
+            for j in start_ind:end_ind
+                solve_target!(j,
+                              n_targets,
+                              int_arguments,
+                              targets,
+                              sources_raw,
+                              resistance_raw,
+                              cs_cfg,
+                              o,
+                              calc_flow_potential,
+                              correct_artifacts,
+                              correction_array,
+                              cum_currmap,
+                              fp_cum_currmap)
+            end
         end
     else
         for i in 1:n_targets
