@@ -50,11 +50,14 @@ function get_targets(
         end
     end
 
+    # create column ground_points[, 3] to hold source strengths for each target
     ground_points = cat(ground_points,
                         zeros(size(ground_points)[1], 1);
                         dims = 2
                     )
 
+    # populate ground_points[, 3] with sum of sources in block of size
+    # block_size centered on each target
     for i = 1:size(ground_points)[1]
         xlower = Int64(ground_points[i, 1] - block_radius)
         xupper = min(Int64(ground_points[i, 1] + block_radius), ncols)
@@ -64,6 +67,7 @@ function get_targets(
         ground_points[i, 3] = sum(source_array[ylower:yupper, xlower:xupper])
     end
 
+    # get rid of ground_points with strength below 0
     targets = ground_points[ground_points[:, 3] .> 0, 1:3]
     targets
 end
