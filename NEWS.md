@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - Omniscape now accepts any nodata value in input files
 
+## [v0.1.2]
+- Fixed an issue with target identification and source strength allocation
+
 ## [v0.1.1]
 - Fixed bug that prevented use on Windows systems
 - Some general code housekeeping
@@ -21,4 +24,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - option to use resistance surface to assign source weights
 
 [Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.0...master
+[v0.1.1]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.0...v0.1.2
 [v0.1.1]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.0...v0.1.1
