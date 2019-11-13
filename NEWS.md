@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Option to do climate-based connectivity
 - Parallelism via multi-threading (done in [threads](https://github.com/Circuitscape/Omniscape.jl/tree/threads) branch)
 
-- Omniscape now acceets any nodata value in input files
+- Omniscape now accepts any nodata value in input files
 
 ## [v0.1.1]
 - Fixed bug that prevented use on Windows systems
