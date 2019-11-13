@@ -1,4 +1,5 @@
 .Trash-0/
+local/
 bigtests/
 dev.Dockerfile
 build-env.sh
