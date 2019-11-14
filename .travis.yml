@@ -36,7 +36,8 @@ jobs:
       julia: 1.2
       os: linux
       script: 
-        - julia -e 'cd(Pkg.dir("Omniscape"));
+        - julia -e 'using Pkg;
+                    cd(Pkg.dir("Omniscape"));
                     Pkg.add("Coverage");
                     using Coverage;
                     Codecov.submit(Codecov.process_folder());
