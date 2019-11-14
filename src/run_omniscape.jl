@@ -92,8 +92,10 @@ function run_omniscape(path::String)
 
     comparison1 = parse(String, cfg["comparison1"])
     comparison2 = parse(String, cfg["comparison2"])
-    condition1_threshold = parse(Float64, cfg["condition1_threshold"])
-    condition2_threshold = parse(Float64, cfg["comparison2_threshold"])
+    condition1_lower = parse(Float64, cfg["condition1_lower"])
+    condition2_lower = parse(Float64, cfg["comparison2_lower"])
+    condition1_upper = parse(Float64, cfg["condition1_upper"])
+    condition2_upper = parse(Float64, cfg["comparison2_upper"])
 
     ## Setup Circuitscape configuration
     cs_cfg_dict = init_csdict(cfg)

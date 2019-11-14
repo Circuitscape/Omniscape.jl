@@ -28,8 +28,10 @@ function init_cfg()
     cfg["condition2_file"] = "(browse to condition 2 file)"
     cfg["comparison1"] = "within"
     cfg["comparison2"] = "within"
-    cfs["condition1_threshold"] = "0"
-    cfg["condition2_threshold"] = "0"
+    cfg["condition1_lower"] = "0"
+    cfg["condition2_upper"] = "0"
+    cfg["condition1_upper"] = "0"
+    cfg["condition2_upper"] = "0"
 end
 
 function update_cfg!(cfg, cfg_new)

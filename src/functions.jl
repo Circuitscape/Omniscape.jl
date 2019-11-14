@@ -108,7 +108,6 @@ function get_source(
     yupper = min(y + block_radius, nrows)
 
     source_subset[ylower:yupper, xlower:xupper] .= 0
-    source_subset[source_subset .== 0.0] .= 0
 
     # Extract subset for faster solve times
     xlower_buffered = max(x - radius - buffer, 1)
@@ -130,7 +129,8 @@ function get_source(
                                  xlower_buffered:xupper_buffered]
         if compare1 == "within"
             value1 = median(condition1[ylower:yupper, xlower:xupper])
-            source_subset[(abs.(con1_subset .- value1) .> condition1_threshold)] .= 0
+            source_subset[(con1_subset .- value1) .> condition1_upper |
+                (con1_subset .- value1) .< condition1_lower] .= 0
         elseif compare1 == "equals")
             value1 = mode(condition1[ylower:yupper, xlower:xupper])
             source_subset[con1_subset .!= value1] .= 0
@@ -141,7 +141,8 @@ function get_source(
                                      xlower_buffered:xupper_buffered]
             if compare1 == "within"
                 value2 = median(condition2[ylower:yupper, xlower:xupper])
-                source_subset[(abs.(con2_subset .- value2) .> condition2_threshold)] .= 0
+                source_subset[(con2_subset .- value2) .> condition2_upper |
+                    (con2_subset .- value2) .< condition2_lower] .= 0
             elseif compare1 == "equals")
                 value2 = mode(condition2[ylower:yupper, xlower:xupper])
                 source_subset[con2_subset .!= value2] .= 0
