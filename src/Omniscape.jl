@@ -3,7 +3,7 @@ using Circuitscape
 using DelimitedFiles
 using LinearAlgebra.BLAS
 using Base.Threads
-
+using StatsBase
 
 include("config.jl")
 include("functions.jl")

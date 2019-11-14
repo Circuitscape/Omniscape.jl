@@ -13,9 +13,6 @@ function run_omniscape(path::String)
     cfg = init_cfg()
     update_cfg!(cfg, cfg_user)
 
-    ## Set number of BLAS threads to 1
-    BLAS.set_num_threads(1)
-
     ## Parse commonly called integer arguments
     int_arguments = Dict{String, Int64}()
 
@@ -40,6 +37,7 @@ function run_omniscape(path::String)
     parallelize = lowercase(cfg["parallelize"]) == "true"
     correct_artifacts = lowercase(cfg["correct_artifacts"]) == "true"
     source_from_resistance = lowercase(cfg["source_from_resistance"]) == "true"
+    conditional = lowercase(cfg["conditional"]) == "true"
     if int_arguments["block_size"] == 1
         correct_artifacts = false
     end
@@ -48,6 +46,11 @@ function run_omniscape(path::String)
     source_threshold = parse(Float64, cfg["source_threshold"])
     project_name = cfg["project_name"]
     r_cutoff = parse(Float64, cfg["r_cutoff"])
+
+    ## Set number of BLAS threads to 1 if running in parallel
+    if parallelize
+        BLAS.set_num_threads(1)
+    end
 
     ## Store ascii header
     final_header = parse_ascii_header("$(cfg["resistance_file"])")
@@ -73,6 +76,24 @@ function run_omniscape(path::String)
 
     int_arguments["nrows"] = size(sources_raw, 1)
     int_arguments["ncols"] = size(sources_raw, 2)
+
+    # Import conditional rasters and other conditional connectivity stuff
+    if conditional
+        condition1 = float(read_ascii("$(cfg["condition1_file"])"))
+        if n_conditions == 2
+            condition2 = float(read_ascii("$(cfg["condition2_file"])"))
+        else
+            condition2 = Array{Float64, 2}(undef, 1, 1)
+        end
+    else
+        condition1 = Array{Float64, 2}(undef, 1, 1)
+        condition2 = Array{Float64, 2}(undef, 1, 1)
+    end
+
+    comparison1 = parse(String, cfg["comparison1"])
+    comparison2 = parse(String, cfg["comparison2"])
+    condition1_threshold = parse(Float64, cfg["condition1_threshold"])
+    condition2_threshold = parse(Float64, cfg["comparison2_threshold"])
 
     ## Setup Circuitscape configuration
     cs_cfg_dict = init_csdict(cfg)
@@ -137,7 +158,7 @@ function run_omniscape(path::String)
         correction_array = calc_correction(int_arguments,
                                            cs_cfg,
                                            o)
-        println("time taken to calculate artifact correction array: $(time()- art_start) seconds")
+        println("time taken to calculate artifact correction array: $(time() - art_start) seconds")
     else
         correction_array = Array{Float64, 2}(undef, 1, 1)
     end
@@ -163,6 +184,13 @@ function run_omniscape(path::String)
                               o,
                               calc_flow_potential,
                               correct_artifacts,
+                              conditional,
+                              condition1,
+                              condition2,
+                              comparison1,
+                              comparison2,
+                              condition1_threshold,
+                              condition2_threshold,
                               correction_array,
                               cum_currmap,
                               fp_cum_currmap)
@@ -180,6 +208,13 @@ function run_omniscape(path::String)
                           o,
                           calc_flow_potential,
                           correct_artifacts,
+                          conditional,
+                          condition1,
+                          condition2,
+                          comparison1,
+                          comparison2,
+                          condition1_threshold,
+                          condition2_threshold,
                           correction_array,
                           cum_currmap,
                           fp_cum_currmap)

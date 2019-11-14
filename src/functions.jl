@@ -76,7 +76,14 @@ end
 # iterating through rows of targets object
 function get_source(
         source_array::Array{Float64, 2},
-        arguments::Dict{String, Int64};
+        arguments::Dict{String, Int64},
+        conditional::Bool,
+        condition1::Array{Float64, 2},
+        condition2::Array{Float64, 2},
+        comparison1::String,
+        comparison2::String,
+        condition1_threshold::Float64,
+        condition2_threshold::Float64;
         x::Int64,
         y::Int64,
         strength::Float64
@@ -117,6 +124,30 @@ function get_source(
     source_sum = sum(source_subset[source_subset .> 0])
     source_subset[source_subset .> 0] .=
         (source_subset[source_subset .> 0] * strength) / source_sum
+
+    if conditional
+        con1_subset = condition1[ylower_buffered:yupper_buffered,
+                                 xlower_buffered:xupper_buffered]
+        if compare1 == "within"
+            value1 = median(condition1[ylower:yupper, xlower:xupper])
+            source_subset[(abs.(con1_subset .- value1) .> condition1_threshold)] .= 0
+        elseif compare1 == "equals")
+            value1 = mode(condition1[ylower:yupper, xlower:xupper])
+            source_subset[con1_subset .!= value1] .= 0
+        end
+
+        if n_conditions == 2
+            con2_subset = condition2[ylower_buffered:yupper_buffered,
+                                     xlower_buffered:xupper_buffered]
+            if compare1 == "within"
+                value2 = median(condition2[ylower:yupper, xlower:xupper])
+                source_subset[(abs.(con2_subset .- value2) .> condition2_threshold)] .= 0
+            elseif compare1 == "equals")
+                value2 = mode(condition2[ylower:yupper, xlower:xupper])
+                source_subset[con2_subset .!= value2] .= 0
+            end
+        end
+    end
 
     source_subset
 end
@@ -302,6 +333,13 @@ function solve_target!(
         o::Circuitscape.OutputFlags,
         calc_flow_potential::Bool,
         correct_artifacts::Bool,
+        conditional::Bool,
+        condition1::Array{Float64, 2},
+        condition2::Array{Float64, 2},
+        comparison1::String,
+        comparison2::String,
+        condition1_threshold::Float64,
+        condition2_threshold::Float64,
         correction_array::Array{Float64, 2},
         cum_currmap::Array{Float64, 3},
         fp_cum_currmap::Array{Float64, 3}
@@ -313,6 +351,13 @@ function solve_target!(
     y_coord = Int64(targets[i, 2])
     source = get_source(sources_raw,
                         int_arguments,
+                        conditional,
+                        condition1,
+                        condition2,
+                        comparison1,
+                        comparison2,
+                        condition1_threshold,
+                        condition2_threshold,
                         x = x_coord,
                         y = y_coord,
                         strength = float(targets[i, 3]))
@@ -450,7 +495,14 @@ function calc_correction(
     source_null[source_null .!= 0.0] .= 1 / (n_sources - 1)
 
     source_block = get_source(temp_source,
-                              arguments;
+                              arguments,
+                              conditional,
+                              condition1,
+                              condition2,
+                              comparison1,
+                              comparison2,
+                              condition1_threshold,
+                              condition2_threshold,
                               x = (arguments["radius"] + arguments["buffer"] + 1),
                               y = (arguments["radius"] + arguments["buffer"] + 1),
                               strength = float(arguments["block_size"] ^ 2))
@@ -466,8 +518,6 @@ function calc_correction(
     ground[arguments["radius"] + arguments["buffer"] + 1,
            arguments["radius"] + arguments["buffer"] + 1] = Inf
 
-    source_massive = deepcopy(source_block)
-    source_massive[source_massive .!= -9999.] .= 5
     block_null_current = calculate_current(resistance,
                                            source_block,
                                            ground,

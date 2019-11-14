@@ -22,7 +22,14 @@ function init_cfg()
     cfg["write_normalized_currmap"] = "true"
     cfg["write_flow_potential"] = "true"
 
-    cfg
+    cfg["conditional"] = "false"
+    cfg["n_conditions"] = "1"
+    cfg["condition1_file"] = "(browse to condition 1 file)"
+    cfg["condition2_file"] = "(browse to condition 2 file)"
+    cfg["comparison1"] = "within"
+    cfg["comparison2"] = "within"
+    cfs["condition1_threshold"] = "0"
+    cfg["condition2_threshold"] = "0"
 end
 
 function update_cfg!(cfg, cfg_new)
