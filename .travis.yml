@@ -6,9 +6,8 @@ os:
   - windows
 
 julia:
-  - 1.0
-  - 1.1
   - 1.2
+  - 1.3
 
 notifications:
   email: false
@@ -18,6 +17,12 @@ branches:
     - master
     - dev
 
+before_install:
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; 
+    then wget -O zlib-1.2.3-bin.zip --no-check-certificate http://managedway.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip %cd%; 
+    7zip x zlib-1.2.3-bin.zip -o%cd%;
+    move /bin/zlib1.dll /c/julia/lib/zlib1.dll;
+    fi
 jobs:
   include:
     - stage: "Documentation"
