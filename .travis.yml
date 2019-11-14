@@ -26,7 +26,6 @@ jobs:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
                                                Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl
-        after_success: skip
     - stage: "codecoverage"  
       julia: 1.2
       os: linux
@@ -36,4 +35,3 @@ jobs:
                     using Coverage;
                     Codecov.submit(Codecov.process_folder());
                     Coveralls.submit(Coveralls.process_folder())'
-        after_success: skip
