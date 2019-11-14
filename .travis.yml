@@ -28,6 +28,8 @@ jobs:
         - julia --project=docs/ docs/make.jl
         after_success: skip
     - stage: "code coverage"  
+      julia: 1.2
+      os: linux
       script: 
         - julia -e 'cd(Pkg.dir("Omniscape"));
                     Pkg.add("Coverage");
