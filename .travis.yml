@@ -27,7 +27,7 @@ jobs:
                                                Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl
         after_success: skip
-    - stage: "code coverage"  
+    - stage: "codecoverage"  
       julia: 1.2
       os: linux
       script: 
