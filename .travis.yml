@@ -17,12 +17,6 @@ branches:
     - master
     - dev
 
-before_install:
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; 
-    then wget -O zlib-1.2.3-bin.zip http://managedway.dl.sourceforge.net/project/gnuwin32/zlib/1.2.3/zlib-1.2.3-bin.zip;
-    unzip zlib-1.2.3-bin.zip;
-    mv bin/zlib1.dll C:/julia/bin/zlib1.dll;
-    fi
 jobs:
   include:
     - stage: "Documentation"
