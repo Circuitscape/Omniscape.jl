@@ -231,7 +231,7 @@ function run_omniscape(path::String)
     end
 
     ## Normalize by flow potential
-    if calc_flow_potential == true
+    if calc_flow_potential & write_normalized_currmap
         normalized_cum_currmap = cum_currmap ./ fp_cum_currmap
     end
 
@@ -245,14 +245,14 @@ function run_omniscape(path::String)
                     final_header)
     end
 
-    if calc_flow_potential == true
-        if write_flow_potential == true
+    if calc_flow_potential
+        if write_flow_potential
             write_ascii(fp_cum_currmap,
                         "$(project_name)_output/flow_potential.asc",
                         final_header)
         end
 
-        if write_normalized_currmap == true
+        if write_normalized_currmap
             write_ascii(normalized_cum_currmap,
                         "$(project_name)_output/normalized_cum_currmap.asc",
                         final_header)
@@ -263,7 +263,7 @@ function run_omniscape(path::String)
     println("Time taken to complete job: $(round(time() - start_time; digits = 1)) seconds")
 
     ## Return outputs
-    if calc_flow_potential == true
+    if calc_flow_potential
         return normalized_cum_currmap, cum_currmap, fp_cum_currmap
     else
         return cum_currmap
