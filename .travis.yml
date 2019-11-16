@@ -34,5 +34,4 @@ jobs:
                     cd(Pkg.dir("Omniscape"));
                     Pkg.add("Coverage");
                     using Coverage;
-                    Codecov.submit(Codecov.process_folder());
-                    Coveralls.submit(Coveralls.process_folder())'
+                    Codecov.submit(Codecov.process_folder())'
