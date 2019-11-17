@@ -17,7 +17,7 @@ branches:
     - master
     - dev
 before_install:
-  - julia -e 'using Pkg; Pkg.add(PackageSpec(url = "https://github.com/giordano/GZip.jl#libz-name"))'
+  - julia -e 'using Pkg; Pkg.add(PackageSpec(url = "https://github.com/giordano/GZip.jl", rev = "libz-name))'
 jobs:
   include:
     - stage: "Documentation"
