@@ -131,7 +131,7 @@ function get_source(
             value1 = median(condition1[ylower:yupper, xlower:xupper])
             source_subset[(con1_subset .- value1) .> condition1_upper |
                 (con1_subset .- value1) .< condition1_lower] .= 0
-        elseif compare1 == "equals")
+        elseif compare1 == "equals"
             value1 = mode(condition1[ylower:yupper, xlower:xupper])
             source_subset[con1_subset .!= value1] .= 0
         end
@@ -143,7 +143,7 @@ function get_source(
                 value2 = median(condition2[ylower:yupper, xlower:xupper])
                 source_subset[(con2_subset .- value2) .> condition2_upper |
                     (con2_subset .- value2) .< condition2_lower] .= 0
-            elseif compare1 == "equals")
+            elseif compare1 == "equals"
                 value2 = mode(condition2[ylower:yupper, xlower:xupper])
                 source_subset[con2_subset .!= value2] .= 0
             end
