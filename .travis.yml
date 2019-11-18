@@ -13,7 +13,7 @@ notifications:
   email: false
 
 before_script:
-  - julia -e 'using Pkg; Pkg.add(PackageSpec(url = "https://github.com/vlandau/GZip.jl", rev = "zlib-name"))'
+  - julia -e 'using Pkg; Pkg.add(PackageSpec(url = "https://github.com/vlandau/GZip.jl", rev = "libz-name"))'
   - julia -e 'using Pkg; Pkg.add(PackageSpec(url = "https://github.com/vlandau/Circuitscape.jl", rev = "master"))'
 jobs:
   include:
