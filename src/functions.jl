@@ -82,8 +82,10 @@ function get_source(
         condition2::Array{Float64, 2},
         comparison1::String,
         comparison2::String,
-        condition1_threshold::Float64,
-        condition2_threshold::Float64;
+        condition1_lower::Float64,
+        condition1_upper::Float64,
+        condition2_lower::Float64,
+        condition2_upper::Float64;
         x::Int64,
         y::Int64,
         strength::Float64
@@ -339,8 +341,10 @@ function solve_target!(
         condition2::Array{Float64, 2},
         comparison1::String,
         comparison2::String,
-        condition1_threshold::Float64,
-        condition2_threshold::Float64,
+        condition1_lower::Float64,
+        condition1_upper::Float64,
+        condition2_lower::Float64,
+        condition2_upper::Float64,
         correction_array::Array{Float64, 2},
         cum_currmap::Array{Float64, 3},
         fp_cum_currmap::Array{Float64, 3}
@@ -357,8 +361,10 @@ function solve_target!(
                         condition2,
                         comparison1,
                         comparison2,
-                        condition1_threshold,
-                        condition2_threshold,
+                        condition1_lower,
+                        condition1_upper,
+                        condition2_lower,
+                        condition2_upper;
                         x = x_coord,
                         y = y_coord,
                         strength = float(targets[i, 3]))
@@ -460,7 +466,16 @@ end
 function calc_correction(
         arguments::Dict{String, Int64},
         cs_cfg::Dict{String, String},
-        o
+        o,
+        conditional::Bool,
+        condition1::Array{Float64, 2},
+        condition2::Array{Float64, 2},
+        comparison1::String,
+        comparison2::String,
+        condition1_lower::Float64,
+        condition1_upper::Float64,
+        condition2_lower::Float64,
+        condition2_upper::Float64
     )
 
     # This may not apply seamlessly in the case (if I add the option) that source strengths
@@ -502,8 +517,10 @@ function calc_correction(
                               condition2,
                               comparison1,
                               comparison2,
-                              condition1_threshold,
-                              condition2_threshold,
+                              condition1_lower,
+                              condition1_upper,
+                              condition2_lower,
+                              condition2_upper,
                               x = (arguments["radius"] + arguments["buffer"] + 1),
                               y = (arguments["radius"] + arguments["buffer"] + 1),
                               strength = float(arguments["block_size"] ^ 2))

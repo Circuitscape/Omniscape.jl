@@ -90,12 +90,12 @@ function run_omniscape(path::String)
         condition2 = Array{Float64, 2}(undef, 1, 1)
     end
 
-    comparison1 = parse(String, cfg["comparison1"])
-    comparison2 = parse(String, cfg["comparison2"])
+    comparison1 = cfg["comparison1"]
+    comparison2 = cfg["comparison2"]
     condition1_lower = parse(Float64, cfg["condition1_lower"])
-    condition2_lower = parse(Float64, cfg["comparison2_lower"])
+    condition2_lower = parse(Float64, cfg["condition2_lower"])
     condition1_upper = parse(Float64, cfg["condition1_upper"])
-    condition2_upper = parse(Float64, cfg["comparison2_upper"])
+    condition2_upper = parse(Float64, cfg["condition2_upper"])
 
     ## Setup Circuitscape configuration
     cs_cfg_dict = init_csdict(cfg)
@@ -159,7 +159,16 @@ function run_omniscape(path::String)
         art_start = time()
         correction_array = calc_correction(int_arguments,
                                            cs_cfg,
-                                           o)
+                                           o,
+                                           conditional,
+                                           condition1,
+                                           condition2,
+                                           comparison1,
+                                           comparison2,
+                                           condition1_lower,
+                                           condition1_upper,
+                                           condition2_lower,
+                                           condition2_upper)
         println("time taken to calculate artifact correction array: $(time() - art_start) seconds")
     else
         correction_array = Array{Float64, 2}(undef, 1, 1)
@@ -191,8 +200,10 @@ function run_omniscape(path::String)
                               condition2,
                               comparison1,
                               comparison2,
-                              condition1_threshold,
-                              condition2_threshold,
+                              condition1_lower,
+                              condition1_upper,
+                              condition2_lower,
+                              condition2_upper,
                               correction_array,
                               cum_currmap,
                               fp_cum_currmap)
@@ -215,8 +226,10 @@ function run_omniscape(path::String)
                           condition2,
                           comparison1,
                           comparison2,
-                          condition1_threshold,
-                          condition2_threshold,
+                          condition1_lower,
+                          condition1_upper,
+                          condition2_lower,
+                          condition2_upper,
                           correction_array,
                           cum_currmap,
                           fp_cum_currmap)
