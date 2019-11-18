@@ -12,9 +12,9 @@ julia:
 notifications:
   email: false
 
-before_script:
+before_script: # temporary, will remove with release of GZip 0.5.1
   - julia -e 'using Pkg; Pkg.add(PackageSpec(url = "https://github.com/vlandau/GZip.jl", rev = "libz-name"))'
-  - julia -e 'using Pkg; Pkg.add(PackageSpec(url = "https://github.com/vlandau/Circuitscape.jl", rev = "master"))'
+
 jobs:
   include:
     - stage: "Documentation"
