@@ -17,8 +17,8 @@ branches:
     - master
     - dev
 
-before_script: # temporary, will remove with release of GZip 0.5.1
-  - julia -e 'using Pkg; Pkg.add(PackageSpec(url = "https://github.com/vlandau/GZip.jl", rev = "libz-name"))'
+before_script: # add GZip 0.5.1 until Circuitscape v5.5.5 is released
+  - julia -e 'using Pkg; Pkg.add("GZip")'
 
 jobs:
   include:
