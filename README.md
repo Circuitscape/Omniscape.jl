@@ -11,7 +11,7 @@ Enter the following into a Julia terminal to install Omniscape.jl.
 ```julia
 using Pkg; Pkg.add("Omniscape")
 ```
-## Using via Docker
+## Using with Docker
 
 A Docker image with the latest version of Omniscape is [available on Docker Hub](https://hub.docker.com/r/vlandau/omniscape). To pull the image and start an Omniscape Docker container from your terminal, navigate to the directory containing your Omniscape input files (via `cd`) and run the following:
 
