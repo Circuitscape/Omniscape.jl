@@ -6,8 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Adding
-- Option to do climate-based connectivity
+- Option to do conditional target/source matching connectivity
 - Parallelism via multi-threading (done in [threads](https://github.com/Circuitscape/Omniscape.jl/tree/threads) branch)
+
+## [v0.1.3]
+- Updated Circuitscape compat to v5.5.5. The rename of zlib in Julia 1.3 caused a break in GZip on Windows, which broke Circuitscape (which broke Omniscape). GZip released a patch, v0.5.1, fixing the issue. Circuitscape patch release v5.5.5 has an updated compat entry of 0.5.1 for GZip, which fixes the issue downstream.
 
 ## [v0.1.2]
 - Fixed an issue with target identification and source strength allocation
@@ -22,6 +25,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - method for block artifact correction
 - option to use resistance surface to assign source weights
 
-[Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.0...master
-[v0.1.1]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.0...v0.1.2
+[Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.3...master
+[v0.1.3]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.2...v0.1.3
+[v0.1.2]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.0...v0.1.2
 [v0.1.1]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.0...v0.1.1
