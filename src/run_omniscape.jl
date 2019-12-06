@@ -27,10 +27,10 @@ function run_omniscape(path::String)
     int_arguments["block_radius"] = Int64((int_arguments["block_size"] - 1) / 2)
     int_arguments["radius"] = Int64(round(parse(Float64, cfg["radius"])))
     int_arguments["buffer"] = Int64(round(parse(Float64, cfg["buffer"])))
+    int_arguments["n_conditions"] = Int64(round(parse(Float64, cfg["n_conditions"])))
 
     ## Parse other arguments
     compare_to_future = lowercase(cfg["compare_to_future"])
-    lowercase(cfg["compare_to_future"]) == "1" | lowercase(cfg["compare_to_future"]) == "both"
     # flags
     calc_flow_potential = lowercase(cfg["calc_flow_potential"]) == "true"
     write_flow_potential = lowercase(cfg["write_flow_potential"]) == "true"
@@ -83,16 +83,16 @@ function run_omniscape(path::String)
     if conditional
         condition1_present = float(read_ascii("$(cfg["condition1_present_file"])"))
 
-        if compare_to_future == "1" | compare_to_future == "both"
+        if compare_to_future == "1" || compare_to_future == "both"
             condition1_future = float(read_ascii("$(cfg["condition1_future_file"])"))
         else
             condition1_future = condition1_present
         end
 
-        if n_conditions == 2
+        if int_arguments["n_conditions"] == 2
             condition2_present = float(read_ascii("$(cfg["condition2_present_file"])"))
 
-            if compare_to_future == "2" | compare_to_future == "both"
+            if compare_to_future == "2" || compare_to_future == "both"
                 condition2_future = float(read_ascii("$(cfg["condition2_future_file"])"))
             else
                 condition2_future = condition2_present
@@ -217,8 +217,10 @@ function run_omniscape(path::String)
                               calc_flow_potential,
                               correct_artifacts,
                               conditional,
-                              condition1,
-                              condition2,
+                              condition1_present,
+                              condition1_future,
+                              condition2_present,
+                              condition2_future,
                               comparison1,
                               comparison2,
                               condition1_lower,
@@ -243,8 +245,10 @@ function run_omniscape(path::String)
                           calc_flow_potential,
                           correct_artifacts,
                           conditional,
-                          condition1,
-                          condition2,
+                          condition1_present,
+                          condition1_future,
+                          condition2_present,
+                          condition2_future,
                           comparison1,
                           comparison2,
                           condition1_lower,

@@ -78,8 +78,10 @@ function get_source(
         source_array::Array{Float64, 2},
         arguments::Dict{String, Int64},
         conditional::Bool,
-        condition1::Array{Float64, 2},
-        condition2::Array{Float64, 2},
+        condition1_present::Array{Float64, 2},
+        condition1_future::Array{Float64, 2},
+        condition2_present::Array{Float64, 2},
+        condition2_future::Array{Float64, 2},
         comparison1::String,
         comparison2::String,
         condition1_lower::Float64,
@@ -127,27 +129,27 @@ function get_source(
         (source_subset[source_subset .> 0] * strength) / source_sum
 
     if conditional
-        con1_subset = condition1[ylower_buffered:yupper_buffered,
-                                 xlower_buffered:xupper_buffered]
-        if compare1 == "within"
-            value1 = median(condition1[ylower:yupper, xlower:xupper])
-            source_subset[(con1_subset .- value1) .> condition1_upper |
-                (con1_subset .- value1) .< condition1_lower] .= 0
-        elseif compare1 == "equals"
-            value1 = mode(condition1[ylower:yupper, xlower:xupper])
+        con1_present_subset = condition1_present[ylower_buffered:yupper_buffered,
+                                                 xlower_buffered:xupper_buffered]
+        if comparison1 == "within"
+            value1 = median(condition1_future[ylower:yupper, xlower:xupper])
+            source_subset[((con1_present_subset .- value1) .> condition1_upper) .|
+                ((con1_present_subset .- value1) .< condition1_lower)] .= 0
+        elseif comparison1 == "equals"
+            value1 = mode(condition1_future[ylower:yupper, xlower:xupper])
             source_subset[con1_subset .!= value1] .= 0
         end
 
-        if n_conditions == 2
-            con2_subset = condition2[ylower_buffered:yupper_buffered,
+        if arguments["n_conditions"] == 2
+            con2_present_subset = condition2_present[ylower_buffered:yupper_buffered,
                                      xlower_buffered:xupper_buffered]
-            if compare1 == "within"
-                value2 = median(condition2[ylower:yupper, xlower:xupper])
-                source_subset[(con2_subset .- value2) .> condition2_upper |
-                    (con2_subset .- value2) .< condition2_lower] .= 0
-            elseif compare1 == "equals"
-                value2 = mode(condition2[ylower:yupper, xlower:xupper])
-                source_subset[con2_subset .!= value2] .= 0
+            if comparison1 == "within"
+                value2 = median(condition2_future[ylower:yupper, xlower:xupper])
+                source_subset[((con2_present_subset .- value2) .> condition2_upper) .|
+                    ((con2_present_subset .- value2) .< condition2_lower)] .= 0
+            elseif comparison1 == "equals"
+                value2 = mode(condition2_future[ylower:yupper, xlower:xupper])
+                source_subset[con2_present_subset .!= value2] .= 0
             end
         end
     end
@@ -337,8 +339,10 @@ function solve_target!(
         calc_flow_potential::Bool,
         correct_artifacts::Bool,
         conditional::Bool,
-        condition1::Array{Float64, 2},
-        condition2::Array{Float64, 2},
+        condition1_present::Array{Float64, 2},
+        condition1_future::Array{Float64, 2},
+        condition2_present::Array{Float64, 2},
+        condition2_future::Array{Float64, 2},
         comparison1::String,
         comparison2::String,
         condition1_lower::Float64,
@@ -357,8 +361,10 @@ function solve_target!(
     source = get_source(sources_raw,
                         int_arguments,
                         conditional,
-                        condition1,
-                        condition2,
+                        condition1_present,
+                        condition1_future,
+                        condition2_present,
+                        condition2_future,
                         comparison1,
                         comparison2,
                         condition1_lower,
