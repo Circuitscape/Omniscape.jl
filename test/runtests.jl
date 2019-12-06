@@ -1,11 +1,8 @@
 using Test, Omniscape
-
-d = run_omniscape("input/config2.ini")
 a, b, c = run_omniscape("input/config.ini")
-
 e = run_omniscape("input/config3.ini")
-
 f = run_omniscape("input/config4.ini")
+d = run_omniscape("input/config2.ini")
 @test typeof(f) == Array{Float64,2}
 @test typeof(a) == Array{Float64,2}
 @test typeof(b) == Array{Float64,2}
