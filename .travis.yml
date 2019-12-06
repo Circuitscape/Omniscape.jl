@@ -12,9 +12,6 @@ julia:
 notifications:
   email: false
 
-before_script: # add GZip 0.5.1 until Circuitscape v5.5.5 is released
-  - julia -e 'using Pkg; Pkg.add("GZip")'
-
 jobs:
   include:
     - stage: "Documentation"
