@@ -29,6 +29,8 @@ function run_omniscape(path::String)
     int_arguments["buffer"] = Int64(round(parse(Float64, cfg["buffer"])))
 
     ## Parse other arguments
+    compare_to_future = lowercase(cfg["compare_to_future"])
+    lowercase(cfg["compare_to_future"]) == "1" | lowercase(cfg["compare_to_future"]) == "both"
     # flags
     calc_flow_potential = lowercase(cfg["calc_flow_potential"]) == "true"
     write_flow_potential = lowercase(cfg["write_flow_potential"]) == "true"
@@ -79,15 +81,32 @@ function run_omniscape(path::String)
 
     # Import conditional rasters and other conditional connectivity stuff
     if conditional
-        condition1 = float(read_ascii("$(cfg["condition1_present_file"])"))
-        if n_conditions == 2
-            condition2 = float(read_ascii("$(cfg["condition2_present_file"])"))
+        condition1_present = float(read_ascii("$(cfg["condition1_present_file"])"))
+
+        if compare_to_future == "1" | compare_to_future == "both"
+            condition1_future = float(read_ascii("$(cfg["condition1_future_file"])"))
         else
-            condition2 = Array{Float64, 2}(undef, 1, 1)
+            condition1_future = condition1_present
+        end
+
+        if n_conditions == 2
+            condition2_present = float(read_ascii("$(cfg["condition2_present_file"])"))
+
+            if compare_to_future == "2" | compare_to_future == "both"
+                condition2_future = float(read_ascii("$(cfg["condition2_future_file"])"))
+            else
+                condition2_future = condition2_present
+            end
+
+        else
+            condition2_present = Array{Float64, 2}(undef, 1, 1)
+            condition2_future = condition2_present
         end
     else
-        condition1 = Array{Float64, 2}(undef, 1, 1)
-        condition2 = Array{Float64, 2}(undef, 1, 1)
+        condition1_present = Array{Float64, 2}(undef, 1, 1)
+        condition2_present = Array{Float64, 2}(undef, 1, 1)
+        condition1_future = condition1_present
+        condition2_future = condition2_present
     end
 
     comparison1 = cfg["comparison1"]
@@ -161,8 +180,10 @@ function run_omniscape(path::String)
                                            cs_cfg,
                                            o,
                                            conditional,
-                                           condition1,
-                                           condition2,
+                                           condition1_present,
+                                           condition1_future,
+                                           condition2_present,
+                                           condition2_future,
                                            comparison1,
                                            comparison2,
                                            condition1_lower,
