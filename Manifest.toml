@@ -19,7 +19,7 @@ uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 deps = ["AlgebraicMultigrid", "Dates", "DelimitedFiles", "Distributed", "GZip", "IterativeSolvers", "LightGraphs", "LinearAlgebra", "Logging", "SharedArrays", "SimpleWeightedGraphs", "SparseArrays", "Test"]
 git-tree-sha1 = "b8481ff6ac69f26361ea51131870b92a373c1d40"
 uuid = "2b7a1792-8151-5239-925d-e2b8fdfa3201"
-version = "5.5.3"
+version = "5.5.5"
 
 [[Compat]]
 deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
@@ -54,7 +54,7 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 deps = ["Libdl", "Test"]
 git-tree-sha1 = "ee443ef166b29282301468d8af403e1ed8f5412e"
 uuid = "92fee26a-97fe-5a0c-ad85-20a5f3185b63"
-version = "0.5.0"
+version = "0.5.1"
 
 [[Inflate]]
 deps = ["Pkg", "Printf", "Random", "Test"]
