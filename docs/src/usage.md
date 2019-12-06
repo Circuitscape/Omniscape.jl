@@ -85,3 +85,31 @@ One of true, false. Should a source layer be derived using the resistance layer?
 
 #### `r_cutoff`
 The maximum resistance value a cell can have to be considered as a source. Only applies when `source_from_resistance` = true.
+
+#### Conditional connectivity options
+#### `conditional` 
+One of true, false. Should conditional source/target matching be uses? That is, should a given target only be connected to sources that are meet similarity conditions to the target? Defaults to false. If true, then gridded data with values for each pixel are used to compare targets and sources and determine which pairs should be connected according to user-specified criteria.
+#### `n_conditions`
+The number of conditions that must be met for conditional source/target matching. One of 1, 2. Only applies if `conditional` = true. Defaults to 1.
+#### `comparison1`
+One of within or equal. Only applies of `conditional`= true. How should conditions be compared when determining whether to connect a source/target pair. If within, then the value of condition 1 for the source must be within the following range, where target is the value at the target pixel or block: (target + `condition1_lower`, target + `condition1_upper`).  `condition1_lower` and `condition1_upper` are explained further below. If equal, then the value at the source pixel must be equal to the value at the target pixel. Defaults to within.
+#### `comparison2`
+One of within or equal.  Only applies of `conditional`= true and `n_conditions` = 2. How should conditions be compared when determining whether to connect a source/target pair. If within, then the value of condition 2 for the source must be within the following range, where target is the value at the target pixel or block: (target + `condition2_lower`, target + `condition2_upper`).  `condition2_lower` and `condition2_upper` are explained further below. If equal, then the value at the source pixel must be equal to the value at the target pixel. Defaults to within.
+#### `condition1_lower`
+Number. Only applies if `comparison1` = within. The maximum negative deviation that a potential source's condition 1 value may be from the corresponding value in the target in order to be connected. If `condition1_lower` = -1, then a source may have a condition 1 value up to 1 unit smaller than the target's value and it will still be connected.
+#### `condition1_upper`
+Number. Only applies if `comparison1` = within. The maximum positive deviation that a potential source's condition 1 value may be from the corresponding value in the target in order to be connected. If `condition1_lower` = 1, then a source may have a condition 1 value up to 1 unit larger than the target's value and it will still be connected.
+#### `condition2_lower`
+Number. Only applies if `n_conditions` = 2 and `comparison1` = within. The maximum negative deviation that a potential source's condition 2 value may be from the corresponding value in the target in order to be connected. If `condition2_lower` = -1, then a source may have a condition 2 value up to 1 unit smaller than the target's value and it will still be connected.
+#### `condition2_upper`
+Number. Only applies if `n_conditions` = 2 and `comparison1` = within. The maximum positive deviation that a potential source's condition 2 value may be from the corresponding value in the target in order to be connected. If `condition2_lower` = 1, then a source may have a condition 2 value up to 1 unit larger than the target's value and it will still be connected.
+#### `compare_to_future`
+One of none, 1, 2, or both. Which condition(s) should compare the future condition in targets with present-day conditions in sources when determining which pairs to connect? For any conditions that are included, two data layers are needed: one with future condition values for all pixels in the study area, and one for present day condition values for all pixels in the study area.
+#### `condition1present_file`
+The file path to the data representing condition one in present day. Only needed if `conditional` = true. The source layer must be in ASCII raster format. This raster must have an identical number of rows and columns, lower left corner coordinates, and cellsize as the resistance layer.
+#### `condition1future_file`
+The file path to the data representing condition one in the future. Only needed if `conditional` = true and `compare_to_future` = 1 or `compare_to_future` = both. The source layer must be in ASCII raster format. This raster must have an identical number of rows and columns, lower left corner coordinates, and cellsize as the resistance layer.
+#### `condition2present_file`
+The file path to the data representing condition two in present day. Only needed if `conditional` = true and `n_conditions` = 2. The source layer must be in ASCII raster format. This raster must have an identical number of rows and columns, lower left corner coordinates, and cellsize as the resistance layer.
+#### `condition2future_file`
+The file path to the data representing condition two in the future. Only needed if `conditional` = true and `n_conditions` = 2 *and* `compare_to_future` = 2 or `compare_to_future` = both. The source layer must be in ASCII raster format. This raster must have an identical number of rows and columns, lower left corner coordinates, and cellsize as the resistance layer.
