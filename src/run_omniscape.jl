@@ -79,9 +79,9 @@ function run_omniscape(path::String)
 
     # Import conditional rasters and other conditional connectivity stuff
     if conditional
-        condition1 = float(read_ascii("$(cfg["condition1_file"])"))
+        condition1 = float(read_ascii("$(cfg["condition1_present_file"])"))
         if n_conditions == 2
-            condition2 = float(read_ascii("$(cfg["condition2_file"])"))
+            condition2 = float(read_ascii("$(cfg["condition2_present_file"])"))
         else
             condition2 = Array{Float64, 2}(undef, 1, 1)
         end

@@ -24,8 +24,9 @@ function init_cfg()
 
     cfg["conditional"] = "false"
     cfg["n_conditions"] = "1"
-    cfg["condition1_file"] = "(browse to condition 1 file)"
-    cfg["condition2_file"] = "(browse to condition 2 file)"
+    cfg["compare_to_future"] = "none"
+    cfg["condition1_present_file"] = "(browse to condition 1 file)"
+    cfg["condition2_present_file"] = "(browse to condition 2 file)"
     cfg["comparison1"] = "within"
     cfg["comparison2"] = "within"
     cfg["condition1_lower"] = "0"

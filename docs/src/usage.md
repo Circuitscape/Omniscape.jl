@@ -105,11 +105,11 @@ Number. Only applies if `n_conditions` = 2 and `comparison1` = within. The maxim
 Number. Only applies if `n_conditions` = 2 and `comparison1` = within. The maximum positive deviation that a potential source's condition 2 value may be from the corresponding value in the target in order to be connected. If `condition2_lower` = 1, then a source may have a condition 2 value up to 1 unit larger than the target's value and it will still be connected.
 #### `compare_to_future`
 One of none, 1, 2, or both. Which condition(s) should compare the future condition in targets with present-day conditions in sources when determining which pairs to connect? For any conditions that are included, two data layers are needed: one with future condition values for all pixels in the study area, and one for present day condition values for all pixels in the study area.
-#### `condition1present_file`
+#### `condition1_present_file`
 The file path to the data representing condition one in present day. Only needed if `conditional` = true. The source layer must be in ASCII raster format. This raster must have an identical number of rows and columns, lower left corner coordinates, and cellsize as the resistance layer.
-#### `condition1future_file`
+#### `condition1_future_file`
 The file path to the data representing condition one in the future. Only needed if `conditional` = true and `compare_to_future` = 1 or `compare_to_future` = both. The source layer must be in ASCII raster format. This raster must have an identical number of rows and columns, lower left corner coordinates, and cellsize as the resistance layer.
-#### `condition2present_file`
+#### `condition2_present_file`
 The file path to the data representing condition two in present day. Only needed if `conditional` = true and `n_conditions` = 2. The source layer must be in ASCII raster format. This raster must have an identical number of rows and columns, lower left corner coordinates, and cellsize as the resistance layer.
-#### `condition2future_file`
+#### `condition2_future_file`
 The file path to the data representing condition two in the future. Only needed if `conditional` = true and `n_conditions` = 2 *and* `compare_to_future` = 2 or `compare_to_future` = both. The source layer must be in ASCII raster format. This raster must have an identical number of rows and columns, lower left corner coordinates, and cellsize as the resistance layer.
