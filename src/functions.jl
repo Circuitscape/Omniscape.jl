@@ -128,33 +128,76 @@ function get_source(
     source_subset[source_subset .> 0] .=
         (source_subset[source_subset .> 0] * strength) / source_sum
 
-    if conditional # TODO convert all of these to updating, i.e. !, functions so they can be unit tested
-        con1_present_subset = condition1_present[ylower_buffered:yupper_buffered,
-                                                 xlower_buffered:xupper_buffered]
-        if comparison1 == "within"
-            value1 = median(condition1_future[ylower:yupper, xlower:xupper])
-            source_subset[((con1_present_subset .- value1) .> condition1_upper) .|
-                ((con1_present_subset .- value1) .< condition1_lower)] .= 0
-        elseif comparison1 == "equals"
-            value1 = mode(condition1_future[ylower:yupper, xlower:xupper])
-            source_subset[con1_subset .!= value1] .= 0
-        end
+    if conditional
+        source_target_match!(source_subset,
+                             arguments["n_conditions"],
+                             condition1_present,
+                             condition1_future,
+                             condition2_present,
+                             condition2_future,
+                             comparison1,
+                             comparison2,
+                             condition1_lower,
+                             condition1_upper,
+                             condition2_lower,
+                             condition2_upper,
+                             ylower,
+                             yupper,
+                             xlower,
+                             xupper,
+                             ylower_buffered,
+                             yupper_buffered,
+                             xlower_buffered,
+                             xupper_buffered
+                             )
+    end
+    source_subset
+end
 
-        if arguments["n_conditions"] == 2
-            con2_present_subset = condition2_present[ylower_buffered:yupper_buffered,
-                                     xlower_buffered:xupper_buffered]
-            if comparison2 == "within"
-                value2 = median(condition2_future[ylower:yupper, xlower:xupper])
-                source_subset[((con2_present_subset .- value2) .> condition2_upper) .|
-                    ((con2_present_subset .- value2) .< condition2_lower)] .= 0
-            elseif comparison2 == "equals"
-                value2 = mode(condition2_future[ylower:yupper, xlower:xupper])
-                source_subset[con2_present_subset .!= value2] .= 0
-            end
-        end
+function source_target_match!(source_subset::Array{Float64,2},
+                              n_conditions::Int64,
+                              condition1_present::Array{Float64,2},
+                              condition1_future::Array{Float64,2},
+                              condition2_present::Array{Float64,2},
+                              condition2_future::Array{Float64,2},
+                              comparison1::String,
+                              comparison2::String,
+                              condition1_lower::Float64,
+                              condition1_upper::Float64,
+                              condition2_lower::Float64,
+                              condition2_upper::Float64,
+                              ylower::Int64,
+                              yupper::Int64,
+                              xlower::Int64,
+                              xupper::Int64,
+                              ylower_buffered::Int64,
+                              yupper_buffered::Int64,
+                              xlower_buffered::Int64,
+                              xupper_buffered::Int64
+                              )
+    con1_present_subset = condition1_present[ylower_buffered:yupper_buffered,
+                                           xlower_buffered:xupper_buffered]
+    if comparison1 == "within"
+      value1 = median(condition1_future[ylower:yupper, xlower:xupper])
+      source_subset[((con1_present_subset .- value1) .> condition1_upper) .|
+          ((con1_present_subset .- value1) .< condition1_lower)] .= 0
+    elseif comparison1 == "equals"
+      value1 = mode(condition1_future[ylower:yupper, xlower:xupper])
+      source_subset[con1_subset .!= value1] .= 0
     end
 
-    source_subset
+    if n_conditions == 2
+      con2_present_subset = condition2_present[ylower_buffered:yupper_buffered,
+                               xlower_buffered:xupper_buffered]
+      if comparison2 == "within"
+          value2 = median(condition2_future[ylower:yupper, xlower:xupper])
+          source_subset[((con2_present_subset .- value2) .> condition2_upper) .|
+              ((con2_present_subset .- value2) .< condition2_lower)] .= 0
+      elseif comparison2 == "equals"
+          value2 = mode(condition2_future[ylower:yupper, xlower:xupper])
+          source_subset[con2_present_subset .!= value2] .= 0
+      end
+    end
 end
 
 function get_ground(
