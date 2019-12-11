@@ -128,7 +128,7 @@ function get_source(
     source_subset[source_subset .> 0] .=
         (source_subset[source_subset .> 0] * strength) / source_sum
 
-    if conditional
+    if conditional # TODO convert all of these to updating, i.e. !, functions so they can be unit tested
         con1_present_subset = condition1_present[ylower_buffered:yupper_buffered,
                                                  xlower_buffered:xupper_buffered]
         if comparison1 == "within"
@@ -143,11 +143,11 @@ function get_source(
         if arguments["n_conditions"] == 2
             con2_present_subset = condition2_present[ylower_buffered:yupper_buffered,
                                      xlower_buffered:xupper_buffered]
-            if comparison1 == "within"
+            if comparison2 == "within"
                 value2 = median(condition2_future[ylower:yupper, xlower:xupper])
                 source_subset[((con2_present_subset .- value2) .> condition2_upper) .|
                     ((con2_present_subset .- value2) .< condition2_lower)] .= 0
-            elseif comparison1 == "equals"
+            elseif comparison2 == "equals"
                 value2 = mode(condition2_future[ylower:yupper, xlower:xupper])
                 source_subset[con2_present_subset .!= value2] .= 0
             end
