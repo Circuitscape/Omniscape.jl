@@ -74,6 +74,7 @@ function run_omniscape(path::String)
         sources_raw[resistance_raw .== -9999] .= 0.0
     else
         sources_raw = float(read_ascii("$(cfg["source_file"])"))
+        sources_raw[sources] .< source_threshold] .= 0.0
     end
 
     int_arguments["nrows"] = size(sources_raw, 1)
@@ -123,8 +124,7 @@ function run_omniscape(path::String)
 
     ## Calculate targets
     targets = get_targets(sources_raw,
-                          int_arguments,
-                          threshold = source_threshold)
+                          int_arguments)
 
 
     ## Initialize temporary ascii header for CS advanced mode
