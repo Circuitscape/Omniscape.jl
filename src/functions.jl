@@ -21,16 +21,13 @@ end
 
 function get_targets(
         source_array::Array{Float64, 2},
-        arguments::Dict{String, Int64};
-        threshold::Float64
+        arguments::Dict{String, Int64}
     )
 
     block_size = arguments["block_size"]
     block_radius = arguments["block_radius"]
     nrows = arguments["nrows"]
     ncols = arguments["ncols"]
-
-    source_array[source_array .< threshold] .= 0
 
     start = (block_size + 1) / 2
 
