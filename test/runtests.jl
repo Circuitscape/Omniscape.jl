@@ -74,3 +74,27 @@ target_val = con1fut[y, x]
 # Make sure no present day vals in con1 are outside of range
 @test sum((con1pres[source_subset .== 1] .< (target_val + con1_lower)) .|
     (con1pres[source_subset .== 1] .> (target_val + con1_upper))) == 0
+println("conditional connectivity tests passed")
+## Check that targets are IDed properly
+sources_raw = float(Omniscape.read_ascii("input/source.asc"))
+int_arguments = Dict{String, Int64}()
+int_arguments["block_size"] = 7
+int_arguments["block_radius"] = 3 # must be (size - 1) / 2
+int_arguments["nrows"] = size(sources_raw)[1]
+int_arguments["ncols"] = size(sources_raw)[2]
+targets = Omniscape.get_targets(sources_raw,
+                                int_arguments)
+
+n_targets = floor(int_arguments["nrows"] / int_arguments["block_size"]) *
+    floor(int_arguments["ncols"] / int_arguments["block_size"])
+
+# Correct number of targets
+@test size(targets)[1] == n_targets # would be less than if any of the sources
+                                    # had 0 strength, but sources.asc does
+                                    # not have 0's
+
+# correct source strength for a target
+block_sources = sources_raw[Int(targets[1,2] - int_arguments["block_radius"]):Int(targets[1,2] + int_arguments["block_radius"]),
+                            Int(targets[1,1] - int_arguments["block_radius"]):Int(targets[1,1] + int_arguments["block_radius"])]
+@test targets[1,3] ≈ sum(block_sources)
+println("target tests passed")
