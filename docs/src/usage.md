@@ -16,6 +16,7 @@ file.ini is a file specifying input data paths and options for Omniscape. See [t
 Omniscape uses parallel processing by default, but currently, Julia requires that the number of parallel threads to use be specified outside of via an environment variable called `JULIA_NUM_THREADS`. This environment variable needs to be defined prior to launching Julia from the terminal.
 
 **Example to set up Julia with 4 threads**:
+
 On Linux/Mac:
 ```bash
 export JULIA_NUM_THREADS=4
