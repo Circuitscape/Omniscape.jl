@@ -21,7 +21,9 @@ rm("test5_output", recursive = true)
 @test typeof(c) == Array{Float64,2}
 @test typeof(d) == Array{Float64,2}
 @test typeof(e) == Array{Float64,2}
-@test b ≈ d
+@test b ≈ d #parallel and serial produce same result
+
+@info "run_omniscape tests passed"
 
 ### Unit tests for components
 ## source target matching
@@ -74,7 +76,8 @@ target_val = con1fut[y, x]
 # Make sure no present day vals in con1 are outside of range
 @test sum((con1pres[source_subset .== 1] .< (target_val + con1_lower)) .|
     (con1pres[source_subset .== 1] .> (target_val + con1_upper))) == 0
-println("conditional connectivity tests passed")
+@info "conditional connectivity tests passed"
+
 ## Check that targets are IDed properly
 sources_raw = float(Omniscape.read_ascii("input/source.asc"))
 int_arguments = Dict{String, Int64}()
@@ -97,4 +100,4 @@ n_targets = floor(int_arguments["nrows"] / int_arguments["block_size"]) *
 block_sources = sources_raw[Int(targets[1,2] - int_arguments["block_radius"]):Int(targets[1,2] + int_arguments["block_radius"]),
                             Int(targets[1,1] - int_arguments["block_radius"]):Int(targets[1,1] + int_arguments["block_radius"])]
 @test targets[1,3] ≈ sum(block_sources)
-println("target tests passed")
+@info "target tests passed"

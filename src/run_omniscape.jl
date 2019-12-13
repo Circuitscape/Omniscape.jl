@@ -190,7 +190,7 @@ function run_omniscape(path::String)
                                            condition1_upper,
                                            condition2_lower,
                                            condition2_upper)
-        println("time taken to calculate artifact correction array: $(time() - art_start) seconds")
+        @info "Time taken to calculate artifact correction array = $(time() - art_start) seconds"
     else
         correction_array = Array{Float64, 2}(undef, 1, 1)
     end
