@@ -21,6 +21,7 @@ jobs:
         - julia --project=docs/ docs/make.jl
 
 after_success:
+  if: os = linux
   - julia -e 'using Pkg;
     cd(Pkg.dir("Omniscape"));
     Pkg.add("Coverage");
