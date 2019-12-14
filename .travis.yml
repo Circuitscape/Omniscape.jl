@@ -21,10 +21,9 @@ jobs:
         - julia --project=docs/ docs/make.jl
 
 after_success:
-  - if [ $TRAVIS_OS_NAME = "linux"]; then
-    if [ $TRAVIS_BUILD_STAGE_NAME != "Documentation" ]; then
+  - if [ $TRAVIS_OS_NAME = "linux"] AND [ $TRAVIS_BUILD_STAGE_NAME = "Test" ]; then
     julia -e 'using Pkg;
     cd(Pkg.dir("Omniscape"));
     Pkg.add("Coverage");
     using Coverage;
-    Codecov.submit(Codecov.process_folder())'; fi; fi
+    Codecov.submit(Codecov.process_folder())'; fi
