@@ -395,7 +395,7 @@ function solve_target!(
     )
 
     ## get source
-    println("Solving target $(i) of $(n_targets)")
+    @info "Solving target $(i) of $(n_targets)"
     x_coord = Int64(targets[i, 1])
     y_coord = Int64(targets[i, 2])
     source = get_source(sources_raw,
@@ -445,7 +445,7 @@ function solve_target!(
 
     ## If normalize = True, calculate null map and normalize
     if calc_flow_potential == true
-        println("Calculating flow potential")
+        @info "Calculating flow potential for target $(i) of $(n_targets)"
         null_resistance = fill(1., grid_size)
 
         flow_potential = calculate_current(null_resistance,
