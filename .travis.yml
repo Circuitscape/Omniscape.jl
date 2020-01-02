@@ -1,5 +1,7 @@
 language: julia
 
+env:
+  - JULIA_NUM_THREADS=2
 os:
   - linux
   - osx
