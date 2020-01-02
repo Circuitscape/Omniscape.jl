@@ -11,6 +11,9 @@ platform:
 #   allow_failures:
 #   - julia_version: nightly
 
+environment:
+  JULIA_NUM_THREADS: 2
+
 branches:
   only:
     - master
