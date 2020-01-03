@@ -1,11 +1,8 @@
 name = "Omniscape"
 uuid = "a38d70fc-99f5-11e9-1e3d-cbca093024c3"
 authors = ["Vincent A. Landau <vincent@csp-inc.org>"]
-<<<<<<< HEAD
 version = "0.2.0"
-=======
-version = "0.1.4"
->>>>>>> v0.1.x
+
 
 [deps]
 Circuitscape = "2b7a1792-8151-5239-925d-e2b8fdfa3201"
