@@ -180,6 +180,8 @@ function run_omniscape(path::String)
 
     if calc_flow_potential == true
         normalized_cum_currmap = cum_currmap ./ fp_cum_currmap
+        # replace NaNs with NoData value
+        normalized_cum_currmap[isnan.(normalized_cum_currmap)] .= -9999
     end
 
     ## Make output directory
