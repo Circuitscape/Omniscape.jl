@@ -33,7 +33,7 @@ jobs:
 after_success:
   - if [ $TRAVIS_OS_NAME = "linux" -a $TRAVIS_BUILD_STAGE_NAME = "Test" ]; then
     julia -e 'using Pkg;
-    cd(Pkg.dir("Omniscape"));
+    import Omniscape; cd(joinpath(dirname(pathof(Omniscape))));
     Pkg.add("Coverage");
     using Coverage;
     Codecov.submit(Codecov.process_folder())'; fi
