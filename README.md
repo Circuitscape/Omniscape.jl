@@ -30,7 +30,7 @@ docker run -it --rm^
  -e JULIA_NUM_THREADS=4^
  vlandau/omniscape:0.2.0
 ```
-Notice that the number of threads Julia with use for parallel processing is defined by setting the environment variable `JULIA_NUM_THREADS` when runing the docker container. The examples above will start up an Omniscape container that will use 4 threads for parallel processing.
+Notice that the number of threads Julia with use for parallel processing is defined by setting the environment variable `JULIA_NUM_THREADS` when running the docker container. The examples above will start up an Omniscape container that will use 4 threads for parallel processing.
 
 Also note that the `-v` flag and subsequent code will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory containing all needed input files). Once you're in Julia in the Docker container, run `cd("/home/omniscape")` to navigate to the location where you mounted your files, and you'll be ready to go! Make sure that the file paths in your .ini file are relative to /home/omniscape.
 
