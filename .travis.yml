@@ -23,6 +23,7 @@ script: travis_wait 30 julia --code-coverage --inline=no -e 'using Pkg; Pkg.buil
 
 jobs:
   include:
+    if: type = push
     - stage: "Documentation"
       if: branch = master
       os: linux
