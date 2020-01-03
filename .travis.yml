@@ -23,9 +23,8 @@ script: travis_wait 30 julia --code-coverage --inline=no -e 'using Pkg; Pkg.buil
 
 jobs:
   include:
-    if: type = push
     - stage: "Documentation"
-      if: branch = master
+      if: type = push AND branch = master AND env(TRAVIS_JULIA_VERSION) = "1.3"
       os: linux
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
