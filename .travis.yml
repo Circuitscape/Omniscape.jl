@@ -32,7 +32,7 @@ jobs:
         - julia --project=docs/ docs/make.jl
 
 after_success:
-  - if [ $TRAVIS_OS_NAME = "linux" -a $TRAVIS_BUILD_STAGE_NAME = "Test" -a $TRAVIS_BRANCH = "master" -a $TRAVIS_PULL_REQUEST = false]; then
+  - if [ $TRAVIS_OS_NAME = "linux" -a $TRAVIS_BUILD_STAGE_NAME = "Test" -a $TRAVIS_BRANCH = "master" -a $TRAVIS_PULL_REQUEST = false ]; then
     julia -e 'using Pkg;
     cd(Pkg.dir("Omniscape"));
     Pkg.add("Coverage");
