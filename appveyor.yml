@@ -12,9 +12,6 @@ platform:
 #   allow_failures:
 #   - julia_version: nightly
 
-
-  
-
 branches:
   only:
     - master
