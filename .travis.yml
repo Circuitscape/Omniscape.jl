@@ -24,6 +24,7 @@ script: travis_wait 30 julia --code-coverage --inline=no -e 'using Pkg; Pkg.buil
 jobs:
   include:
     - stage: "Documentation"
+      if: branch = master
       os: linux
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
@@ -31,7 +32,7 @@ jobs:
         - julia --project=docs/ docs/make.jl
 
 after_success:
-  - if [ $TRAVIS_OS_NAME = "linux" -a $TRAVIS_BUILD_STAGE_NAME = "Test" ]; then
+  - if [ $TRAVIS_OS_NAME = "linux" -a $TRAVIS_BUILD_STAGE_NAME = "Test" -a $TRAVIS_BRANCH = "master" -a $TRAVIS_PULL_REQUEST = false]; then
     julia -e 'using Pkg;
     cd(Pkg.dir("Omniscape"));
     Pkg.add("Coverage");
