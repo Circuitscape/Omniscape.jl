@@ -142,7 +142,7 @@ function run_omniscape(path::String)
 
     ## Add parallel workers
     if parallelize
-        println("Starting up Omniscape. Using $(n_threads) processes in parallel")
+        println("Starting up Omniscape. Using $(n_threads) workers in parallel.")
 
         cum_currmap = fill(0.,
                            int_arguments["nrows"],
@@ -159,6 +159,7 @@ function run_omniscape(path::String)
             fp_cum_currmap = Array{Float64, 3}(undef, 1, 1, 1)
         end
     else
+        println("Starting up Omniscape. Running in serial using 1 worker.")
         cum_currmap = fill(0.,
                           int_arguments["nrows"],
                           int_arguments["ncols"],
@@ -175,7 +176,7 @@ function run_omniscape(path::String)
     end
 
     if correct_artifacts
-        art_start = time()
+        println("Calculating block artifact correction array")
         correction_array = calc_correction(int_arguments,
                                            cs_cfg,
                                            o,
@@ -190,7 +191,7 @@ function run_omniscape(path::String)
                                            condition1_upper,
                                            condition2_lower,
                                            condition2_upper)
-        @info "Time taken to calculate artifact correction array = $(time() - art_start) seconds"
+
     else
         correction_array = Array{Float64, 2}(undef, 1, 1)
     end
@@ -269,7 +270,7 @@ function run_omniscape(path::String)
     end
 
     ## Normalize by flow potential
-    if calc_flow_potential & write_normalized_currmap
+    if calc_flow_potential
         normalized_cum_currmap = cum_currmap ./ fp_cum_currmap
     end
 
@@ -298,7 +299,7 @@ function run_omniscape(path::String)
     end
 
     println("Done")
-    println("Time taken to complete job: $(round(time() - start_time; digits = 1)) seconds")
+    println("Time taken to complete job: $(round(time() - start_time; digits = 4)) seconds")
 
     ## Return outputs
     if calc_flow_potential
