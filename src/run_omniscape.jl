@@ -100,8 +100,7 @@ function run_omniscape(path::String)
             end
 
         else
-            condition2_present = Array{Float64, 2}(undef, 1, 1)
-            condition2_future = condition2_present
+            condition2_future = Array{Float64, 2}(undef, 1, 1)
         end
     else
         condition1_present = Array{Float64, 2}(undef, 1, 1)
