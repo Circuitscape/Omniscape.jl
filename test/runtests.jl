@@ -79,7 +79,7 @@ block_sources = sources_raw[Int(targets[1,2] - int_arguments["block_radius"]):In
 @info "target tests passed"
 
 ### Syntax tests for run_omniscape()
-f = run_omniscape("input/config4.ini")
+l, f, p = run_omniscape("input/config4.ini")
 g = run_omniscape("input/config5.ini")
 h = run_omniscape("input/config6.ini")
 a, b, c = run_omniscape("input/config.ini")
