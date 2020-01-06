@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Adding
-- Option to do conditional target/source matching connectivity  (done in [climate](https://github.com/Circuitscape/Omniscape.jl/tree/climate) branch)
-- Parallelism via multi-threading (done in [threads](https://github.com/Circuitscape/Omniscape.jl/tree/threads) branch)
+- Option to do conditional target/source matching connectivity
+- Parallelism via multi-threading
 
 ## [v0.1.4]
 - Fixed issue of NaNs in normalized current flow map. Current and flow potential equal to 0 resulted in 0/0, causing NaNs. NaNs are now replaced with the nodata value of -9999.
