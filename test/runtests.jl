@@ -84,7 +84,7 @@ l, f, p = run_omniscape("input/config4.ini")
 g = run_omniscape("input/config5.ini")
 h = run_omniscape("input/config6.ini")
 a, b, c = run_omniscape("input/config.ini")
-f,e,g = run_omniscape("input/config3.ini")
+e = run_omniscape("input/config3.ini")
 d = run_omniscape("input/config2.ini")
 
 
@@ -102,12 +102,8 @@ rm("test6_output", recursive = true)
 @test typeof(b) == Array{Float64,2}
 @test typeof(c) == Array{Float64,2}
 @test typeof(d) == Array{Float64,2}
-<<<<<<< HEAD
 @test typeof(e) == Array{Float64,2}
 @test b ≈ d #parallel and serial produce same result
-=======
-@test typeof(f) == Array{Float64,2}
-@test b ≈ d
->>>>>>> v0.1.x
+
 
 @info "run_omniscape tests passed"
