@@ -81,6 +81,7 @@ block_sources = sources_raw[Int(targets[1,2] - int_arguments["block_radius"]):In
 ### Syntax tests for run_omniscape()
 f = run_omniscape("input/config4.ini")
 g = run_omniscape("input/config5.ini")
+h = run_omniscape("input/config6.ini")
 a, b, c = run_omniscape("input/config.ini")
 e = run_omniscape("input/config3.ini")
 d = run_omniscape("input/config2.ini")
@@ -90,9 +91,11 @@ rm("test2_output", recursive = true)
 rm("test3_output", recursive = true)
 rm("test4_output", recursive = true)
 rm("test5_output", recursive = true)
+rm("test6_output", recursive = true)
 
 @test typeof(f) == Array{Float64,2}
 @test typeof(g) == Array{Float64,2}
+@test typeof(h) == Array{Float64,2}
 @test typeof(a) == Array{Float64,2}
 @test typeof(b) == Array{Float64,2}
 @test typeof(c) == Array{Float64,2}
