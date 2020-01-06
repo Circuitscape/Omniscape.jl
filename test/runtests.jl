@@ -3,13 +3,13 @@ using Test, Omniscape
 d = run_omniscape("input/config2.ini")
 a, b, c = run_omniscape("input/config.ini")
 
-e = run_omniscape("input/config3.ini")
+e,f,g = run_omniscape("input/config3.ini")
 
 @test typeof(a) == Array{Float64,2}
 @test typeof(b) == Array{Float64,2}
 @test typeof(c) == Array{Float64,2}
 @test typeof(d) == Array{Float64,2}
-@test typeof(e) == Array{Float64,2}
+@test typeof(f) == Array{Float64,2}
 @test b ≈ d
 
 rm("test1_output", recursive = true)

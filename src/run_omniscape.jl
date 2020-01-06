@@ -37,6 +37,7 @@ function run_omniscape(path::String)
     parallelize = lowercase(cfg["parallelize"]) == "true"
     correct_artifacts = lowercase(cfg["correct_artifacts"]) == "true"
     source_from_resistance = lowercase(cfg["source_from_resistance"]) == "true"
+    mask_nodata = lowercase(cfg["mask_nodata"]) == "true"
     if int_arguments["block_size"] == 1
         correct_artifacts = false
     end
@@ -181,7 +182,7 @@ function run_omniscape(path::String)
     if calc_flow_potential == true
         normalized_cum_currmap = cum_currmap ./ fp_cum_currmap
         # replace NaNs with NoData value
-        normalized_cum_currmap[isnan.(normalized_cum_currmap)] .= -9999
+        normalized_cum_currmap[isnan.(normalized_cum_currmap)] .= 0.0
     end
 
     ## Make output directory
@@ -218,8 +219,16 @@ function run_omniscape(path::String)
 
     ## Return outputs
     if calc_flow_potential == true
+        # mask by NoData in Resistance if desired
+        if mask_nodata
+            normalized_cum_currmap[resistance_raw .== -9999] .= -9999
+            cum_currmap[resistance_raw .== -9999] .= -9999
+        end
         return normalized_cum_currmap, cum_currmap, fp_cum_currmap
     else
+        if mask_nodata
+            cum_currmap[resistance_raw .== -9999] .= -9999
+        end
         return cum_currmap
     end
 end
