@@ -180,7 +180,7 @@ function source_target_match!(source_subset::Array{Float64,2},
           ((con1_present_subset .- value1) .< condition1_lower)] .= 0
     elseif comparison1 == "equals"
       value1 = mode(condition1_future[ylower:yupper, xlower:xupper])
-      source_subset[con1_subset .!= value1] .= 0
+      source_subset[con1_present_subset .!= value1] .= 0
     end
 
     if n_conditions == 2
