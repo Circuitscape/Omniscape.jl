@@ -84,7 +84,7 @@ l, f, p = run_omniscape("input/config4.ini")
 g = run_omniscape("input/config5.ini")
 h = run_omniscape("input/config6.ini")
 a, b, c = run_omniscape("input/config.ini")
-e = run_omniscape("input/config3.ini")
+q, e, m = run_omniscape("input/config3.ini")
 d = run_omniscape("input/config2.ini")
 
 
