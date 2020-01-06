@@ -78,17 +78,15 @@ block_sources = sources_raw[Int(targets[1,2] - int_arguments["block_radius"]):In
 @test targets[1,3] ≈ sum(block_sources)
 @info "target tests passed"
 
-<<<<<<< HEAD
+
 ### Syntax tests for run_omniscape()
 l, f, p = run_omniscape("input/config4.ini")
 g = run_omniscape("input/config5.ini")
 h = run_omniscape("input/config6.ini")
 a, b, c = run_omniscape("input/config.ini")
-e = run_omniscape("input/config3.ini")
+f,e,g = run_omniscape("input/config3.ini")
 d = run_omniscape("input/config2.ini")
-=======
-e,f,g = run_omniscape("input/config3.ini")
->>>>>>> v0.1.x
+
 
 rm("test1_output", recursive = true)
 rm("test2_output", recursive = true)
