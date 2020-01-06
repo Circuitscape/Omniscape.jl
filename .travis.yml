@@ -2,7 +2,7 @@ language: julia
 
 env:
   - JULIA_NUM_THREADS=2
-  
+
 os:
   - linux
   - osx
@@ -11,6 +11,11 @@ os:
 julia:
   - 1.3
   - nightly
+
+stages:
+  - Documentation
+  - codecov
+  - Test
 
 matrix:
   allow_failures:
