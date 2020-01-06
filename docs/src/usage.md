@@ -50,7 +50,7 @@ One of true, false. Specify whether to calculate flow potential. Defaults to tru
 One of true, false. Specify whether to mask current flow outputs according to NoData values in resistance surface. (i.e. pixels in current flow outputs that line up with nodata values in resistance are set to no data if `mask_nodata` = true). Defaults to true.
 
 #### `write_raw_currmap`
-One of true, false. Specify whether to save the raw current map (prior to normailization by flow potential) as output. Defaults to true.
+One of true, false. Specify whether to save the raw current map (prior to normalization by flow potential) as output. Defaults to true.
 
 #### `write_normalized_currmap`
 One of true, false. Specify whether to save the normalized current map as output. Normalized current is calculated as raw current divided by flow potential. Defaults to true.
