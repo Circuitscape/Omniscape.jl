@@ -21,6 +21,7 @@ function init_cfg()
     cfg["write_raw_currmap"] = "true"
     cfg["write_normalized_currmap"] = "true"
     cfg["write_flow_potential"] = "true"
+    cfg["mask_nodata"] = "true"
 
     cfg["conditional"] = "false"
     cfg["n_conditions"] = "1"

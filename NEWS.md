@@ -6,11 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Adding
-- Option to do conditional target/source matching connectivity
-- Parallelism via multi-threading
+- Option to do conditional target/source matching connectivity.
+- Parallelism via multi-threading.
 
 ## [v0.1.4]
-- Fixed issue of NaNs in normalized current flow map. Current and flow potential equal to 0 resulted in 0/0, causing NaNs. NaNs are now replaced with the nodata value of -9999.
+- Fixed #19 (NaNs in normalized current flow map). Current and flow potential equal to 0 resulted in 0/0, causing NaNs. NaNs are now replaced with 0.
+- Closed #20. Added option to allow masking of outputs according to nodata values in resistance.
 
 ## [v0.1.3]
 - Updated Circuitscape compat to v5.5.5. The rename of zlib in Julia 1.3 caused a break in GZip on Windows, which broke Circuitscape (which broke Omniscape). GZip released a patch, v0.5.1, fixing the issue. Circuitscape patch release v5.5.5 has an updated compat entry of 0.5.1 for GZip, which fixes the issue downstream.

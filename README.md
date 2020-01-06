@@ -22,7 +22,6 @@ docker run -it --rm \
 	-v $(pwd):/home/omniscape \
 	-e JULIA_NUM_THREADS=4 \
 	vlandau/omniscape:0.2.0
-
 ```
 
 On Windows (via Windows Command Line):
