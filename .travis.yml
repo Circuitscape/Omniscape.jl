@@ -22,7 +22,6 @@ notifications:
 jobs:
   include:
     - stage: "Documentation"
-      if: type = push AND branch = master
       os: linux
       julia: 1.3
       script:
