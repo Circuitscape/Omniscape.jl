@@ -39,7 +39,7 @@ xllcorner     0
 yllcorner     0
 cellsize      1
 nodata_value  -9999
-``` 
+```
 This is the format used by both QGIS and ArcMap GIS software.
 
 #### `source_file`
@@ -62,6 +62,9 @@ The name of the project to use. This string will be appended as a prefix to all 
 
 #### `calc_flow_potential`
 One of true, false. Specify whether to calculate flow potential. Defaults to true.
+
+### `mask_nodata`
+One of true, false. Specify whether to mask current flow outputs according to NoData values in resistance surface. (i.e. pixels in current flow outputs that line up with nodata values in resistance are set to no data if `mask_nodata` = true). Defaults to true.
 
 #### `write_raw_currmap`
 One of true, false. Specify whether to save the raw current map (prior to normailization by flow potential) as output. Defaults to true.
@@ -88,7 +91,7 @@ One of true, false. Should a source layer be derived using the resistance layer?
 The maximum resistance value a cell can have to be considered as a source. Only applies when `source_from_resistance` = true.
 
 #### Conditional connectivity options
-#### `conditional` 
+#### `conditional`
 One of true, false. Should conditional source/target matching be uses? That is, should a given target only be connected to sources that are meet similarity conditions to the target? Defaults to false. If true, then gridded data with values for each pixel are used to compare targets and sources and determine which pairs should be connected according to user-specified criteria.
 #### `n_conditions`
 The number of conditions that must be met for conditional source/target matching. One of 1, 2. Only applies if `conditional` = true. Defaults to 1.
