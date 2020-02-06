@@ -16,6 +16,23 @@ using Pkg; Pkg.add("Omniscape")
 
 This package implements the omnidirectional connectivity algorithm developed by McRae et al. (2016). Omniscape.jl is a moving window implementation of [Circuitscape.jl](https://github.com/Circuitscape/Circuitscape.jl) (Anantharaman et al. 2019). Circuitscape.jl applies circuit theory to make spatially-explicit predictions of connectivity using concepts developed by McRae (2006) and McRae et al. (2008).
 
+## Citing Omniscape.jl
+
+A formal paper detailing Omniscape.jl is forthcoming, but until it is published, please use the something like the following to cite Omniscape.jl if you use it in your work:
+> Landau, VA 2019. Omniscape.jl: An efficient and scalable implementation of the Omniscape algorithm in the Julia scientific computing language, vX.Y.Z, URL: https://github.com/Circuitscape/Omniscape.jl, DOI: 10.5281/zenodo.3406711.
+
+Here's a bibtex entry:
+```
+@misc{landau2019omniscape,
+    title = {{Omniscape.jl: An efficient and scalable implementation of the Omniscape algorithm in the Julia scientific computing language}},
+    author = {Vincent A. Landau},
+    year = {2019},
+    version = {v0.1.4},
+    url = {https://github.com/Circuitscape/Omniscape.jl},
+    doi = {10.5281/zenodo.3406711}
+}
+```
+
 
 ## References
 
