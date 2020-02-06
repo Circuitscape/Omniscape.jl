@@ -44,6 +44,6 @@ Here's a bibtex entry:
     year = {2019},
     version = {v0.1.4},
     url = {https://github.com/Circuitscape/Omniscape.jl},
-    DOI = {10.5281/zenodo.3406711}
+    doi = {10.5281/zenodo.3406711}
 }
 ```
