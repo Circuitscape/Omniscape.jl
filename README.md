@@ -34,14 +34,14 @@ Note that the `-v` flag and subsequent code will mount the files in your current
 ## Citing Omniscape.jl
 
 A formal paper detailing Omniscape.jl is forthcoming, but until it is published, please use the something like the following to cite Omniscape.jl if you use it in your work:
-> Landau, VA 2019. Omniscape.jl: An efficient and scalable implementation of the Omniscape algorithm in the Julia scientific computing language, vX.Y.Z, URL: https://github.com/Circuitscape/Omniscape.jl, DOI: 10.5281/zenodo.3406711.
+> Landau, VA 2020. Omniscape.jl: An efficient and scalable implementation of the Omniscape algorithm in the Julia scientific computing language, vX.Y.Z, URL: https://github.com/Circuitscape/Omniscape.jl, DOI: 10.5281/zenodo.3406711.
 
 Here's a bibtex entry:
 ```
-@misc{landau2019omniscape,
+@misc{landau2020omniscape,
     title = {{Omniscape.jl: An efficient and scalable implementation of the Omniscape algorithm in the Julia scientific computing language}},
     author = {Vincent A. Landau},
-    year = {2019},
+    year = {2020},
     version = {v0.1.4},
     url = {https://github.com/Circuitscape/Omniscape.jl},
     doi = {10.5281/zenodo.3406711}
