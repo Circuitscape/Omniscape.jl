@@ -1,7 +1,7 @@
 environment:
   matrix:
-  - julia_version: 1.4
-  JULIA_NUM_THREADS: 1
+  - julia_version: nightly
+  JULIA_NUM_THREADS: 2
 
 platform:
   - x64 # 64-bit
