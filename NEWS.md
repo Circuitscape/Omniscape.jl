@@ -5,9 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-### Adding
-- Option to do conditional target/source matching connectivity.
+### Added
+- Conditional target/source matching (e.g. only connect pairs of pixels that have similar climates).
 - Parallelism via multi-threading.
+- Reduced overhead in parallel processing, added batching [#10](https://github.com/Circuitscape/Omniscape.jl/issues/10) and reduced default number of BLAS threads.
+- Closed [#13](https://github.com/Circuitscape/Omniscape.jl/issues/13)
+- Julia dep is now 1.3
+
+### Monitor progress toward release
+- [Release v0.2.0](https://github.com/Circuitscape/Omniscape.jl/milestone/2)
 
 ## [v0.1.4]
 - Fixed #19 (NaNs in normalized current flow map). Current and flow potential equal to 0 resulted in 0/0, causing NaNs. NaNs are now replaced with 0.
