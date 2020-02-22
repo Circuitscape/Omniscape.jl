@@ -51,10 +51,9 @@ function run_omniscape(path::String)
     project_name = cfg["project_name"]
     r_cutoff = parse(Float64, cfg["r_cutoff"])
 
-    ## Set number of BLAS threads to 1 if running in parallel
-    if parallelize
-        BLAS.set_num_threads(1)
-    end
+    ## Set number of BLAS threads to 1/2 of number of cpu cores
+    ## currently assumes hyperthreading (hence division by two)
+    BLAS.set_num_threads(Int(length(Sys.cpu_info()) / 2))
 
     ## Store ascii header
     final_header = parse_ascii_header("$(cfg["resistance_file"])")
