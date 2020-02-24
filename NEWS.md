@@ -8,9 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Conditional target/source matching (e.g. only connect pairs of pixels that have similar climates).
 - Parallelism via multi-threading.
-- Reduced overhead in parallel processing, added batching [#10](https://github.com/Circuitscape/Omniscape.jl/issues/10) and reduced default number of BLAS threads.
+- Reduced overhead in parallel processing, added batching [#10](https://github.com/Circuitscape/Omniscape.jl/issues/10)
+- Changed how BLAS number of threads is set ([#25](https://github.com/Circuitscape/Omniscape.jl/pull/25)) to get closer to number of physical cores and improve efficiency.
 - Closed [#13](https://github.com/Circuitscape/Omniscape.jl/issues/13)
-- Julia dep is now 1.3
+- Julia dep is now 1.4
 
 ### Monitor progress toward release
 - [Release v0.2.0](https://github.com/Circuitscape/Omniscape.jl/milestone/2)
