@@ -1,6 +1,6 @@
 environment:
   matrix:
-  - julia_version: nightly
+  - julia_version: 1.4
   JULIA_NUM_THREADS: 2
 
 platform:
