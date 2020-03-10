@@ -2,4 +2,6 @@
 local/
 bigtests/
 dev.Dockerfile
+docker-build-dev-env.sh
+run-juno.sh
 build-env.sh
