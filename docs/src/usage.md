@@ -42,6 +42,9 @@ nodata_value  -9999
 ```
 This is the format used by both QGIS and ArcMap GIS software.
 
+#### `resistance_file_is_conductance`
+One of true, false. Specify whether the file specified by `resistance_file` is a conductance (rather than resistance) surface. Conductance is the inverse of resistance. Note that `r_cutoff` (an optional argument described below) must be in units of resistance even if a conductance file is supplied as input. Defaults to false.
+
 #### `source_file`
 The path to the source layer input. The source layer must also be in ASCII raster format, and all values must be ``\geq 0``. This raster must have an identical number of rows, columns, lower left corner coordinates, and cellsize as the resistance layer.
 
@@ -49,7 +52,7 @@ The path to the source layer input. The source layer must also be in ASCII raste
 A positive integer specifying the radius *in pixels* of the moving window used to identify sources to connect to each target.
 
 #### `buffer`
-Defaults to 0. A positive integer specifying an additional buffer distance beyond `radius` to clip the resistance and source layers to for each moving window iteration. If 0, resistance and source layers will be clipped to a circle of size `radius` for each moving window iteration.
+A positive integer specifying an additional buffer distance beyond `radius` to clip the resistance and source layers to for each moving window iteration. If 0, resistance and source layers will be clipped to a circle of size `radius` for each moving window iteration. Defaults to 0.
 
 #### `block_size`
 An odd, positive integer specifying the side length for source layer blocking in target generation. Defaults to 1.
