@@ -69,6 +69,12 @@ function run_omniscape(path::String)
         final_header["nodata_value"] = "-9999"
     end
 
+    if minimum(resistance_raw[resistance_raw .!= -9999]) <= 0
+        @error "Resistance (or conductance) surface contains 0 or negative values"
+        return
+    end
+
+
     # If resistance file is conductance, convert back to resistance
     if resistance_file_is_conductance
         resistance_raw[resistance_raw .!= -9999] = 1.0 ./ resistance_raw[resistance_raw .!= -9999]
@@ -325,3 +331,4 @@ function run_omniscape(path::String)
         return cum_currmap
     end
 end
+

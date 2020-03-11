@@ -89,7 +89,6 @@ d = run_omniscape("input/config2.ini")
 rm("test1_output", recursive = true)
 rm("test2_output", recursive = true)
 rm("test3_output", recursive = true)
-rm("test4_output", recursive = true)
 rm("test5_output", recursive = true)
 rm("test6_output", recursive = true)
 
@@ -102,5 +101,8 @@ rm("test6_output", recursive = true)
 @test typeof(d) == Array{Float64,2}
 @test typeof(e) == Array{Float64,2}
 @test b ≈ d #parallel and serial produce same result
+
+# Test error throws
+@test run_omniscape("input/config7.ini") == nothing
 
 @info "run_omniscape tests passed"
