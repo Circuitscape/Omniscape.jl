@@ -41,6 +41,7 @@ function run_omniscape(path::String)
     source_from_resistance = lowercase(cfg["source_from_resistance"]) == "true"
     conditional = lowercase(cfg["conditional"]) == "true"
     mask_nodata = lowercase(cfg["mask_nodata"]) == "true"
+    resistance_file_is_conductance = lowercase(cfg["resistance_file_is_conductance"]) == "true"
 
     if int_arguments["block_size"] == 1
         correct_artifacts = false
@@ -68,6 +69,12 @@ function run_omniscape(path::String)
         final_header["nodata_value"] = "-9999"
     end
 
+    # If resistance file is conductance, convert back to resistance
+    if resistance_file_is_conductance
+        resistance_raw[resistance_raw .!= -9999] = 1.0 ./ resistance_raw[resistance_raw .!= -9999]
+    end
+
+    # Compute source strengths from resistance if needed
     if source_from_resistance
         sources_raw = deepcopy(resistance_raw)
         sources_raw = 1.0 ./ sources_raw
