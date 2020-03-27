@@ -11,6 +11,7 @@ include("config.jl")
 include("functions.jl")
 include("io.jl")
 include("run_omniscape.jl")
+include("errors_warnings.jl")
 export run_omniscape
 
 end

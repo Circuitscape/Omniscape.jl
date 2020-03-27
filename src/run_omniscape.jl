@@ -19,10 +19,8 @@ function run_omniscape(path::String)
     int_arguments["block_size"] = Int64(round(parse(Float64,
                                                     cfg["block_size"])))
 
-    if iseven(int_arguments["block_size"])
-        @warn "block_size is even, but must be odd. Using block_size + 1."
-        int_arguments["block_size"] = int_arguments["block_size"] + 1
-    end
+    check_block_size(int_arguments["block_size"]) &&
+        (int_arguments["block_size"] = int_arguments["block_size"] + 1)
 
     int_arguments["block_radius"] = Int64((int_arguments["block_size"] - 1) / 2)
     int_arguments["radius"] = Int64(round(parse(Float64, cfg["radius"])))
@@ -72,10 +70,7 @@ function run_omniscape(path::String)
     #     final_header["nodata_value"] = "-9999"
     # end
 
-    if minimum(resistance_raw[resistance_raw .!= -9999]) <= 0
-        @error "Resistance (or conductance) surface contains 0 or negative values"
-        return
-    end
+    check_resistance_values(resistance_raw) && return
 
     # If resistance file is conductance, convert back to resistance
     if resistance_file_is_conductance
@@ -93,15 +88,9 @@ function run_omniscape(path::String)
         sources_raw = sources_raster[1]
 
         # Check for raster alignment
-        alignment_flags = check_raster_alignment(resistance_raster, sources_raster)
-
-        # warn if projections are different
-        !alignment_flags[2] &&
-            !allow_different_projections &&
-                different_raster_projections_warning("resistance_file", "sources_file")
-
-        # error if rasters are different sizes
-        !alignment_flags[1] && (different_raster_sizes_error("resistance_file", "sources_file"); return)
+        check_raster_alignment(resistance_raster, sources_raster,
+                               "resistance_file", "sources_file",
+                               allow_different_projections) && return
 
         # get rid of unneeded raster to save memory
         sources_raster = nothing
@@ -118,15 +107,9 @@ function run_omniscape(path::String)
         condition1 = condition1_raster[1]
 
         # Check for raster alignment
-        alignment_flags = check_raster_alignment(resistance_raster, condition1_raster)
-
-        # warn if projections are different
-        !alignment_flags[2] &&
-            !allow_different_projections &&
-                different_raster_projections_warning("resistance_file", "condition1_file")
-
-        # error if rasters are different sizes
-        !alignment_flags[1] && (different_raster_sizes_error("resistance_file", "condition1_file"); return)
+        check_raster_alignment(resistance_raster, condition1_raster,
+                               "resistance_file", "condition1_file",
+                               allow_different_projections) && return
 
         # get rid of unneeded raster to save memory
         condition1_raster = nothing
@@ -136,15 +119,9 @@ function run_omniscape(path::String)
             condition1_future = condition1_future_raster[1]
 
             # Check for raster alignment
-            alignment_flags = check_raster_alignment(resistance_raster, condition1_future_raster)
-
-            # warn if projections are different
-            !alignment_flags[2] &&
-                !allow_different_projections &&
-                    different_raster_projections_warning("resistance_file", "condition1_future_file")
-
-            # error if rasters are different sizes
-            !alignment_flags[1] && (different_raster_sizes_error("resistance_file", "condition1_future_file"); return)
+            check_raster_alignment(resistance_raster, condition1_future_raster,
+                                   "resistance_file", "condition1_future_file",
+                                   allow_different_projections) && return
 
             # get rid of unneeded raster to save memory
             condition1_future_raster = nothing
@@ -157,30 +134,21 @@ function run_omniscape(path::String)
             condition2 = condition2_raster[1]
 
             # Check for raster alignment
-            alignment_flags = check_raster_alignment(resistance_raster, condition2_raster)
+            check_raster_alignment(resistance_raster, condition2_raster,
+                                   "resistance_file", "condition2_file",
+                                   allow_different_projections) && return
 
-            # warn if projections are different
-            !alignment_flags[2] &&
-                !allow_different_projections &&
-                    different_raster_projections_warning("resistance_file", "condition2_file")
-
-            # error if rasters are different sizes
-            !alignment_flags[1] && (different_raster_sizes_error("resistance_file", "condition2_file"); return)
+            # get rid of unneeded raster to save memory
+            condition2_raster = nothing
 
             if compare_to_future == "2" || compare_to_future == "both"
                 condition2_future_raster = read_raster("$(cfg["condition2_future_file"])")
                 condition2_future = condition2_future_raster[1]
 
                 # Check for raster alignment
-                alignment_flags = check_raster_alignment(resistance_raster, condition2_future_raster)
-
-                # warn if projections are different
-                !alignment_flags[2] &&
-                    !allow_different_projections &&
-                        different_raster_projections_warning("resistance_file", "condition2_future_file")
-
-                # error if rasters are different sizes
-                !alignment_flags[1] && (different_raster_sizes_error("resistance_file", "condition2_future_file"); return)
+                check_raster_alignment(resistance_raster, condition2_future_raster,
+                                       "resistance_file", "condition2_future_file",
+                                       allow_different_projections) && return
 
                 # get rid of unneeded raster to save memory
                 condition2_future_raster = nothing

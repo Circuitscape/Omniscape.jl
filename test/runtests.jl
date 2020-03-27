@@ -89,6 +89,7 @@ d = run_omniscape("input/config2.ini")
 rm("test1", recursive = true)
 rm("test2", recursive = true)
 rm("test3", recursive = true)
+rm("test4", recursive = true)
 rm("test5", recursive = true)
 rm("test6", recursive = true)
 
