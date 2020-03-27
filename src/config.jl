@@ -22,7 +22,7 @@ function init_cfg()
     cfg["write_raw_currmap"] = "true"
     cfg["write_normalized_currmap"] = "true"
     cfg["write_flow_potential"] = "true"
-    cfg["write_tifs"] = "true"
+    cfg["write_as_tif"] = "true"
     cfg["mask_nodata"] = "true"
 
     cfg["conditional"] = "false"
