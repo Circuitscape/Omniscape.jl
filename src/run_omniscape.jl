@@ -40,7 +40,7 @@ function run_omniscape(path::String)
     conditional = lowercase(cfg["conditional"]) == "true"
     mask_nodata = lowercase(cfg["mask_nodata"]) == "true"
     resistance_file_is_conductance = lowercase(cfg["resistance_file_is_conductance"]) == "true"
-    write_tifs = lowercase(cfg["write_tifs"]) == "true"
+    write_tifs = lowercase(cfg["write_as_tif"]) == "true"
     allow_different_projections = lowercase(cfg["allow_different_projections"]) == "true"
 
     if int_arguments["block_size"] == 1

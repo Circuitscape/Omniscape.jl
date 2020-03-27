@@ -69,6 +69,9 @@ One of true, false. Specify whether to calculate flow potential. Defaults to tru
 ### `mask_nodata`
 One of true, false. Specify whether to mask current flow outputs according to NoData values in resistance surface. (i.e. pixels in current flow outputs that line up with NoData values in resistance are set to no data if `mask_nodata` = true). Defaults to true.
 
+#### `write_as_tif`
+One of true, false. Should outputs be written in tif format? If false, outputs are written in .asc format. Defaults to true.
+
 #### `write_raw_currmap`
 One of true, false. Specify whether to save the raw current map (prior to normalization by flow potential) as output. Defaults to true.
 
