@@ -16,12 +16,12 @@ function init_cfg()
     cfg["source_from_resistance"] = "false"
     cfg["r_cutoff"] = "0.0"
 
-    cfg["calc_flow_potential"] = "true"
+    cfg["calc_flow_potential"] = "false"
+    cfg["calc_normalized_current"] = "false"
+
     cfg["correct_artifacts"] = "true"
 
     cfg["write_raw_currmap"] = "true"
-    cfg["write_normalized_currmap"] = "true"
-    cfg["write_flow_potential"] = "true"
     cfg["write_as_tif"] = "true"
     cfg["mask_nodata"] = "true"
 
@@ -78,16 +78,4 @@ function init_csdict(cfg)
     a["scenario"] = "Advanced"
 
     a
-end
-
-function init_ascii_header()
-    ascii_header = Dict{String, String}()
-    ascii_header["ncols"] = ""
-    ascii_header["nrows"] = ""
-    ascii_header["xllcorner"] = "0"
-    ascii_header["yllcorner"] = "0"
-    ascii_header["cellsize"] = "1"
-    ascii_header["nodata_value"] = "-9999"
-
-    ascii_header
 end

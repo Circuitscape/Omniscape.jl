@@ -31,8 +31,7 @@ function run_omniscape(path::String)
     compare_to_future = lowercase(cfg["compare_to_future"])
     # flags
     calc_flow_potential = lowercase(cfg["calc_flow_potential"]) == "true"
-    write_flow_potential = lowercase(cfg["write_flow_potential"]) == "true"
-    write_normalized_currmap = lowercase(cfg["write_normalized_currmap"]) == "true"
+    calc_normalized_current = lowercase(cfg["calc_normalized_current"]) == "true"
     write_raw_currmap = lowercase(cfg["write_raw_currmap"]) == "true"
     parallelize = lowercase(cfg["parallelize"]) == "true"
     correct_artifacts = lowercase(cfg["correct_artifacts"]) == "true"
@@ -40,8 +39,9 @@ function run_omniscape(path::String)
     conditional = lowercase(cfg["conditional"]) == "true"
     mask_nodata = lowercase(cfg["mask_nodata"]) == "true"
     resistance_file_is_conductance = lowercase(cfg["resistance_file_is_conductance"]) == "true"
-    write_tifs = lowercase(cfg["write_as_tif"]) == "true"
+    write_as_tif = lowercase(cfg["write_as_tif"]) == "true"
     allow_different_projections = lowercase(cfg["allow_different_projections"]) == "true"
+
 
     if int_arguments["block_size"] == 1
         correct_artifacts = false
@@ -51,7 +51,7 @@ function run_omniscape(path::String)
     source_threshold = parse(Float64, cfg["source_threshold"])
     project_name = cfg["project_name"]
     r_cutoff = parse(Float64, cfg["r_cutoff"])
-    file_format = write_tifs ? "tif" : "asc"
+    file_format = write_as_tif ? "tif" : "asc"
 
     ## Set number of BLAS threads to 1
     BLAS.set_num_threads(1)
@@ -205,7 +205,7 @@ function run_omniscape(path::String)
                            int_arguments["ncols"],
                            n_threads)
 
-        if calc_flow_potential
+        if calc_flow_potential || calc_normalized_current
             fp_cum_currmap = fill(0.,
                                   int_arguments["nrows"],
                                   int_arguments["ncols"],
@@ -221,7 +221,7 @@ function run_omniscape(path::String)
                           int_arguments["ncols"],
                           1)
 
-        if calc_flow_potential
+        if calc_flow_potential || calc_normalized_current
             fp_cum_currmap = fill(0.,
                                   int_arguments["nrows"],
                                   int_arguments["ncols"],
@@ -271,7 +271,7 @@ function run_omniscape(path::String)
                               resistance_raw,
                               cs_cfg,
                               o,
-                              calc_flow_potential,
+                              calc_flow_potential || calc_normalized_current,
                               correct_artifacts,
                               conditional,
                               condition1,
@@ -299,7 +299,7 @@ function run_omniscape(path::String)
                           resistance_raw,
                           cs_cfg,
                           o,
-                          calc_flow_potential,
+                          calc_flow_potential || calc_normalized_current,
                           correct_artifacts,
                           conditional,
                           condition1,
@@ -328,15 +328,36 @@ function run_omniscape(path::String)
     ## Normalize by flow potential
     if calc_flow_potential
         normalized_cum_currmap = cum_currmap ./ fp_cum_currmap
-        # replace NaNs with NoData value
-        normalized_cum_currmap[isnan.(normalized_cum_currmap)] .= 0.0
+        # replace NaNs with 0's
+        normalized_cum_currmap[isnan.(normalized_cum_currmap)] .= 0
     end
 
-    ## Make output directory
-    mkdir("$(project_name)")
+    ## create new directory if project_name already exists
+    dir_suffix = 1
+    while isdir(string(project_name, "_$(dir_suffix)"))
+        dir_suffix = dir_suffix + 1
+    end
+
+    isdir(project_name) && (project_name = string(project_name, "_$(dir_suffix)"))
+
+    mkdir(project_name)
+
+    # Copy .ini file to output directory
+    cp(path, "$(project_name)/$(project_name).ini")
+
+    ## Overwrite no data
+    if mask_nodata
+        if calc_normalized_current
+            normalized_cum_currmap[resistance_raw .== -9999] .= -9999
+        end
+        if calc_flow_potential
+            fp_cum_currmap[resistance_raw .== -9999] .= -9999
+        end
+        cum_currmap[resistance_raw .== -9999] .= -9999
+    end
 
     ## Write outputs
-    if write_raw_currmap == true
+    if write_raw_currmap
         write_raster("$(project_name)/cum_currmap",
                      cum_currmap,
                      wkt,
@@ -345,38 +366,35 @@ function run_omniscape(path::String)
     end
 
     if calc_flow_potential
-        if write_flow_potential
-            write_raster("$(project_name)/flow_potential",
-                         fp_cum_currmap,
-                         wkt,
-                         transform,
-                         file_format)
-        end
+        write_raster("$(project_name)/flow_potential",
+                     fp_cum_currmap,
+                     wkt,
+                     transform,
+                     file_format)
+    end
 
-        if write_normalized_currmap
-            write_raster("$(project_name)/normalized_cum_currmap",
-                         normalized_cum_currmap,
-                         wkt,
-                         transform,
-                         file_format)
-        end
+
+    if calc_normalized_current
+        write_raster("$(project_name)/normalized_cum_currmap",
+                     normalized_cum_currmap,
+                     wkt,
+                     transform,
+                     file_format)
     end
 
     println("Done")
     println("Time taken to complete job: $(round(time() - start_time; digits = 4)) seconds")
 
-    ## Return outputs
-    if calc_flow_potential
-        if mask_nodata
-            normalized_cum_currmap[resistance_raw .== -9999] .= -9999
-            cum_currmap[resistance_raw .== -9999] .= -9999
-        end
-        return normalized_cum_currmap, cum_currmap, fp_cum_currmap
+    println("Outputs written to $(string(pwd(),"/",project_name))")
+
+    ## Return outputs, depending on user options
+    if calc_normalized_current && !calc_flow_potential
+        return cum_currmap, normalized_cum_currmap
+    elseif !calc_normalized_current && calc_flow_potential
+        return cum_currmap, fp_cum_currmap
+    elseif calc_normalized_current && calc_flow_potential
+        return cum_currmap, fp_cum_currmap, normalized_cum_currmap
     else
-        if mask_nodata
-            cum_currmap[resistance_raw .== -9999] .= -9999
-        end
         return cum_currmap
     end
 end
-

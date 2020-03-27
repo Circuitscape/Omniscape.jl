@@ -83,11 +83,15 @@ l, f, p = run_omniscape("input/config4.ini")
 g = run_omniscape("input/config5.ini")
 h = run_omniscape("input/config6.ini")
 a, b, c = run_omniscape("input/config.ini")
-q, e, m = run_omniscape("input/config3.ini")
+q, e = run_omniscape("input/config3.ini")
 d = run_omniscape("input/config2.ini")
+d_1 = run_omniscape("input/config2.ini")
+d_2 = run_omniscape("input/config2.ini")
 
 rm("test1", recursive = true)
 rm("test2", recursive = true)
+rm("test2_1", recursive = true)
+rm("test2_2", recursive = true)
 rm("test3", recursive = true)
 rm("test4", recursive = true)
 rm("test5", recursive = true)
@@ -101,7 +105,7 @@ rm("test6", recursive = true)
 @test typeof(c) == Array{Float64,2}
 @test typeof(d) == Array{Float64,2}
 @test typeof(e) == Array{Float64,2}
-@test b ≈ d #parallel and serial produce same result
+@test a ≈ d #parallel and serial produce same result
 
 # Test error throws
 @test run_omniscape("input/config7.ini") == nothing
