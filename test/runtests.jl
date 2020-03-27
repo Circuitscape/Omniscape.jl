@@ -55,7 +55,7 @@ target_val = con1fut[y, x]
 @info "conditional connectivity tests passed"
 
 ## Check that targets are IDed properly
-sources_raw = float(Omniscape.read_ascii("input/source.asc"))
+sources_raw = Omniscape.read_raster("input/source.asc")[1]
 int_arguments = Dict{String, Int64}()
 int_arguments["block_size"] = 7
 int_arguments["block_radius"] = 3 # must be (size - 1) / 2
@@ -86,11 +86,11 @@ a, b, c = run_omniscape("input/config.ini")
 q, e, m = run_omniscape("input/config3.ini")
 d = run_omniscape("input/config2.ini")
 
-rm("test1_output", recursive = true)
-rm("test2_output", recursive = true)
-rm("test3_output", recursive = true)
-rm("test5_output", recursive = true)
-rm("test6_output", recursive = true)
+rm("test1", recursive = true)
+rm("test2", recursive = true)
+rm("test3", recursive = true)
+rm("test5", recursive = true)
+rm("test6", recursive = true)
 
 @test typeof(f) == Array{Float64,2}
 @test typeof(g) == Array{Float64,2}

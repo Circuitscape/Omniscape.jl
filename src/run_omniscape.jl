@@ -42,6 +42,8 @@ function run_omniscape(path::String)
     conditional = lowercase(cfg["conditional"]) == "true"
     mask_nodata = lowercase(cfg["mask_nodata"]) == "true"
     resistance_file_is_conductance = lowercase(cfg["resistance_file_is_conductance"]) == "true"
+    write_tifs = lowercase(cfg["write_tifs"]) == "true"
+    allow_different_projections = lowercase(cfg["allow_different_projections"]) == "true"
 
     if int_arguments["block_size"] == 1
         correct_artifacts = false
@@ -51,28 +53,29 @@ function run_omniscape(path::String)
     source_threshold = parse(Float64, cfg["source_threshold"])
     project_name = cfg["project_name"]
     r_cutoff = parse(Float64, cfg["r_cutoff"])
+    file_format = write_tifs ? "tif" : "asc"
 
     ## Set number of BLAS threads to 1
     BLAS.set_num_threads(1)
 
-    ## Store ascii header
-    final_header = parse_ascii_header("$(cfg["resistance_file"])")
-
     ## Import sources and resistances
-    resistance_raw = float(read_ascii("$(cfg["resistance_file"])"))
+    resistance_raster = read_raster("$(cfg["resistance_file"])")
 
-    # Adjust nodata value if not already -9999
-    if parse(Float64, final_header["nodata_value"]) != -9999
-        no_data_val = parse(Float64, final_header["nodata_value"])
-        resistance_raw[resistance_raw .== no_data_val] .= -9999
-        final_header["nodata_value"] = "-9999"
-    end
+    resistance_raw = resistance_raster[1]
+    wkt = resistance_raster[2]
+    transform = resistance_raster[3]
+
+    # # Adjust nodata value if not already -9999
+    # if parse(Float64, final_header["nodata_value"]) != -9999
+    #     no_data_val = parse(Float64, final_header["nodata_value"])
+    #     resistance_raw[resistance_raw .== no_data_val] .= -9999
+    #     final_header["nodata_value"] = "-9999"
+    # end
 
     if minimum(resistance_raw[resistance_raw .!= -9999]) <= 0
         @error "Resistance (or conductance) surface contains 0 or negative values"
         return
     end
-
 
     # If resistance file is conductance, convert back to resistance
     if resistance_file_is_conductance
@@ -86,7 +89,23 @@ function run_omniscape(path::String)
         sources_raw[resistance_raw .> r_cutoff] .= 0.0
         sources_raw[resistance_raw .== -9999] .= 0.0
     else
-        sources_raw = float(read_ascii("$(cfg["source_file"])"))
+        sources_raster = read_raster("$(cfg["source_file"])")
+        sources_raw = sources_raster[1]
+
+        # Check for raster alignment
+        alignment_flags = check_raster_alignment(resistance_raster, sources_raster)
+
+        # warn if projections are different
+        !alignment_flags[2] &&
+            !allow_different_projections &&
+                different_raster_projections_warning("resistance_file", "sources_file")
+
+        # error if rasters are different sizes
+        !alignment_flags[1] && (different_raster_sizes_error("resistance_file", "sources_file"); return)
+
+        # get rid of unneeded raster to save memory
+        sources_raster = nothing
+
         sources_raw[sources_raw .< source_threshold] .= 0.0
     end
 
@@ -95,33 +114,93 @@ function run_omniscape(path::String)
 
     # Import conditional rasters and other conditional connectivity stuff
     if conditional
-        condition1_present = float(read_ascii("$(cfg["condition1_present_file"])"))
+        condition1_raster = read_raster("$(cfg["condition1_file"])")
+        condition1 = condition1_raster[1]
+
+        # Check for raster alignment
+        alignment_flags = check_raster_alignment(resistance_raster, condition1_raster)
+
+        # warn if projections are different
+        !alignment_flags[2] &&
+            !allow_different_projections &&
+                different_raster_projections_warning("resistance_file", "condition1_file")
+
+        # error if rasters are different sizes
+        !alignment_flags[1] && (different_raster_sizes_error("resistance_file", "condition1_file"); return)
+
+        # get rid of unneeded raster to save memory
+        condition1_raster = nothing
 
         if compare_to_future == "1" || compare_to_future == "both"
-            condition1_future = float(read_ascii("$(cfg["condition1_future_file"])"))
+            condition1_future_raster = read_raster("$(cfg["condition1_future_file"])")
+            condition1_future = condition1_future_raster[1]
+
+            # Check for raster alignment
+            alignment_flags = check_raster_alignment(resistance_raster, condition1_future_raster)
+
+            # warn if projections are different
+            !alignment_flags[2] &&
+                !allow_different_projections &&
+                    different_raster_projections_warning("resistance_file", "condition1_future_file")
+
+            # error if rasters are different sizes
+            !alignment_flags[1] && (different_raster_sizes_error("resistance_file", "condition1_future_file"); return)
+
+            # get rid of unneeded raster to save memory
+            condition1_future_raster = nothing
         else
-            condition1_future = condition1_present
+            condition1_future = condition1
         end
 
         if int_arguments["n_conditions"] == 2
-            condition2_present = float(read_ascii("$(cfg["condition2_present_file"])"))
+            condition2_raster = read_raster("$(cfg["condition2_file"])")
+            condition2 = condition2_raster[1]
+
+            # Check for raster alignment
+            alignment_flags = check_raster_alignment(resistance_raster, condition2_raster)
+
+            # warn if projections are different
+            !alignment_flags[2] &&
+                !allow_different_projections &&
+                    different_raster_projections_warning("resistance_file", "condition2_file")
+
+            # error if rasters are different sizes
+            !alignment_flags[1] && (different_raster_sizes_error("resistance_file", "condition2_file"); return)
 
             if compare_to_future == "2" || compare_to_future == "both"
-                condition2_future = float(read_ascii("$(cfg["condition2_future_file"])"))
+                condition2_future_raster = read_raster("$(cfg["condition2_future_file"])")
+                condition2_future = condition2_future_raster[1]
+
+                # Check for raster alignment
+                alignment_flags = check_raster_alignment(resistance_raster, condition2_future_raster)
+
+                # warn if projections are different
+                !alignment_flags[2] &&
+                    !allow_different_projections &&
+                        different_raster_projections_warning("resistance_file", "condition2_future_file")
+
+                # error if rasters are different sizes
+                !alignment_flags[1] && (different_raster_sizes_error("resistance_file", "condition2_future_file"); return)
+
+                # get rid of unneeded raster to save memory
+                condition2_future_raster = nothing
             else
-                condition2_future = condition2_present
+                condition2_future = condition2
             end
 
         else
-            condition2_present = Array{Float64, 2}(undef, 1, 1)
-            condition2_future = condition2_present
+            condition2 = Array{Float64, 2}(undef, 1, 1)
+            condition2_future = condition2
         end
     else
-        condition1_present = Array{Float64, 2}(undef, 1, 1)
-        condition2_present = Array{Float64, 2}(undef, 1, 1)
-        condition1_future = condition1_present
-        condition2_future = condition2_present
+        condition1 = Array{Float64, 2}(undef, 1, 1)
+        condition2 = Array{Float64, 2}(undef, 1, 1)
+        condition1_future = condition1
+        condition2_future = condition2
     end
+
+    # get rid of unneeded raster to save memory
+    resistance_raster = nothing
 
     comparison1 = cfg["comparison1"]
     comparison2 = cfg["comparison2"]
@@ -138,10 +217,6 @@ function run_omniscape(path::String)
     ## Calculate targets
     targets = get_targets(sources_raw,
                           int_arguments)
-
-
-    ## Initialize temporary ascii header for CS advanced mode
-    temp_header = init_ascii_header()
 
     ## Circuitscape calls in loop over targets
     n_targets = size(targets, 1)
@@ -194,9 +269,9 @@ function run_omniscape(path::String)
                                            cs_cfg,
                                            o,
                                            conditional,
-                                           condition1_present,
+                                           condition1,
                                            condition1_future,
-                                           condition2_present,
+                                           condition2,
                                            condition2_future,
                                            comparison1,
                                            comparison2,
@@ -231,9 +306,9 @@ function run_omniscape(path::String)
                               calc_flow_potential,
                               correct_artifacts,
                               conditional,
-                              condition1_present,
+                              condition1,
                               condition1_future,
-                              condition2_present,
+                              condition2,
                               condition2_future,
                               comparison1,
                               comparison2,
@@ -259,9 +334,9 @@ function run_omniscape(path::String)
                           calc_flow_potential,
                           correct_artifacts,
                           conditional,
-                          condition1_present,
+                          condition1,
                           condition1_future,
-                          condition2_present,
+                          condition2,
                           condition2_future,
                           comparison1,
                           comparison2,
@@ -290,26 +365,32 @@ function run_omniscape(path::String)
     end
 
     ## Make output directory
-    mkdir("$(project_name)_output")
+    mkdir("$(project_name)")
 
     ## Write outputs
     if write_raw_currmap == true
-        write_ascii(cum_currmap,
-                    "$(project_name)_output/cum_currmap.asc",
-                    final_header)
+        write_raster("$(project_name)/cum_currmap",
+                     cum_currmap,
+                     wkt,
+                     transform,
+                     file_format)
     end
 
     if calc_flow_potential
         if write_flow_potential
-            write_ascii(fp_cum_currmap,
-                        "$(project_name)_output/flow_potential.asc",
-                        final_header)
+            write_raster("$(project_name)/flow_potential",
+                         fp_cum_currmap,
+                         wkt,
+                         transform,
+                         file_format)
         end
 
         if write_normalized_currmap
-            write_ascii(normalized_cum_currmap,
-                        "$(project_name)_output/normalized_cum_currmap.asc",
-                        final_header)
+            write_raster("$(project_name)/normalized_cum_currmap",
+                         normalized_cum_currmap,
+                         wkt,
+                         transform,
+                         file_format)
         end
     end
 

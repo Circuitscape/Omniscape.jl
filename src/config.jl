@@ -22,13 +22,14 @@ function init_cfg()
     cfg["write_raw_currmap"] = "true"
     cfg["write_normalized_currmap"] = "true"
     cfg["write_flow_potential"] = "true"
+    cfg["write_tifs"] = "true"
     cfg["mask_nodata"] = "true"
 
     cfg["conditional"] = "false"
     cfg["n_conditions"] = "1"
     cfg["compare_to_future"] = "none"
-    cfg["condition1_present_file"] = "(browse to present condition 1 file)"
-    cfg["condition2_present_file"] = "(browse to present condition 2 file)"
+    cfg["condition1_file"] = "(browse to condition 1 file)"
+    cfg["condition2_file"] = "(browse to condition 2 file)"
     cfg["condition1_future_file"] = "(browse to future condition 1 file)"
     cfg["condition2_future_file"] = "(browse to future condition 2 file)"
     cfg["comparison1"] = "within"
@@ -37,6 +38,8 @@ function init_cfg()
     cfg["condition2_lower"] = "0"
     cfg["condition1_upper"] = "0"
     cfg["condition2_upper"] = "0"
+
+    cfg["allow_different_projections"] = "false"
 
     cfg
 end

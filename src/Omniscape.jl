@@ -4,6 +4,7 @@ using DelimitedFiles
 using LinearAlgebra.BLAS
 using Base.Threads
 using StatsBase
+using ArchGDAL
 using Statistics
 
 include("config.jl")
