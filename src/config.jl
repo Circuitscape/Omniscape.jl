@@ -16,19 +16,20 @@ function init_cfg()
     cfg["source_from_resistance"] = "false"
     cfg["r_cutoff"] = "0.0"
 
-    cfg["calc_flow_potential"] = "true"
+    cfg["calc_flow_potential"] = "false"
+    cfg["calc_normalized_current"] = "false"
+
     cfg["correct_artifacts"] = "true"
 
     cfg["write_raw_currmap"] = "true"
-    cfg["write_normalized_currmap"] = "true"
-    cfg["write_flow_potential"] = "true"
+    cfg["write_as_tif"] = "true"
     cfg["mask_nodata"] = "true"
 
     cfg["conditional"] = "false"
     cfg["n_conditions"] = "1"
     cfg["compare_to_future"] = "none"
-    cfg["condition1_present_file"] = "(browse to present condition 1 file)"
-    cfg["condition2_present_file"] = "(browse to present condition 2 file)"
+    cfg["condition1_file"] = "(browse to condition 1 file)"
+    cfg["condition2_file"] = "(browse to condition 2 file)"
     cfg["condition1_future_file"] = "(browse to future condition 1 file)"
     cfg["condition2_future_file"] = "(browse to future condition 2 file)"
     cfg["comparison1"] = "within"
@@ -37,6 +38,8 @@ function init_cfg()
     cfg["condition2_lower"] = "0"
     cfg["condition1_upper"] = "0"
     cfg["condition2_upper"] = "0"
+
+    cfg["allow_different_projections"] = "false"
 
     cfg
 end
@@ -75,16 +78,4 @@ function init_csdict(cfg)
     a["scenario"] = "Advanced"
 
     a
-end
-
-function init_ascii_header()
-    ascii_header = Dict{String, String}()
-    ascii_header["ncols"] = ""
-    ascii_header["nrows"] = ""
-    ascii_header["xllcorner"] = "0"
-    ascii_header["yllcorner"] = "0"
-    ascii_header["cellsize"] = "1"
-    ascii_header["nodata_value"] = "-9999"
-
-    ascii_header
 end

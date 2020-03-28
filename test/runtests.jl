@@ -55,7 +55,7 @@ target_val = con1fut[y, x]
 @info "conditional connectivity tests passed"
 
 ## Check that targets are IDed properly
-sources_raw = float(Omniscape.read_ascii("input/source.asc"))
+sources_raw = Omniscape.read_raster("input/source.asc")[1]
 int_arguments = Dict{String, Int64}()
 int_arguments["block_size"] = 7
 int_arguments["block_radius"] = 3 # must be (size - 1) / 2
@@ -83,14 +83,10 @@ l, f, p = run_omniscape("input/config4.ini")
 g = run_omniscape("input/config5.ini")
 h = run_omniscape("input/config6.ini")
 a, b, c = run_omniscape("input/config.ini")
-q, e, m = run_omniscape("input/config3.ini")
+q, e = run_omniscape("input/config3.ini")
 d = run_omniscape("input/config2.ini")
-
-rm("test1_output", recursive = true)
-rm("test2_output", recursive = true)
-rm("test3_output", recursive = true)
-rm("test5_output", recursive = true)
-rm("test6_output", recursive = true)
+d_1 = run_omniscape("input/config2.ini")
+d_2 = run_omniscape("input/config2.ini")
 
 @test typeof(f) == Array{Float64,2}
 @test typeof(g) == Array{Float64,2}
@@ -100,9 +96,20 @@ rm("test6_output", recursive = true)
 @test typeof(c) == Array{Float64,2}
 @test typeof(d) == Array{Float64,2}
 @test typeof(e) == Array{Float64,2}
-@test b ≈ d #parallel and serial produce same result
+@test a ≈ d #parallel and serial produce same result
 
 # Test error throws
 @test run_omniscape("input/config7.ini") == nothing
+
+GC.gc()
+
+rm("test1", recursive = true)
+rm("test2", recursive = true)
+rm("test2_1", recursive = true)
+rm("test2_2", recursive = true)
+rm("test3", recursive = true)
+rm("test4", recursive = true)
+rm("test5", recursive = true)
+rm("test6", recursive = true)
 
 @info "run_omniscape tests passed"
