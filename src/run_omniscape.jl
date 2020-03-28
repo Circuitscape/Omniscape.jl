@@ -335,9 +335,8 @@ function run_omniscape(path::String)
     ## create new directory if project_name already exists
     dir_suffix = 1
     while isdir(string(project_name, "_$(dir_suffix)"))
-        dir_suffix = dir_suffix + 1
+        dir_suffix+=1
     end
-
     isdir(project_name) && (project_name = string(project_name, "_$(dir_suffix)"))
 
     mkdir(project_name)
