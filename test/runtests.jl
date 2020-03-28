@@ -88,15 +88,6 @@ d = run_omniscape("input/config2.ini")
 d_1 = run_omniscape("input/config2.ini")
 d_2 = run_omniscape("input/config2.ini")
 
-rm("test1", recursive = true)
-rm("test2", recursive = true)
-rm("test2_1", recursive = true)
-rm("test2_2", recursive = true)
-rm("test3", recursive = true)
-rm("test4", recursive = true)
-rm("test5", recursive = true)
-rm("test6", recursive = true)
-
 @test typeof(f) == Array{Float64,2}
 @test typeof(g) == Array{Float64,2}
 @test typeof(h) == Array{Float64,2}
@@ -109,5 +100,16 @@ rm("test6", recursive = true)
 
 # Test error throws
 @test run_omniscape("input/config7.ini") == nothing
+
+GC.gc()
+
+rm("test1", recursive = true)
+rm("test2", recursive = true)
+rm("test2_1", recursive = true)
+rm("test2_2", recursive = true)
+rm("test3", recursive = true)
+rm("test4", recursive = true)
+rm("test5", recursive = true)
+rm("test6", recursive = true)
 
 @info "run_omniscape tests passed"
