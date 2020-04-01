@@ -45,7 +45,7 @@ function write_raster(fn_prefix::AbstractString,
     file_format == "tif" ? (ext = ".tif"; driver = "GTiff") :
             (ext = ".asc"; driver = "AAIGrid")
 
-    file_format == "tif" ? (options = ["COMPRESS=DEFLATE","TILED=YES"]) :
+    file_format == "tif" ? (options = ["COMPRESS=LZW"]) :
                            (options = [])
 
     # Append file extention to filename
