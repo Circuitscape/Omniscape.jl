@@ -40,9 +40,14 @@ julia
 
 **`project_name`:** The name of the project. Omniscape will create a directory called `project_name` and write any outputs to that directory.
 
+*If `source_from_resistance` (described below) is false*:
+
+**`source_file`:** The path to the source layer input. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that they have the exact same projection to ensure proper alignment. NoData values will be assigned a source strength of 0.  Does not need to be provided if `source_from_resistance` = true.
+
 ### Optional
 #### General options
-**`source_file`:** The path to the source layer input. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that they have the exact same projection to ensure proper alignment. All values must be ``\geq 0``.  Does not need to be provided if `source_from_resistance` = true.
+
+**`source_from_resistance`**: One of true, false. Should a source layer be derived using the resistance layer? If true, sources are calculated as the inverse of the resistance layer, and therefore it is not recommended that your resistance layer contain values less than 1. Sources will be set to 0 for all cells with a resistance greater than `r_cutoff`. Defaults to false.
 
 **`resistance_file_is_conductance`:** One of true, false. Defaults to false. Specify whether the file specified by `resistance_file` is a conductance (rather than resistance) surface. Conductance is the inverse of resistance. Note that `r_cutoff` (an optional argument described below) must be in units of resistance even if a conductance file is supplied as input.
 
@@ -72,7 +77,7 @@ julia
 
 **`n_conditions`:** One of 1, 2. Defaults to 1. The number of conditions that must be met for conditional source/target matching. Only applies if `conditional` = true.
 
-#### If n_conditions = 1
+*If `n_conditions` = 1*:
 
 **`condition1_file`:** The file path to the data representing condition one in present day. Only needed if `conditional` = true. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that it also has the exact same projection to ensure proper alignment.
 
@@ -82,7 +87,7 @@ julia
 
 **`condition1_upper`:** Number. Only required if `comparison1` = within. If `condition1_upper` = 1, then a source may have a condition 1 value up to 1 unit larger than the target's value and it will still be connected.
 
-#### If n_conditions = 2
+*If `n_conditions` = 2*:
 
 **`condition2_file`:** The file path to the data representing condition two in present day. Only needed if `conditional` = true and `n_conditions` = 2. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that it also has the exact same projection to ensure proper alignment.
 
@@ -92,7 +97,7 @@ julia
 
 **`condition2_upper`:** Number. Only required if `n_conditions` = 2 and `comparison1` = within. If `condition2_lower` = 1, then a source may have a condition 2 value up to 1 unit larger than the target's value and it will still be connected.
 
-#### Using future conditions
+*Using future conditions*:
 
 **`compare_to_future`:** One of none, 1, 2, or both. Which condition(s) should compare the future condition in targets with present-day conditions in sources when determining which pairs to connect? For any condition(s) specified in this argument, two data layers are needed: one with future condition values for all pixels in the study area, and one for present day condition values for all pixels in the study area. Defaults to "none".
 
