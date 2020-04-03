@@ -96,7 +96,7 @@ function run_omniscape(path::String)
         sources_raster = nothing
         
         # overwrite nodata with 0
-        sourced_raw[sources_raw .== -9999] .= 0.0
+        sources_raw[sources_raw .== -9999] .= 0.0
         
         # Set values < user-specified threshold to 0
         sources_raw[sources_raw .< source_threshold] .= 0.0
