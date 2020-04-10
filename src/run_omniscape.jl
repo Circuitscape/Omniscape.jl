@@ -346,7 +346,7 @@ function run_omniscape(path::String)
     mkdir(project_name)
 
     # Copy .ini file to output directory
-    cp(path, "$(project_name)/$(project_name).ini")
+    cp(path, "$(project_name)/config.ini")
 
     ## Overwrite no data
     if mask_nodata
