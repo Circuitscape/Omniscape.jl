@@ -67,6 +67,9 @@ julia
 **`parallel_batch_size`:** Integer. Defaults to 10. The batch size (number of jobs) to send to each parallel worker. Particularly in cases where single solves are very fast, setting this to a larger number can reduce I/O overhead when scheduling/sending jobs to parallel workers. If set too high, then you will not be fully utilizing parallel workers.
 
 #### Output options
+
+**`write_raw_currmap`:** One of true, false. Defaults to true. Save the raw cumulative current map to disk? Should always be set to true unless `calc_flow_potential`, `calc_normalized_current`, or both are true and you do not need the raw current output.
+
 **`mask_nodata`:** One of true, false. Defaults to true. Specify whether to mask current flow outputs according to NoData values in resistance surface. (i.e. pixels in current flow outputs that line up with NoData values in resistance are set to no data if `mask_nodata` = true).
 
 **`write_as_tif`:** One of true, false. Defaults to true. Should outputs be written in tif format? If false, outputs are written in .asc format.
