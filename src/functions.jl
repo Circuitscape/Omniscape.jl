@@ -7,15 +7,24 @@ function clip(
         distance::Int64
     )
 
-    dim1 = size(A)[1]
-    dim2 = size(A)[2]
+    sizes = size(A)
 
-    dist = [sqrt((j - x)^2 + (i - y)^2) for i = 1:dim1, j = 1:dim2]
+    xlower = Int64(max(x - distance, 1))
+    xupper = Int64(min(x + distance, sizes[2]))
+    ylower = Int64(max(y - distance, 1))
+    yupper = Int64(min(y + distance, sizes[1]))
 
-    clipped = deepcopy(A)
-    clipped[dist .> distance] .= -9999
 
-    clipped
+    A_sub = A[ylower:yupper, xlower:xupper]
+
+    dim1 = size(A_sub)[1]
+    dim2 = size(A_sub)[2]
+
+    dist = [sqrt((j - (distance + 1))^2 + (i - (distance + 1))^2) for i = 1:dim1, j = 1:dim2]
+
+    A_sub[dist .> distance] .= -9999
+
+    A_sub
 end
 
 
@@ -101,23 +110,33 @@ function get_source(
                          y = y,
                          distance = radius)
 
+    # Replace nodata vals with 0s
     source_subset[source_subset .== -9999] .= 0.0
+
+    # Append 0s if buffer > 0
+    # Append NoData (-9999) if buffer > 0
+    if buffer > 0
+        # Add columns
+        coldims_sub = (size(source_subset)[1], buffer)
+
+        source_subset = hcat(fill(-9999., coldims_sub),
+                                  source_subset,
+                                  fill(-9999., coldims_sub))
+        # Add rows
+        rowdims_sub = (buffer, size(source_subset)[2])
+
+        source_subset = vcat(fill(-9999., rowdims_sub),
+                                source_subset,
+                                fill(-9999., rowdims_sub))
+    end
+
     # Set any sources inside target to NoData
-    xlower = x - block_radius
-    xupper = min(x + block_radius, ncols)
-    ylower = y - block_radius
-    yupper = min(y + block_radius, nrows)
+    xlower = (radius + buffer  + 1) - block_radius
+    xupper = min((radius + buffer  + 1)  + block_radius, ncols)
+    ylower = (radius + buffer + 1)  - block_radius
+    yupper = min((radius + buffer  + 1)  + block_radius, nrows)
 
     source_subset[ylower:yupper, xlower:xupper] .= 0
-
-    # Extract subset for faster solve times
-    xlower_buffered = max(x - radius - buffer, 1)
-    xupper_buffered = min(x + radius + buffer, ncols)
-    ylower_buffered = max(y - radius - buffer, 1)
-    yupper_buffered = min(y + radius + buffer, nrows)
-
-    source_subset = source_subset[ylower_buffered:yupper_buffered,
-                                  xlower_buffered:xupper_buffered]
 
     # allocate total current equal to target "strength", divide among sources
     # according to their source strengths
@@ -126,6 +145,12 @@ function get_source(
         (source_subset[source_subset .> 0] * strength) / source_sum
 
     if conditional
+
+        xlower_buffered = Int64(max(x - radius - buffer, 1))
+        xupper_buffered = Int64(min(x + radius + buffer, ncols))
+        ylower_buffered = Int64(max(y - radius - buffer, 1))
+        yupper_buffered = Int64(min(y + radius + buffer, nrows))
+        println([xlower_buffered, xupper_buffered, ylower_buffered, yupper_buffered])
         source_target_match!(source_subset,
                              arguments["n_conditions"],
                              condition1_present,
@@ -173,7 +198,7 @@ function source_target_match!(source_subset::Array{Float64,2},
                               xupper_buffered::Int64
                               )
     con1_present_subset = condition1_present[ylower_buffered:yupper_buffered,
-                                           xlower_buffered:xupper_buffered]
+                                             xlower_buffered:xupper_buffered]
     if comparison1 == "within"
       value1 = median(condition1_future[ylower:yupper, xlower:xupper])
       source_subset[((con1_present_subset .- value1) .> condition1_upper) .|
@@ -232,21 +257,13 @@ function get_resistance(
 
     radius = arguments["radius"]
     buffer = arguments["buffer"]
-    nrows = arguments["nrows"]
-    ncols = arguments["ncols"]
-
-    xlower_buffered = Int64(max(x - radius - buffer, 1))
-    xupper_buffered = Int64(min(x + radius + buffer, ncols))
-    ylower_buffered = Int64(max(y - radius - buffer, 1))
-    yupper_buffered = Int64(min(y + radius + buffer, nrows))
 
     resistance_clipped = clip(raw_resistance,
                               x = x,
                               y = y,
                               distance = radius + buffer)
 
-    resistance = 1 ./ resistance_clipped[ylower_buffered:yupper_buffered,
-                                    xlower_buffered:xupper_buffered]
+    resistance = 1 ./ resistance_clipped
 end
 
 
@@ -525,7 +542,7 @@ function calc_correction(
         condition2_lower::Float64,
         condition2_upper::Float64
     )
-
+    buffer = arguments["buffer"]
     # This may not apply seamlessly in the case (if I add the option) that source strengths
     # are not adjusted by target weight, but stay the same according to their
     # original values. Something to keep in mind...
@@ -542,14 +559,28 @@ function calc_correction(
                                      false, false, solver, o)
 
     temp_source = fill(1.,
-                       arguments["radius"] * 2 + arguments["buffer"] * 2 + 1,
-                       arguments["radius"] * 2 + arguments["buffer"] * 2 + 1)
+                       arguments["radius"] * 2 + buffer * 2 + 1,
+                       arguments["radius"] * 2 + buffer * 2 + 1)
 
     temp_source_clip = clip(temp_source,
-                            x = arguments["radius"] + arguments["buffer"] + 1,
-                            y = arguments["radius"] + arguments["buffer"] + 1,
+                            x = arguments["radius"] + buffer + 1,
+                            y = arguments["radius"] + buffer + 1,
                             distance = arguments["radius"])
 
+    # Append NoData (-9999) if buffer > 0
+    if buffer > 0
+        column_dims = (size(temp_source_clip)[1], buffer)
+        # Add columns
+        temp_source_clip = hcat(fill(-9999., column_dims),
+                                temp_source_clip,
+                                fill(-9999., column_dims))
+
+        row_dims = (buffer, size(temp_source_clip)[2])
+        # Add rows
+        temp_source_clip = vcat(fill(-9999., row_dims),
+                                temp_source_clip,
+                                fill(-9999., row_dims))
+    end
     source_null = deepcopy(temp_source_clip)
     n_sources = sum(source_null[source_null .!= -9999])
 
