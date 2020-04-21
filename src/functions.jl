@@ -131,12 +131,12 @@ function get_source(
     end
 
     # Set any sources inside target to NoData
-    xlower = (radius + buffer  + 1) - block_radius
-    xupper = min((radius + buffer  + 1)  + block_radius, ncols)
-    ylower = (radius + buffer + 1)  - block_radius
-    yupper = min((radius + buffer  + 1)  + block_radius, nrows)
+    xlower_sub = (radius + buffer  + 1) - block_radius
+    xupper_sub = min((radius + buffer  + 1)  + block_radius, ncols)
+    ylower_sub = (radius + buffer + 1)  - block_radius
+    yupper_sub = min((radius + buffer  + 1)  + block_radius, nrows)
 
-    source_subset[ylower:yupper, xlower:xupper] .= 0
+    source_subset[ylower_sub:yupper_sub, xlower_sub:xupper_sub] .= 0
 
     # allocate total current equal to target "strength", divide among sources
     # according to their source strengths
@@ -150,7 +150,10 @@ function get_source(
         xupper_buffered = Int64(min(x + radius + buffer, ncols))
         ylower_buffered = Int64(max(y - radius - buffer, 1))
         yupper_buffered = Int64(min(y + radius + buffer, nrows))
-        println([xlower_buffered, xupper_buffered, ylower_buffered, yupper_buffered])
+        xlower = x - block_radius
+        xupper = min(x + block_radius, ncols)
+        ylower = y - block_radius
+        yupper = min(y + block_radius, nrows)
         source_target_match!(source_subset,
                              arguments["n_conditions"],
                              condition1_present,
@@ -199,6 +202,7 @@ function source_target_match!(source_subset::Array{Float64,2},
                               )
     con1_present_subset = condition1_present[ylower_buffered:yupper_buffered,
                                              xlower_buffered:xupper_buffered]
+
     if comparison1 == "within"
       value1 = median(condition1_future[ylower:yupper, xlower:xupper])
       source_subset[((con1_present_subset .- value1) .> condition1_upper) .|
