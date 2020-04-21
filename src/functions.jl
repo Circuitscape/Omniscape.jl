@@ -112,22 +112,41 @@ function get_source(
 
     # Replace nodata vals with 0s
     source_subset[source_subset .== -9999] .= 0.0
-
+    
     # Append 0s if buffer > 0
     # Append NoData (-9999) if buffer > 0
     if buffer > 0
-        # Add columns
-        coldims_sub = (size(source_subset)[1], buffer)
+        ### Columns
+        nrow_sub = size(source_subset)[1]
+        left_col_num = max(0, min(buffer, buffer + x - radius - buffer))
+        right_col_num = max(0, min(buffer, buffer + ncols - (x + radius + buffer)))
 
-        source_subset = hcat(fill(-9999., coldims_sub),
-                                  source_subset,
-                                  fill(-9999., coldims_sub))
-        # Add rows
-        rowdims_sub = (buffer, size(source_subset)[2])
+        # Add left columns
+        if left_col_num > 0
+            source_subset = hcat(fill(-9999., (nrow_sub, left_col_num)),
+                                 source_subset)
+        end
+        # Add right columns
+        if right_col_num > 0
+            source_subset = hcat(source_subset,
+                                 fill(-9999., (nrow_sub, right_col_num)))
+        end
 
-        source_subset = vcat(fill(-9999., rowdims_sub),
-                                source_subset,
-                                fill(-9999., rowdims_sub))
+        ### Rows
+        ncol_sub = size(source_subset)[2]
+        top_row_num = max(0, min(buffer, buffer + y - radius - buffer))
+        bottom_row_num = max(0, min(buffer, buffer + nrows - (y + radius + buffer)))
+
+        # Add top rows
+        if top_row_num > 0
+            source_subset = vcat(fill(-9999., (top_row_num, ncol_sub)),
+                                    source_subset)
+        end
+        #Add bottom rows
+        if bottom_row_num > 0
+            source_subset = vcat(source_subset,
+                                 fill(-9999., (bottom_row_num, ncol_sub)))
+        end
     end
 
     # Set any sources inside target to NoData
@@ -154,6 +173,7 @@ function get_source(
         xupper = min(x + block_radius, ncols)
         ylower = y - block_radius
         yupper = min(y + block_radius, nrows)
+
         source_target_match!(source_subset,
                              arguments["n_conditions"],
                              condition1_present,
