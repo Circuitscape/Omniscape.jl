@@ -19,7 +19,7 @@ function clip(
 
     dim1 = size(A_sub)[1]
     dim2 = size(A_sub)[2]
-    
+
     new_x = min(distance + 1, x)
     new_y = min(distance + 1, y)
 
@@ -41,10 +41,10 @@ function get_targets(
     nrows = arguments["nrows"]
     ncols = arguments["ncols"]
 
-    start = (block_size + 1) / 2
+    start = block_radius + 1
 
-    xs = [start:block_size:ncols;]
-    ys = [start:block_size:nrows;]
+    xs = [start:block_size:(ncols - block_radius - 1);]
+    ys = [start:block_size:(nrows - block_radius - 1);]
 
     ground_points = zeros(Float64,(length(xs)*length(ys), 2))
 
@@ -147,7 +147,7 @@ function get_source(
                                  fill(-9999., (bottom_row_num, ncol_sub)))
         end
     end
-    
+
     # Replace nodata vals with 0s
     source_subset[source_subset .== -9999] .= 0.0
 
