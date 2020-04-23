@@ -113,10 +113,6 @@ function get_source(
                          y = y,
                          distance = radius)
 
-    # Replace nodata vals with 0s
-    source_subset[source_subset .== -9999] .= 0.0
-
-    # Append 0s if buffer > 0
     # Append NoData (-9999) if buffer > 0
     if buffer > 0
         ### Columns
@@ -151,6 +147,9 @@ function get_source(
                                  fill(-9999., (bottom_row_num, ncol_sub)))
         end
     end
+    
+    # Replace nodata vals with 0s
+    source_subset[source_subset .== -9999] .= 0.0
 
     # Set any sources inside target to NoData
     xlower_sub = (radius + buffer  + 1) - block_radius
