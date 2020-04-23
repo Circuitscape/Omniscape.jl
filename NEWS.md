@@ -8,10 +8,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Conditional target/source matching (e.g. only connect pairs of pixels that have similar climates).
 - Parallelism via multi-threading.
-- Reduced overhead in parallel processing, added batching [#10](https://github.com/Circuitscape/Omniscape.jl/issues/10)
-- Changed how BLAS number of threads is set ([#25](https://github.com/Circuitscape/Omniscape.jl/pull/25)) to get closer to number of physical cores and improve efficiency.
-- Closed [#13](https://github.com/Circuitscape/Omniscape.jl/issues/13)
-- Julia dep is now 1.4
+- Reduced overhead in parallel processing, added batching. ([#10](https://github.com/Circuitscape/Omniscape.jl/issues/10))
+- Changed how BLAS number of threads is set. ([#25](https://github.com/Circuitscape/Omniscape.jl/pull/25))
+- Julia dep is now 1.4. (see [#13](https://github.com/Circuitscape/Omniscape.jl/issues/13) for why)
+- Memory use reduction. ([#33](https://github.com/Circuitscape/Omniscape.jl/issues/33), and [#36](https://github.com/Circuitscape/Omniscape.jl/issues/36))
+- Updated some .ini argument names related to output write options and conditional connectivity options.
+- Omniscape can now read and write both .tif and .asc files. ([#34](https://github.com/Circuitscape/Omniscape.jl/pull/34))
+- Added option to supply conductance instead of resistance surface as input. ([#30](https://github.com/Circuitscape/Omniscape.jl/pull/30))
 
 ### Monitor progress toward release
 - [Release v0.2.0](https://github.com/Circuitscape/Omniscape.jl/milestone/2)
