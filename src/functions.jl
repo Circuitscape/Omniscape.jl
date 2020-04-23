@@ -19,8 +19,11 @@ function clip(
 
     dim1 = size(A_sub)[1]
     dim2 = size(A_sub)[2]
+    
+    new_x = min(distance + 1, x)
+    new_y = min(distance + 1, y)
 
-    dist = [sqrt((j - (distance + 1))^2 + (i - (distance + 1))^2) for i = 1:dim1, j = 1:dim2]
+    dist = [sqrt((j - new_x)^2 + (i - new_y)^2) for i = 1:dim1, j = 1:dim2]
 
     A_sub[dist .> distance] .= -9999
 
@@ -112,7 +115,7 @@ function get_source(
 
     # Replace nodata vals with 0s
     source_subset[source_subset .== -9999] .= 0.0
-    
+
     # Append 0s if buffer > 0
     # Append NoData (-9999) if buffer > 0
     if buffer > 0
