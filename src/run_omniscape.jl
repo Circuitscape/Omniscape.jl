@@ -94,10 +94,10 @@ function run_omniscape(path::String)
 
         # get rid of unneeded raster to save memory
         sources_raster = nothing
-        
+
         # overwrite nodata with 0
         sources_raw[sources_raw .== -9999] .= 0.0
-        
+
         # Set values < user-specified threshold to 0
         sources_raw[sources_raw .< source_threshold] .= 0.0
     end
@@ -322,6 +322,14 @@ function run_omniscape(path::String)
         end
     end
 
+    ## Set some objects to nothing to free up memory
+    sources_raw = nothing
+    condition1 = nothing
+    condition1_future = nothing
+    condition2 = nothing
+    condition2_future = nothing
+    GC.gc()
+
     ## Collapse 3-dim cum current arrays to 2-dim via sum
     cum_currmap = dropdims(sum(cum_currmap, dims = 3), dims = 3)
 
@@ -358,6 +366,10 @@ function run_omniscape(path::String)
         end
         cum_currmap[resistance_raw .== -9999] .= -9999
     end
+
+    # Get rid of resistance
+    resistance_raw = nothing
+    GC.gc()
 
     ## Write outputs
     if write_raw_currmap
