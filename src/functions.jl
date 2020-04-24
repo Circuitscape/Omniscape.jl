@@ -253,25 +253,31 @@ function get_ground(
         x::Int64,
         y::Int64
     )
-
     radius = arguments["radius"]
     buffer = arguments["buffer"]
+    distance = radius + buffer
+
     nrows = arguments["nrows"]
     ncols = arguments["ncols"]
 
-    xlower_buffered = Int64(max(x - radius - buffer, 1))
-    xupper_buffered = Int64(min(x + radius + buffer, ncols))
-    ylower_buffered = Int64(max(y - radius - buffer, 1))
-    yupper_buffered = Int64(min(y + radius + buffer, nrows))
+    xlower = Int64(max(x - radius - buffer, 1))
+    xupper = Int64(min(x + radius + buffer, ncols))
+    ylower = Int64(max(y - radius - buffer, 1))
+    yupper = Int64(min(y + radius + buffer, nrows))
+
+    size_x = xupper - xlower + 1
+    size_y = yupper - ylower + 1
 
     ground = fill(0.0,
-                  nrows,
-                  ncols)
-    ground[y, x] = Inf
+                  size_y,
+                  size_x)
+                  
+    new_x = min(distance + 1, x)
+    new_y = min(distance + 1, y)
 
-    output = ground[ylower_buffered:yupper_buffered,
-                    xlower_buffered:xupper_buffered]
-    output
+    ground[new_y, new_x] = Inf
+
+    ground
 end
 
 function get_resistance(
