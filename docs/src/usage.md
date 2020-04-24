@@ -59,7 +59,7 @@ julia
 
 **`calc_flow_potential`:** One of true, false. Defaults to false. Specify whether to calculate flow potential. Flow potential calculates current flow in "null" conditions, where the resistance of the entire landscape is 1. If true, a flow potential raster will be calculated and written to the `project_name` directory. This can still be set to false even if `calc_normalized_current` = true if you want to avoid writing the flow potential raster to disk.
 
-**`allow_different_projectins`:** One of true, false. Defaults to false. If true, warnings about non-matching projections are suppressed.
+**`allow_different_projections`:** One of true, false. Defaults to false. If true, warnings about non-matching projections are suppressed.
 
 #### Parallel processing options
 **`parallelize`:** One of true, false. Defaults to true. Specify whether to use parallel processing.
