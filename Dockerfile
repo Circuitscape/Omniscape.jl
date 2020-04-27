@@ -7,9 +7,9 @@ RUN apt-get update && \
       zlib1g-dev  #This is a circuitscape dep
 
 # Install julia
-RUN curl -L https://julialang-s3.julialang.org/bin/linux/x64/1.3/julia-1.3.1-linux-x86_64.tar.gz > /tmp/julia.tar.gz
+RUN curl -L https://julialang-s3.julialang.org/bin/linux/x64/1.4/julia-1.4.1-linux-x86_64.tar.gz > /tmp/julia.tar.gz
 RUN tar -zxvf /tmp/julia.tar.gz
-RUN ln -s /julia-1.3.1/bin/julia /usr/bin/julia
+RUN ln -s /julia-1.4.1/bin/julia /usr/bin/julia
 
 # Install Omniscape
 RUN julia -e 'using Pkg; Pkg.add(["Omniscape", "Test", "BenchmarkTools"])'

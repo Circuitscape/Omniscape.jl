@@ -27,7 +27,7 @@ Here's a bibtex entry:
     title = {{Omniscape.jl: An efficient and scalable implementation of the Omniscape algorithm in the Julia scientific computing language}},
     author = {Vincent A. Landau},
     year = {2020},
-    version = {v0.1.4},
+    version = {v0.2.0},
     url = {https://github.com/Circuitscape/Omniscape.jl},
     doi = {10.5281/zenodo.3406711}
 }
