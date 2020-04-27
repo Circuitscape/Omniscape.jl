@@ -15,4 +15,5 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 [compat]
 ArchGDAL = "0.3.1"
 Circuitscape = "5"
+StatsBase = "0.32.0"
 julia = "1.4"
