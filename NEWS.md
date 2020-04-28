@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - option to use resistance surface to assign source weights
 
 [Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.0...master
-[v0.1.4]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.4...v0.2.0
+[v0.2.0]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.4...v0.2.0
 [v0.1.4]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.3...v0.1.4
 [v0.1.3]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.2...v0.1.3
 [v0.1.2]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.0...v0.1.2
