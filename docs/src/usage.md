@@ -2,7 +2,7 @@
 
 ## Running Omniscape
 
-To use Omniscape, simply run the following Julia code after Omniscape.jl has been installed.
+The following Julia code shows an example of how to run Omniscape after Omniscape.jl has been installed.
 
 ```julia
 using Omniscape
@@ -15,7 +15,7 @@ file.ini is a file specifying input data paths and options for Omniscape. See [t
 
 Omniscape uses parallel processing by default, but currently, Julia requires that the number of parallel threads to use be specified an environment variable called `JULIA_NUM_THREADS`. This environment variable needs to be defined prior to launching Julia. See the following example code for how to do this.
 
-**Setting JULIA_NUM_THREADS and starting up Julia to use 4 threads**:
+**Setting `JULIA_NUM_THREADS` and starting up Julia to use 4 threads**:
 
 Run the following in your terminal:
 
