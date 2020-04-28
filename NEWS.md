@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
+Track progress toward v0.3.0 here: [Milestone - release v0.3.0](https://github.com/Circuitscape/Omniscape.jl/milestone/3)
 
 ## [v0.2.0]
 - Conditional target/source matching (e.g. only connect pairs of pixels that have similar climates).
