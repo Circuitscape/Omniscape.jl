@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 Track progress toward v0.3.0 here: [Milestone - release v0.3.0](https://github.com/Circuitscape/Omniscape.jl/milestone/3)
 
+##[v0.2.1]
+- Fixed a bug in `read_raster` with NoData value parsing for Float32 tif rasters.
+
 ## [v0.2.0]
 - Conditional target/source matching (e.g. only connect pairs of pixels that have similar climates).
 - Parallelism via multi-threading.
@@ -38,7 +41,8 @@ Track progress toward v0.3.0 here: [Milestone - release v0.3.0](https://github.c
 - method for block artifact correction
 - option to use resistance surface to assign source weights
 
-[Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.0...master
+[Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.1...master
+[v0.2.1]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.4...v0.2.0
 [v0.1.4]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.3...v0.1.4
 [v0.1.3]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.2...v0.1.3

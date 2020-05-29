@@ -2,7 +2,7 @@
 
 | **Documentation**  | **Build Status**| **Changelog**|
 |:-----------------------------------------------------:|:------------------------------------:|:-----------:|
-| [![docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://Circuitscape.github.io/Omniscape.jl/stable) [![docs](https://img.shields.io/badge/docs-dev-blue.svg)](https://Circuitscape.github.io/Omniscape.jl/dev) | [![Build Status](https://travis-ci.org/Circuitscape/Omniscape.jl.svg?branch=master)](https://travis-ci.org/Circuitscape/Omniscape.jl) [![Build status](https://ci.appveyor.com/api/projects/status/5mw77lobayetc9wh?svg=true)](https://ci.appveyor.com/project/vlandau/omniscape-jl) [![codecov](https://codecov.io/gh/Circuitscape/Omniscape.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Circuitscape/Omniscape.jl) | [![news](https://img.shields.io/badge/version-v0.2.0-orange)](https://github.com/Circuitscape/Omniscape.jl/blob/master/NEWS.md#news--changelog)
+| [![docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://Circuitscape.github.io/Omniscape.jl/stable) [![docs](https://img.shields.io/badge/docs-dev-blue.svg)](https://Circuitscape.github.io/Omniscape.jl/dev) | [![Build Status](https://travis-ci.org/Circuitscape/Omniscape.jl.svg?branch=master)](https://travis-ci.org/Circuitscape/Omniscape.jl) [![Build status](https://ci.appveyor.com/api/projects/status/5mw77lobayetc9wh?svg=true)](https://ci.appveyor.com/project/vlandau/omniscape-jl) [![codecov](https://codecov.io/gh/Circuitscape/Omniscape.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Circuitscape/Omniscape.jl) | [![news](https://img.shields.io/badge/version-v0.2.1-orange)](https://github.com/Circuitscape/Omniscape.jl/blob/master/NEWS.md#news--changelog)
 
 
 Omniscape.jl is a Julia package that provides an open-source, updated version of [Omniscape](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest) with improved reliability and speed. Visit https://circuitscape.github.io/Omniscape.jl/stable for documentation.
@@ -21,7 +21,7 @@ On Linux/Mac:
 docker run -it --rm \
 	-v $(pwd):/home/omniscape \
 	-e JULIA_NUM_THREADS=2 \
-	vlandau/omniscape:0.2.0
+	vlandau/omniscape:0.2.1
 ```
 
 On Windows (via Windows Command Line):
@@ -29,7 +29,7 @@ On Windows (via Windows Command Line):
 docker run -it --rm^
  -v %cd%:/home/omniscape^
  -e JULIA_NUM_THREADS=2^
- vlandau/omniscape:0.2.0
+ vlandau/omniscape:0.2.1
 ```
 Note that the `-v` flag and subsequent code will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory containing all needed input files). Once you're in Julia in the Docker container, run `cd("/home/omniscape")` to navigate to the location where you mounted your files, and you'll be ready to go! Make sure that the file paths in your .ini file are relative to /home/omniscape.
 
@@ -44,7 +44,7 @@ Here's a bibtex entry:
     title = {{Omniscape.jl: An efficient and scalable implementation of the Omniscape algorithm in the Julia scientific computing language}},
     author = {Vincent A. Landau},
     year = {2020},
-    version = {v0.2.0},
+    version = {v0.2.1},
     url = {https://github.com/Circuitscape/Omniscape.jl},
     doi = {10.5281/zenodo.3406711}
 }
