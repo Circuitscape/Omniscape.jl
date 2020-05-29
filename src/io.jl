@@ -12,8 +12,9 @@ function read_raster(path::AbstractString)
     array_t = ArchGDAL.read(band)
 
     # Extract no data value and overwrite with Circuitscape/Omniscape default
-    nodata_val = ArchGDAL.getnodatavalue(band)
-
+    # Need to convert/coerce to array type to ensure it matches with the array vals
+    nodata_val = convert(eltype(array_t), ArchGDAL.getnodatavalue(band))
+    
     array_t[array_t .== nodata_val] .= -9999.0
 
     # Line to handle NaNs in datasets read from tifs
