@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 Track progress toward v0.3.0 here: [Milestone - release v0.3.0](https://github.com/Circuitscape/Omniscape.jl/milestone/3)
 
+##[v0.2.2]
+- Closed [#43](https://github.com/Circuitscape/Omniscape.jl/issues/43) related to GeoTiff writing.
+
 ##[v0.2.1]
 - Fixed a bug in `read_raster` with NoData value parsing for Float32 tif rasters.
 
@@ -41,7 +44,8 @@ Track progress toward v0.3.0 here: [Milestone - release v0.3.0](https://github.c
 - method for block artifact correction
 - option to use resistance surface to assign source weights
 
-[Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.1...master
+[Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.2...master
+[v0.2.2]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.1...v0.2.2
 [v0.2.1]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.4...v0.2.0
 [v0.1.4]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.3...v0.1.4
