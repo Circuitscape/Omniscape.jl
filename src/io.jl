@@ -14,7 +14,7 @@ function read_raster(path::AbstractString)
     # Extract no data value and overwrite with Circuitscape/Omniscape default
     # Need to convert/coerce to array type to ensure it matches with the array vals
     nodata_val = convert(eltype(array_t), ArchGDAL.getnodatavalue(band))
-    
+
     array_t[array_t .== nodata_val] .= -9999.0
 
     # Line to handle NaNs in datasets read from tifs
@@ -63,18 +63,17 @@ function write_raster(fn_prefix::AbstractString,
         band = ArchGDAL.getband(dataset, 1)
         # Write data to band
         ArchGDAL.write!(band, array_t)
-
-        # Write nodata and projection info
         ArchGDAL.setnodatavalue!(band, -9999.0)
+        # Write projection info
         ArchGDAL.setgeotransform!(dataset, transform)
         ArchGDAL.setproj!(dataset, wkt)
 
         # Copy memory object to disk (necessary because ArchGDAL.create
         # does not support creation of ASCII rasters)
-        ArchGDAL.copy(dataset,
-                      filename = fn,
-                      driver = ArchGDAL.getdriver(driver),
-                      options = options)
+        ArchGDAL.destroy(ArchGDAL.copy(dataset,
+                                       filename = fn,
+                                       driver = ArchGDAL.getdriver(driver),
+                                       options = options))
     end
-
+    nothing
 end
