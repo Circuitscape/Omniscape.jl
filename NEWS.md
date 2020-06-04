@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 Track progress toward v0.3.0 here: [Milestone - release v0.3.0](https://github.com/Circuitscape/Omniscape.jl/milestone/3)
 
-##[v0.2.2]
+## [v0.2.2]
 - Closed [#43](https://github.com/Circuitscape/Omniscape.jl/issues/43) related to GeoTiff writing.
 
-##[v0.2.1]
+## [v0.2.1]
 - Fixed a bug in `read_raster` with NoData value parsing for Float32 tif rasters.
 
 ## [v0.2.0]
