@@ -8,6 +8,7 @@ using ArchGDAL
 using Statistics
 
 include("config.jl")
+include("consts.jl")
 include("functions.jl")
 include("io.jl")
 include("run_omniscape.jl")

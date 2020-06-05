@@ -38,8 +38,6 @@ julia
 
 **`radius`:** A positive integer specifying the radius *in pixels* of the moving window used to identify sources to connect to each target.
 
-**`block_size`:** An odd integer. Defaults to 1. An **odd**, positive integer specifying the side length for source layer blocking in target generation.
-
 **`project_name`:** The name of the project. Omniscape will create a directory called `project_name` in the directory from which you run Julia, and write any outputs to that directory. Supports the use of full path specification (e.g. path/to/directory).
 
 *If `source_from_resistance` (described below) is false:*
@@ -49,13 +47,15 @@ julia
 ### Optional arguments
 #### General options
 
+**`block_size`:** An odd integer. Defaults to 1. An **odd**, positive integer specifying the side length for source layer blocking in target generation.
+
 **`source_from_resistance`**: One of true, false. Should a source layer be derived using the resistance layer? If true, sources are calculated as the inverse of the resistance layer, and therefore it is not recommended that your resistance layer contain values less than 1. Sources will be set to 0 for all cells with a resistance greater than `r_cutoff` (described below). Defaults to false.
 
 **`resistance_file_is_conductance`:** One of true, false. Defaults to false. Specify whether the file specified by `resistance_file` is a conductance (rather than resistance) surface. Conductance is the inverse of resistance. Note that `r_cutoff` (an optional argument described below) must be in units of resistance even if a conductance file is supplied as input.
 
 **`r_cutoff`**: The maximum resistance value a cell can have to be included as a source. Only applies when `source_from_resistance` = true.
 
-**`buffer`**: A positive integer. Defaults to 0. Specifies an additional buffer distance beyond `radius` to clip the resistance and source layers to for each moving window iteration. Any source pixels beyond the `radius` but within the buffered area are set to 0. If 0, resistance and source layers will be clipped to a circle of size `radius` for each moving window iteration. 
+**`buffer`**: A positive integer. Defaults to 0. Specifies an additional buffer distance beyond `radius` to clip the resistance and source layers to for each moving window iteration. Any source pixels beyond the `radius` but within the buffered area are set to 0. If 0, resistance and source layers will be clipped to a circle of size `radius` for each moving window iteration.
 
 **`source_threshold`:** Positive number. Defaults to 0. Only pixels in the source layer greater than `source_threshold` will be included as sources.
 
@@ -80,7 +80,7 @@ julia
 
 
 #### Conditional connectivity options
-**`conditional`:** One of true, false. Defaults to false. Should conditional source/target matching be used? That is, should a given target only be connected to sources that meet similarity conditions to the target? If false, _none_ of the arguments described bellow are needed. If true, then gridded data with values for each pixel are used to compare targets and sources and determine which pairs should be connected according to user-specified criteria. 
+**`conditional`:** One of true, false. Defaults to false. Should conditional source/target matching be used? That is, should a given target only be connected to sources that meet similarity conditions to the target? If false, _none_ of the arguments described bellow are needed. If true, then gridded data with values for each pixel are used to compare targets and sources and determine which pairs should be connected according to user-specified criteria.
 
 **`n_conditions`:** One of 1, 2. Defaults to 1. The number of conditions to use for conditional source/target matching.
 
