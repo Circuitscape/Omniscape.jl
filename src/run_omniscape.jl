@@ -10,6 +10,9 @@ function run_omniscape(path::String)
     start_time = time()
     n_threads = nthreads()
     cfg_user = parse_cfg(path)
+
+    check_missing_args(cfg_user) && return
+
     cfg = init_cfg()
     update_cfg!(cfg, cfg_user)
 
@@ -413,3 +416,4 @@ function run_omniscape(path::String)
         return cum_currmap
     end
 end
+

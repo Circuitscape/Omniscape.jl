@@ -99,7 +99,9 @@ d_2 = run_omniscape("input/config2.ini")
 @test a ≈ d #parallel and serial produce same result
 
 # Test error throws
+@info "Testing error throws"
 @test run_omniscape("input/config7.ini") == nothing
+@test run_omniscape("input/bad_config.ini") == nothing
 
 GC.gc()
 

@@ -51,7 +51,7 @@ function update_cfg!(cfg, cfg_new)
 end
 
 function parse_cfg(path::String)
-    cf = init_cfg()
+    cf = Dict{String, String}()
     f = open(path, "r")
     for i in eachline(f, keep = true)
         if first(i) == '['
@@ -79,3 +79,4 @@ function init_csdict(cfg)
 
     a
 end
+

@@ -18,6 +18,10 @@ function even_block_size_warning()
     @warn "block_size is even, but must be odd. Using block_size + 1."
 end
 
+function missing_args_error(missing_args)
+    @error "The following arguments are missing from your .ini with no defaults:
+    $(join(map(string, missing_args), ", "))"
+end
 function check_raster_alignment(raster1, raster2, name1, name2, allow_different_projections)
     sizes_not_equal = size(raster1[1]) != size(raster2[1])
     projections_not_equal = (raster1[2] != raster2[2]) || (raster1[3] != raster2[3])
@@ -52,3 +56,18 @@ function check_block_size(block_size)
 
     even_block_size
 end
+
+function check_missing_args(cfg)
+    indices = indexin(REQUIRED_ARGS, convert.(String, keys(cfg)))
+    indices[indices .== nothing] .= 0
+
+    is_missing = indices .== 0
+    missing_args = REQUIRED_ARGS[is_missing]
+
+    if !isempty(missing_args)
+        missing_args_error(missing_args)
+    end
+
+    !isempty(missing_args)
+end
+
