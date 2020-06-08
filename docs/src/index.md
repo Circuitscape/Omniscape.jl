@@ -11,6 +11,15 @@ Package repository: [https://github.com/Circuitscape/Omniscape.jl](https://githu
 ```julia
 using Pkg; Pkg.add("Omniscape")
 ```
+### Notes
+On Windows systems, you may get an error related to building GDAL, e.g.:
+```julia
+Building GDAL → C:\Users\username\.julia\packages\GDAL\cvf6T\deps\build.log
+┌ Error: Error building GDAL:
+ERROR: LoadError: LoadError: Your platform ("x86_64-w64-mingw32", parsed as "x86_64-w64-mingw32-gcc8-cxx11") is not supported by this package!
+```
+
+If this happens, trying running `using Pkg; Pkg.add("GDAL")` first, and if needed, restart Julia before trying to install Omniscape again.
 
 ## Overview
 
