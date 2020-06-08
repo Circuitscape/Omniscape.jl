@@ -32,18 +32,20 @@ function run_omniscape(path::String)
 
     ## Parse other arguments
     compare_to_future = lowercase(cfg["compare_to_future"])
+    precision = cfg["precision"] in SINGLE ? Float32 : Float64
+
     # flags
-    calc_flow_potential = lowercase(cfg["calc_flow_potential"]) == "true"
-    calc_normalized_current = lowercase(cfg["calc_normalized_current"]) == "true"
-    write_raw_currmap = lowercase(cfg["write_raw_currmap"]) == "true"
-    parallelize = lowercase(cfg["parallelize"]) == "true"
-    correct_artifacts = lowercase(cfg["correct_artifacts"]) == "true"
-    source_from_resistance = lowercase(cfg["source_from_resistance"]) == "true"
-    conditional = lowercase(cfg["conditional"]) == "true"
-    mask_nodata = lowercase(cfg["mask_nodata"]) == "true"
-    resistance_file_is_conductance = lowercase(cfg["resistance_file_is_conductance"]) == "true"
-    write_as_tif = lowercase(cfg["write_as_tif"]) == "true"
-    allow_different_projections = lowercase(cfg["allow_different_projections"]) == "true"
+    calc_flow_potential = cfg["calc_flow_potential"] in TRUELIST
+    calc_normalized_current = cfg["calc_normalized_current"] in TRUELIST
+    write_raw_currmap = cfg["write_raw_currmap"] in TRUELIST
+    parallelize = cfg["parallelize"] in TRUELIST
+    correct_artifacts = cfg["correct_artifacts"] in TRUELIST
+    source_from_resistance = cfg["source_from_resistance"] in TRUELIST
+    conditional = cfg["conditional"] in TRUELIST
+    mask_nodata = cfg["mask_nodata"] in TRUELIST
+    resistance_file_is_conductance = cfg["resistance_file_is_conductance"] in TRUELIST
+    write_as_tif = cfg["write_as_tif"] in TRUELIST
+    allow_different_projections = cfg["allow_different_projections"] in TRUELIST
 
 
     if int_arguments["block_size"] == 1
@@ -60,18 +62,11 @@ function run_omniscape(path::String)
     BLAS.set_num_threads(1)
 
     ## Import sources and resistances
-    resistance_raster = read_raster("$(cfg["resistance_file"])")
+    resistance_raster = read_raster(precision, "$(cfg["resistance_file"])")
 
     resistance_raw = resistance_raster[1]
     wkt = resistance_raster[2]
     transform = resistance_raster[3]
-
-    # # Adjust nodata value if not already -9999
-    # if parse(Float64, final_header["nodata_value"]) != -9999
-    #     no_data_val = parse(Float64, final_header["nodata_value"])
-    #     resistance_raw[resistance_raw .== no_data_val] .= -9999
-    #     final_header["nodata_value"] = "-9999"
-    # end
 
     check_resistance_values(resistance_raw) && return
 
@@ -87,7 +82,7 @@ function run_omniscape(path::String)
         sources_raw[resistance_raw .> r_cutoff] .= 0.0
         sources_raw[resistance_raw .== -9999] .= 0.0
     else
-        sources_raster = read_raster("$(cfg["source_file"])")
+        sources_raster = read_raster(precision, "$(cfg["source_file"])")
         sources_raw = sources_raster[1]
 
         # Check for raster alignment
@@ -110,7 +105,7 @@ function run_omniscape(path::String)
 
     # Import conditional rasters and other conditional connectivity stuff
     if conditional
-        condition1_raster = read_raster("$(cfg["condition1_file"])")
+        condition1_raster = read_raster(precision, "$(cfg["condition1_file"])")
         condition1 = condition1_raster[1]
 
         # Check for raster alignment
@@ -122,7 +117,7 @@ function run_omniscape(path::String)
         condition1_raster = nothing
 
         if compare_to_future == "1" || compare_to_future == "both"
-            condition1_future_raster = read_raster("$(cfg["condition1_future_file"])")
+            condition1_future_raster = read_raster(precision, "$(cfg["condition1_future_file"])")
             condition1_future = condition1_future_raster[1]
 
             # Check for raster alignment
@@ -137,7 +132,7 @@ function run_omniscape(path::String)
         end
 
         if int_arguments["n_conditions"] == 2
-            condition2_raster = read_raster("$(cfg["condition2_file"])")
+            condition2_raster = read_raster(precision, "$(cfg["condition2_file"])")
             condition2 = condition2_raster[1]
 
             # Check for raster alignment
@@ -149,7 +144,7 @@ function run_omniscape(path::String)
             condition2_raster = nothing
 
             if compare_to_future == "2" || compare_to_future == "both"
-                condition2_future_raster = read_raster("$(cfg["condition2_future_file"])")
+                condition2_future_raster = read_raster(precision, "$(cfg["condition2_future_file"])")
                 condition2_future = condition2_future_raster[1]
 
                 # Check for raster alignment
@@ -191,7 +186,8 @@ function run_omniscape(path::String)
 
     ## Calculate targets
     targets = get_targets(sources_raw,
-                          int_arguments)
+                          int_arguments,
+                          precision)
 
     ## Circuitscape calls in loop over targets
     n_targets = size(targets, 1)
@@ -207,34 +203,34 @@ function run_omniscape(path::String)
     if parallelize
         println("Starting up Omniscape. Using $(n_threads) workers in parallel.")
 
-        cum_currmap = fill(0.,
+        cum_currmap = fill(convert(precision, 0.),
                            int_arguments["nrows"],
                            int_arguments["ncols"],
                            n_threads)
 
         if calc_flow_potential || calc_normalized_current
-            fp_cum_currmap = fill(0.,
+            fp_cum_currmap = fill(convert(precision, 0.),
                                   int_arguments["nrows"],
                                   int_arguments["ncols"],
                                   n_threads)
         else
             # Hacky fix -- a later function needs fp_cum_currmap to be an array
-            fp_cum_currmap = Array{Float64, 3}(undef, 1, 1, 1)
+            fp_cum_currmap = Array{precision, 3}(undef, 1, 1, 1)
         end
     else
         println("Starting up Omniscape. Running in serial using 1 worker.")
-        cum_currmap = fill(0.,
+        cum_currmap = fill(convert(precision, 0.),
                           int_arguments["nrows"],
                           int_arguments["ncols"],
                           1)
 
         if calc_flow_potential || calc_normalized_current
-            fp_cum_currmap = fill(0.,
+            fp_cum_currmap = fill(convert(precision, 0.),
                                   int_arguments["nrows"],
                                   int_arguments["ncols"],
                                   1)
         else
-            fp_cum_currmap = Array{Float64, 3}(undef, 1, 1, 1)
+            fp_cum_currmap = Array{precision, 3}(undef, 1, 1, 1)
         end
     end
 
@@ -253,7 +249,8 @@ function run_omniscape(path::String)
                                            condition1_lower,
                                            condition1_upper,
                                            condition2_lower,
-                                           condition2_upper)
+                                           condition2_upper,
+                                           precision)
 
     else
         correction_array = Array{Float64, 2}(undef, 1, 1)
@@ -293,7 +290,8 @@ function run_omniscape(path::String)
                               condition2_upper,
                               correction_array,
                               cum_currmap,
-                              fp_cum_currmap)
+                              fp_cum_currmap,
+                              precision)
             end
         end
     else
@@ -321,7 +319,8 @@ function run_omniscape(path::String)
                           condition2_upper,
                           correction_array,
                           cum_currmap,
-                          fp_cum_currmap)
+                          fp_cum_currmap,
+                          precision)
         end
     end
 

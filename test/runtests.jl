@@ -55,14 +55,15 @@ target_val = con1fut[y, x]
 @info "conditional connectivity tests passed"
 
 ## Check that targets are IDed properly
-sources_raw = Omniscape.read_raster("input/source.asc")[1]
+sources_raw = Omniscape.read_raster(Float64, "input/source.asc")[1]
 int_arguments = Dict{String, Int64}()
 int_arguments["block_size"] = 7
 int_arguments["block_radius"] = 3 # must be (size - 1) / 2
 int_arguments["nrows"] = size(sources_raw)[1]
 int_arguments["ncols"] = size(sources_raw)[2]
 targets = Omniscape.get_targets(sources_raw,
-                                int_arguments)
+                                int_arguments,
+                                Float64)
 
 n_targets = floor(int_arguments["nrows"] / int_arguments["block_size"]) *
     floor(int_arguments["ncols"] / int_arguments["block_size"])
@@ -83,6 +84,7 @@ l, f, p = run_omniscape("input/config4.ini")
 g = run_omniscape("input/config5.ini")
 h = run_omniscape("input/config6.ini")
 a, b, c = run_omniscape("input/config.ini")
+a1, b1, c1 = run_omniscape("input/config_32bit.ini")
 q, e = run_omniscape("input/config3.ini")
 d = run_omniscape("input/config2.ini")
 d_1 = run_omniscape("input/config2.ini")
@@ -94,9 +96,17 @@ d_2 = run_omniscape("input/config2.ini")
 @test typeof(a) == Array{Float64,2}
 @test typeof(b) == Array{Float64,2}
 @test typeof(c) == Array{Float64,2}
+@test typeof(a1) == Array{Float32,2}
+@test typeof(b1) == Array{Float32,2}
+@test typeof(c1) == Array{Float32,2}
 @test typeof(d) == Array{Float64,2}
 @test typeof(e) == Array{Float64,2}
 @test a ≈ d #parallel and serial produce same result
+
+# Single and double produce similar results
+@test a ≈ a1
+@test b ≈ b1
+@test c ≈ c1
 
 # Test error throws
 @info "Testing error throws"
@@ -106,6 +116,7 @@ d_2 = run_omniscape("input/config2.ini")
 GC.gc()
 
 rm("test1", recursive = true)
+rm("test1_32bit", recursive = true)
 rm("test2", recursive = true)
 rm("test2_1", recursive = true)
 rm("test2_2", recursive = true)

@@ -1,7 +1,7 @@
 abstract type Data end
 
 function clip(
-        A::Array{Float64, 2};
+        A::Array{T, 2} where T <: Number;
         x::Int64,
         y::Int64,
         distance::Int64
@@ -32,8 +32,9 @@ end
 
 
 function get_targets(
-        source_array::Array{Float64, 2},
-        arguments::Dict{String, Int64}
+        source_array::Array{T, 2} where T <: Number,
+        arguments::Dict{String, Int64},
+        precision::DataType
     )
 
     block_size = arguments["block_size"]
@@ -46,7 +47,7 @@ function get_targets(
     xs = [start:block_size:(ncols - block_radius - 1);]
     ys = [start:block_size:(nrows - block_radius - 1);]
 
-    ground_points = zeros(Float64,(length(xs)*length(ys), 2))
+    ground_points = zeros(precision, (length(xs)*length(ys), 2))
 
     let
         c = 1
@@ -61,7 +62,7 @@ function get_targets(
 
     # create column ground_points[, 3] to hold source strengths for each target
     ground_points = cat(ground_points,
-                        zeros(size(ground_points)[1], 1);
+                        zeros(precision, size(ground_points)[1], 1);
                         dims = 2
                     )
 
@@ -84,22 +85,23 @@ end
 # x and y defined by targets object. Ultimately the for loop will be done by
 # iterating through rows of targets object
 function get_source(
-        source_array::Array{Float64, 2},
+        source_array::Array{T, 2} where T <: Number,
         arguments::Dict{String, Int64},
         conditional::Bool,
-        condition1_present::Array{Float64, 2},
-        condition1_future::Array{Float64, 2},
-        condition2_present::Array{Float64, 2},
-        condition2_future::Array{Float64, 2},
+        condition1_present::Array{T, 2} where T <: Number,
+        condition1_future::Array{T, 2} where T <: Number,
+        condition2_present::Array{T, 2} where T <: Number,
+        condition2_future::Array{T, 2} where T <: Number,
         comparison1::String,
         comparison2::String,
-        condition1_lower::Float64,
-        condition1_upper::Float64,
-        condition2_lower::Float64,
-        condition2_upper::Float64;
+        condition1_lower::Number,
+        condition1_upper::Number,
+        condition2_lower::Number,
+        condition2_upper::Number,
+        precision::DataType;
         x::Int64,
         y::Int64,
-        strength::Float64
+        strength::Number
     )
 
     block_radius = arguments["block_radius"]
@@ -122,13 +124,13 @@ function get_source(
 
         # Add left columns
         if left_col_num > 0
-            source_subset = hcat(fill(-9999., (nrow_sub, left_col_num)),
+            source_subset = hcat(fill(convert(precision, -9999.), (nrow_sub, left_col_num)),
                                  source_subset)
         end
         # Add right columns
         if right_col_num > 0
             source_subset = hcat(source_subset,
-                                 fill(-9999., (nrow_sub, right_col_num)))
+                                 fill(convert(precision, -9999.), (nrow_sub, right_col_num)))
         end
 
         ### Rows
@@ -138,13 +140,13 @@ function get_source(
 
         # Add top rows
         if top_row_num > 0
-            source_subset = vcat(fill(-9999., (top_row_num, ncol_sub)),
+            source_subset = vcat(fill(convert(precision, -9999.), (top_row_num, ncol_sub)),
                                     source_subset)
         end
         #Add bottom rows
         if bottom_row_num > 0
             source_subset = vcat(source_subset,
-                                 fill(-9999., (bottom_row_num, ncol_sub)))
+                                 fill(convert(precision, -9999.), (bottom_row_num, ncol_sub)))
         end
     end
 
@@ -201,18 +203,18 @@ function get_source(
     source_subset
 end
 
-function source_target_match!(source_subset::Array{Float64,2},
+function source_target_match!(source_subset::Array{T,2} where T <: Number,
                               n_conditions::Int64,
-                              condition1_present::Array{Float64,2},
-                              condition1_future::Array{Float64,2},
-                              condition2_present::Array{Float64,2},
-                              condition2_future::Array{Float64,2},
+                              condition1_present::Array{T,2} where T <: Number,
+                              condition1_future::Array{T,2} where T <: Number,
+                              condition2_present::Array{T,2} where T <: Number,
+                              condition2_future::Array{T,2} where T <: Number,
                               comparison1::String,
                               comparison2::String,
-                              condition1_lower::Float64,
-                              condition1_upper::Float64,
-                              condition2_lower::Float64,
-                              condition2_upper::Float64,
+                              condition1_lower::Number,
+                              condition1_upper::Number,
+                              condition2_lower::Number,
+                              condition2_upper::Number,
                               ylower::Int64,
                               yupper::Int64,
                               xlower::Int64,
@@ -249,9 +251,11 @@ function source_target_match!(source_subset::Array{Float64,2},
 end
 
 function get_ground(
-        arguments::Dict{String, Int64};
+        arguments::Dict{String, Int64},
+        precision::DataType;
         x::Int64,
-        y::Int64
+        y::Int64,
+
     )
     radius = arguments["radius"]
     buffer = arguments["buffer"]
@@ -268,10 +272,10 @@ function get_ground(
     size_x = xupper - xlower + 1
     size_y = yupper - ylower + 1
 
-    ground = fill(0.0,
+    ground = fill(convert(precision, 0.0),
                   size_y,
                   size_x)
-                  
+
     new_x = min(distance + 1, x)
     new_y = min(distance + 1, y)
 
@@ -281,10 +285,10 @@ function get_ground(
 end
 
 function get_resistance(
-        raw_resistance::Array{Float64, 2},
+        raw_resistance::Array{T, 2} where T <: Number,
         arguments::Dict{String, Int64};
         x::Int64,
-        y::Int64
+        y::Int64,
     )
 
     radius = arguments["radius"]
@@ -300,14 +304,13 @@ end
 
 
 function calculate_current(
-        resistance::Array{Float64, 2},
-        source::Array{Float64, 2},
-        ground::Array{Float64, 2},
+        resistance::Array{T, 2} where T <: Number,
+        source::Array{T, 2} where T <: Number,
+        ground::Array{T, 2} where T <: Number,
         flags::Circuitscape.RasterFlags,
-        cs_cfg::Dict{String, String}
+        cs_cfg::Dict{String, String},
+        T::DataType
     )
-
-    T = Float64
     V = Int64
 
     # get raster data
@@ -420,27 +423,28 @@ function solve_target!(
         i::Int64,
         n_targets::Int64,
         int_arguments::Dict{String, Int64},
-        targets::Array{Float64, 2},
-        sources_raw::Array{Float64, 2},
-        resistance_raw::Array{Float64, 2},
+        targets::Array{T, 2} where T <: Number,
+        sources_raw::Array{T, 2} where T <: Number,
+        resistance_raw::Array{T, 2} where T <: Number,
         cs_cfg::Dict{String, String},
         o::Circuitscape.OutputFlags,
         calc_flow_potential::Bool,
         correct_artifacts::Bool,
         conditional::Bool,
-        condition1_present::Array{Float64, 2},
-        condition1_future::Array{Float64, 2},
-        condition2_present::Array{Float64, 2},
-        condition2_future::Array{Float64, 2},
+        condition1_present::Array{T, 2} where T <: Number,
+        condition1_future::Array{T, 2} where T <: Number,
+        condition2_present::Array{T, 2} where T <: Number,
+        condition2_future::Array{T, 2} where T <: Number,
         comparison1::String,
         comparison2::String,
-        condition1_lower::Float64,
-        condition1_upper::Float64,
-        condition2_lower::Float64,
-        condition2_upper::Float64,
-        correction_array::Array{Float64, 2},
-        cum_currmap::Array{Float64, 3},
-        fp_cum_currmap::Array{Float64, 3}
+        condition1_lower::Number,
+        condition1_upper::Number,
+        condition2_lower::Number,
+        condition2_upper::Number,
+        correction_array::Array{T, 2} where T <: Number,
+        cum_currmap::Array{T, 3} where T <: Number,
+        fp_cum_currmap::Array{T, 3}  where T <: Number,
+        precision::DataType
     )
 
     ## get source
@@ -459,13 +463,15 @@ function solve_target!(
                         condition1_lower,
                         condition1_upper,
                         condition2_lower,
-                        condition2_upper;
+                        condition2_upper,
+                        precision,
                         x = x_coord,
                         y = y_coord,
                         strength = float(targets[i, 3]))
 
     ## get ground
     ground = get_ground(int_arguments,
+                        precision,
                         x = x_coord,
                         y = y_coord)
 
@@ -490,18 +496,24 @@ function solve_target!(
                                      false, false, solver, o)
 
     ## Run circuitscape
-    curr = calculate_current(resistance, source, ground, flags, cs_cfg)
+    curr = calculate_current(resistance,
+                             source,
+                             ground,
+                             flags,
+                             cs_cfg,
+                             precision)
 
     ## If normalize = True, calculate null map and normalize
     if calc_flow_potential == true
         @info "Calculating flow potential for target $(i) of $(n_targets)"
-        null_resistance = fill(1., grid_size)
+        null_resistance = fill(convert(precision, 1.), grid_size)
 
         flow_potential = calculate_current(null_resistance,
                                            source,
                                            ground,
                                            flags,
-                                           cs_cfg)
+                                           cs_cfg,
+                                           precision)
     end
 
     if correct_artifacts
@@ -563,16 +575,17 @@ function calc_correction(
         cs_cfg::Dict{String, String},
         o,
         conditional::Bool,
-        condition1_present::Array{Float64, 2},
-        condition1_future::Array{Float64, 2},
-        condition2_present::Array{Float64, 2},
-        condition2_future::Array{Float64, 2},
+        condition1_present::Array{T, 2} where T <: Number,
+        condition1_future::Array{T, 2} where T <: Number,
+        condition2_present::Array{T, 2} where T <: Number,
+        condition2_future::Array{T, 2} where T <: Number,
         comparison1::String,
         comparison2::String,
-        condition1_lower::Float64,
-        condition1_upper::Float64,
-        condition2_lower::Float64,
-        condition2_upper::Float64
+        condition1_lower::Number,
+        condition1_upper::Number,
+        condition2_lower::Number,
+        condition2_upper::Number,
+        precision::DataType
     )
     buffer = arguments["buffer"]
     # This may not apply seamlessly in the case (if I add the option) that source strengths
@@ -590,7 +603,7 @@ function calc_correction(
                                      false, Symbol("keepall"),
                                      false, false, solver, o)
 
-    temp_source = fill(1.,
+    temp_source = fill(convert(precision, 1.0),
                        arguments["radius"] * 2 + buffer * 2 + 1,
                        arguments["radius"] * 2 + buffer * 2 + 1)
 
@@ -603,15 +616,15 @@ function calc_correction(
     if buffer > 0
         column_dims = (size(temp_source_clip)[1], buffer)
         # Add columns
-        temp_source_clip = hcat(fill(-9999., column_dims),
+        temp_source_clip = hcat(fill(convert(precision, -9999.), column_dims),
                                 temp_source_clip,
-                                fill(-9999., column_dims))
+                                fill(convert(precision, -9999.), column_dims))
 
         row_dims = (buffer, size(temp_source_clip)[2])
         # Add rows
-        temp_source_clip = vcat(fill(-9999., row_dims),
+        temp_source_clip = vcat(fill(convert(precision, -9999.), row_dims),
                                 temp_source_clip,
-                                fill(-9999., row_dims))
+                                fill(convert(precision, -9999.), row_dims))
     end
     source_null = deepcopy(temp_source_clip)
     n_sources = sum(source_null[source_null .!= -9999])
@@ -634,6 +647,7 @@ function calc_correction(
                               condition1_upper,
                               condition2_lower,
                               condition2_upper,
+                              precision,
                               x = (arguments["radius"] + arguments["buffer"] + 1),
                               y = (arguments["radius"] + arguments["buffer"] + 1),
                               strength = float(arguments["block_size"] ^ 2))
@@ -643,7 +657,7 @@ function calc_correction(
                       y = arguments["radius"] + arguments["buffer"] + 1,
                       distance = arguments["radius"] + arguments["buffer"])
 
-    ground = fill(0.0,
+    ground = fill(convert(precision, 0.0),
                   size(source_null))
 
     ground[arguments["radius"] + arguments["buffer"] + 1,
@@ -653,14 +667,16 @@ function calc_correction(
                                            source_block,
                                            ground,
                                            flags,
-                                           cs_cfg)
+                                           cs_cfg,
+                                           precision)
 
     null_current =  calculate_current(resistance,
                                       source_null,
                                       ground,
                                       flags,
-                                      cs_cfg)
-    null_current_total = fill(0.,
+                                      cs_cfg,
+                                      precision)
+    null_current_total = fill(convert(precision, 0.),
                               arguments["radius"] * 2 + arguments["buffer"] * 2 + arguments["block_size"],
                               arguments["radius"] * 2 + arguments["buffer"] * 2 + arguments["block_size"])
 

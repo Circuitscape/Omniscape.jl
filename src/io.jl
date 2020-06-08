@@ -1,5 +1,5 @@
 # Inspired by GeoArrays.read()
-function read_raster(path::AbstractString)
+function read_raster(T::DataType, path::AbstractString)
     raw = ArchGDAL.unsafe_read(path)
     transform = ArchGDAL.getgeotransform(raw)
     wkt = ArchGDAL.getproj(raw)
@@ -21,7 +21,7 @@ function read_raster(path::AbstractString)
     array_t[isnan.(array_t)] .= -9999.0
 
     # Transpose the array -- ArchGDAL returns a x by y array, need y by x
-    array = convert(Array{Float64}, permutedims(array_t, [2, 1]))
+    array = convert(Array{T}, permutedims(array_t, [2, 1]))
 
     # Close connection to dataset
     ArchGDAL.destroy(raw)
