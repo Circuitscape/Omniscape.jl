@@ -354,7 +354,7 @@ function run_omniscape(path::String)
     end
     isdir(project_name) && (project_name = string(project_name, "_$(dir_suffix)"))
 
-    mkdir(project_name)
+    mkpath(project_name)
 
     # Copy .ini file to output directory
     cp(path, "$(project_name)/config.ini")
