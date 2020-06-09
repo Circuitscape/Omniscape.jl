@@ -31,6 +31,7 @@ On Linux/Mac:
 ```
 docker run -it --rm \
 	-v $(pwd):/home/omniscape \
+	-w /home/omniscape \
 	-e JULIA_NUM_THREADS=2 \
 	vlandau/omniscape:0.2.2
 ```
@@ -39,10 +40,11 @@ On Windows (via Windows Command Line):
 ```
 docker run -it --rm^
  -v %cd%:/home/omniscape^
+ -w /home/omniscape^
  -e JULIA_NUM_THREADS=2^
  vlandau/omniscape:0.2.2
 ```
-Note that the `-v` flag and subsequent code will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory containing all needed input files). Once you're in Julia in the Docker container, run `cd("/home/omniscape")` to navigate to the location where you mounted your files, and you'll be ready to go! Make sure that the file paths in your .ini file are relative to /home/omniscape.
+Note that the `-v` flag and subsequent code will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory containing all needed input files). Once you're in Julia in the Docker container, you're ready to go! Make sure that the file paths in your .ini file are relative to the working directory from which you ran Docker.
 
 ## Citing Omniscape.jl
 
