@@ -1,5 +1,4 @@
-using Test, Omniscape
-import Omniscape
+using Test, Omniscape, Circuitscape
 
 ### Unit tests for components
 ## source target matching
@@ -55,7 +54,7 @@ target_val = con1fut[y, x]
 @info "conditional connectivity tests passed"
 
 ## Check that targets are IDed properly
-sources_raw = Omniscape.read_raster("input/source.asc")[1]
+sources_raw = Circuitscape.read_raster("input/source.asc", Float64)[1]
 int_arguments = Dict{String, Int64}()
 int_arguments["block_size"] = 7
 int_arguments["block_radius"] = 3 # must be (size - 1) / 2

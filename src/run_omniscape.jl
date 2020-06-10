@@ -60,7 +60,7 @@ function run_omniscape(path::String)
     BLAS.set_num_threads(1)
 
     ## Import sources and resistances
-    resistance_raster = read_raster("$(cfg["resistance_file"])")
+    resistance_raster = Circuitscape.read_raster("$(cfg["resistance_file"])", Float64)
 
     resistance_raw = resistance_raster[1]
     wkt = resistance_raster[2]
@@ -87,7 +87,7 @@ function run_omniscape(path::String)
         sources_raw[resistance_raw .> r_cutoff] .= 0.0
         sources_raw[resistance_raw .== -9999] .= 0.0
     else
-        sources_raster = read_raster("$(cfg["source_file"])")
+        sources_raster = Circuitscape.read_raster("$(cfg["source_file"])", Float64)
         sources_raw = sources_raster[1]
 
         # Check for raster alignment
@@ -110,7 +110,7 @@ function run_omniscape(path::String)
 
     # Import conditional rasters and other conditional connectivity stuff
     if conditional
-        condition1_raster = read_raster("$(cfg["condition1_file"])")
+        condition1_raster = Circuitscape.read_raster("$(cfg["condition1_file"])", Float64)
         condition1 = condition1_raster[1]
 
         # Check for raster alignment
@@ -122,7 +122,7 @@ function run_omniscape(path::String)
         condition1_raster = nothing
 
         if compare_to_future == "1" || compare_to_future == "both"
-            condition1_future_raster = read_raster("$(cfg["condition1_future_file"])")
+            condition1_future_raster = Circuitscape.read_raster("$(cfg["condition1_future_file"])", Float64)
             condition1_future = condition1_future_raster[1]
 
             # Check for raster alignment
@@ -137,7 +137,7 @@ function run_omniscape(path::String)
         end
 
         if int_arguments["n_conditions"] == 2
-            condition2_raster = read_raster("$(cfg["condition2_file"])")
+            condition2_raster = Circuitscape.read_raster("$(cfg["condition2_file"])", Float64)
             condition2 = condition2_raster[1]
 
             # Check for raster alignment
@@ -149,7 +149,7 @@ function run_omniscape(path::String)
             condition2_raster = nothing
 
             if compare_to_future == "2" || compare_to_future == "both"
-                condition2_future_raster = read_raster("$(cfg["condition2_future_file"])")
+                condition2_future_raster = Circuitscape.read_raster("$(cfg["condition2_future_file"])", Float64)
                 condition2_future = condition2_future_raster[1]
 
                 # Check for raster alignment
@@ -376,7 +376,7 @@ function run_omniscape(path::String)
 
     ## Write outputs
     if write_raw_currmap
-        write_raster("$(project_name)/cum_currmap",
+        Circuitscape.write_raster("$(project_name)/cum_currmap",
                      cum_currmap,
                      wkt,
                      transform,
@@ -384,7 +384,7 @@ function run_omniscape(path::String)
     end
 
     if calc_flow_potential
-        write_raster("$(project_name)/flow_potential",
+        Circuitscape.write_raster("$(project_name)/flow_potential",
                      fp_cum_currmap,
                      wkt,
                      transform,
@@ -393,7 +393,7 @@ function run_omniscape(path::String)
 
 
     if calc_normalized_current
-        write_raster("$(project_name)/normalized_cum_currmap",
+        Circuitscape.write_raster("$(project_name)/normalized_cum_currmap",
                      normalized_cum_currmap,
                      wkt,
                      transform,

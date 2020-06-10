@@ -27,10 +27,12 @@ uuid = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 version = "0.4.1"
 
 [[Circuitscape]]
-deps = ["AlgebraicMultigrid", "Dates", "DelimitedFiles", "Distributed", "GZip", "IterativeSolvers", "LightGraphs", "LinearAlgebra", "Logging", "REPL", "SharedArrays", "SimpleWeightedGraphs", "SparseArrays", "Test"]
-git-tree-sha1 = "e5b13ea5bd41d97ef988c6535929ce04d3e3d49d"
+deps = ["AlgebraicMultigrid", "ArchGDAL", "Dates", "DelimitedFiles", "Distributed", "GZip", "IterativeSolvers", "LightGraphs", "LinearAlgebra", "Logging", "REPL", "SharedArrays", "SimpleWeightedGraphs", "SparseArrays", "Test"]
+git-tree-sha1 = "0cb99e5aa4e3e4d621f724113f83977972497b29"
+repo-rev = "master"
+repo-url = "https://github.com/Circuitscape/Circuitscape.jl.git"
 uuid = "2b7a1792-8151-5239-925d-e2b8fdfa3201"
-version = "5.5.5"
+version = "5.6.0"
 
 [[Compat]]
 deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "SHA", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
