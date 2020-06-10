@@ -336,12 +336,12 @@ function run_omniscape(path::String)
     ## Collapse 3-dim cum current arrays to 2-dim via sum
     cum_currmap = dropdims(sum(cum_currmap, dims = 3), dims = 3)
 
-    if calc_flow_potential
+    if calc_flow_potential || calc_normalized_current
         fp_cum_currmap = dropdims(sum(fp_cum_currmap, dims = 3), dims = 3)
     end
 
     ## Normalize by flow potential
-    if calc_flow_potential
+    if calc_normalized_current
         normalized_cum_currmap = cum_currmap ./ fp_cum_currmap
         # replace NaNs with 0's
         normalized_cum_currmap[isnan.(normalized_cum_currmap)] .= 0
@@ -354,7 +354,7 @@ function run_omniscape(path::String)
     end
     isdir(project_name) && (project_name = string(project_name, "_$(dir_suffix)"))
 
-    mkdir(project_name)
+    mkpath(project_name)
 
     # Copy .ini file to output directory
     cp(path, "$(project_name)/config.ini")

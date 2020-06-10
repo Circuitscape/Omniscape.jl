@@ -12,6 +12,17 @@ Enter the following into a Julia terminal to install Omniscape.jl.
 ```julia
 using Pkg; Pkg.add("Omniscape")
 ```
+
+### Notes
+On Windows systems, you may get an error related to building GDAL, e.g.:
+```julia
+Building GDAL → C:\Users\username\.julia\packages\GDAL\cvf6T\deps\build.log
+┌ Error: Error building GDAL:
+ERROR: LoadError: LoadError: Your platform ("x86_64-w64-mingw32", parsed as "x86_64-w64-mingw32-gcc8-cxx11") is not supported by this package!
+```
+
+If this happens, trying running `using Pkg; Pkg.add("GDAL")` first, and if needed, restart Julia before trying to install Omniscape again.
+
 ## Using with Docker
 
 A Docker image with the latest version of Omniscape is [available on Docker Hub](https://hub.docker.com/r/vlandau/omniscape). To pull the image and start an Omniscape Docker container from your terminal, navigate to the directory containing your Omniscape input files (via `cd`) and run the following (set `JULIA_NUM_THREADS` to however many threads you want to use for parallel processing):
@@ -20,6 +31,7 @@ On Linux/Mac:
 ```
 docker run -it --rm \
 	-v $(pwd):/home/omniscape \
+	-w /home/omniscape \
 	-e JULIA_NUM_THREADS=2 \
 	vlandau/omniscape:0.2.2
 ```
@@ -28,10 +40,11 @@ On Windows (via Windows Command Line):
 ```
 docker run -it --rm^
  -v %cd%:/home/omniscape^
+ -w /home/omniscape^
  -e JULIA_NUM_THREADS=2^
  vlandau/omniscape:0.2.2
 ```
-Note that the `-v` flag and subsequent code will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory containing all needed input files). Once you're in Julia in the Docker container, run `cd("/home/omniscape")` to navigate to the location where you mounted your files, and you'll be ready to go! Make sure that the file paths in your .ini file are relative to /home/omniscape.
+Note that the `-v` flag and subsequent code will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory containing all needed input files). Once you're in Julia in the Docker container, you're ready to go! Make sure that the file paths in your .ini file are relative to the working directory from which you ran Docker.
 
 ## Citing Omniscape.jl
 
