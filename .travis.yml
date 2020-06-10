@@ -16,7 +16,7 @@ notifications:
   email: false
 
 before_script:
-  - julia -e 'using Pkg; Pkg.add(PackageSpec(name = "Circuitscape", rev = "master"))''
+  - julia -e 'using Pkg; Pkg.add(PackageSpec(name = "Circuitscape", rev = "master"))'
 
 jobs:
   include:
