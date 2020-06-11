@@ -325,13 +325,15 @@ function calculate_current(
                                                       V[],
                                                       Matrix{V}(undef,0,0))
 
+    # This is just to satisfy type requirements, most of it not used
     hbmeta = Circuitscape.RasterMeta(size(cellmap)[2],
                                      size(cellmap)[1],
                                      0.,
                                      0.,
                                      1.,
                                      -9999.,
-                                     0)
+                                     Array{Float64, 1}(undef, 1),
+                                     "")
 
     rasterdata = Circuitscape.RasData(cellmap,
                                       polymap,
