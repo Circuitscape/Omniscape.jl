@@ -24,7 +24,6 @@ jobs:
       os: linux
       julia: 1.4
       script:
-        - julia -e 'using Pkg; Pkg.add(PackageSpec(name = "Circuitscape", rev = "master"))'
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
                                                Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl
@@ -34,7 +33,6 @@ jobs:
       os: linux
       script:
         - julia -e 'using Pkg;
-          Pkg.add(PackageSpec(name = "Circuitscape", rev = "master"));
           Pkg.build(); Pkg.test(coverage=true);
           import Omniscape; cd(joinpath(dirname(pathof(Omniscape)),".."));
           Pkg.add("Coverage");
