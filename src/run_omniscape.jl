@@ -72,13 +72,13 @@ function run_omniscape(path::String)
 
     # If resistance file is conductance, convert back to resistance
     if resistance_file_is_conductance
-        resistance_raw[resistance_raw .!= -9999] = 1.0 ./ resistance_raw[resistance_raw .!= -9999]
+        resistance_raw[resistance_raw .!= -9999] = 1 ./ resistance_raw[resistance_raw .!= -9999]
     end
 
     # Compute source strengths from resistance if needed
     if source_from_resistance
         sources_raw = deepcopy(resistance_raw)
-        sources_raw = 1.0 ./ sources_raw
+        sources_raw = 1 ./ sources_raw
         sources_raw[resistance_raw .> r_cutoff] .= 0.0
         sources_raw[resistance_raw .== -9999] .= 0.0
     else
