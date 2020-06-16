@@ -65,10 +65,12 @@ julia
 
 **`allow_different_projections`:** One of true, false. Defaults to false. If true, warnings about non-matching projections are suppressed.
 
-#### Parallel processing options
+#### Processing options
 **`parallelize`:** One of true, false. Defaults to true. Specify whether to use parallel processing.
 
 **`parallel_batch_size`:** Integer. Defaults to 10. The batch size (number of jobs) to send to each parallel worker. Particularly in cases where single solves are very fast, setting this to a larger number can reduce I/O overhead when scheduling/sending jobs to parallel workers. If set too high, then you will not be fully utilizing parallel workers.
+
+**`precision`:** One of single, double. Defaults to double. Single precision uses less memory, but is less accurate than double precision. In certain cases (e.g. with extremelely large resistance values and/or extremely small source strengths), computations with single precision may be subject to [numerical underflow](https://en.wikipedia.org/wiki/Arithmetic_underflow), resulting in incorrect results. Use single precision with caution.
 
 #### Output options
 
