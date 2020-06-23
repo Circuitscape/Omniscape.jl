@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 Track progress toward v0.3.0 here: [Milestone - release v0.3.0](https://github.com/Circuitscape/Omniscape.jl/milestone/3)
+- closed [#46](https://github.com/Circuitscape/Omniscape.jl/issues/46)
+- closed [#40](https://github.com/Circuitscape/Omniscape.jl/issues/40), added experimental 32-bit option
+- switched to using Circuitscape's tiff reading functions, bumped Circuitscape version dependency to 5.6
 
 ## [v0.2.2]
 - Closed [#43](https://github.com/Circuitscape/Omniscape.jl/issues/43) related to GeoTiff writing.
