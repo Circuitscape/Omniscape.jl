@@ -5,12 +5,17 @@
 | [![docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://Circuitscape.github.io/Omniscape.jl/stable) [![docs](https://img.shields.io/badge/docs-dev-blue.svg)](https://Circuitscape.github.io/Omniscape.jl/dev) | [![Build Status](https://travis-ci.org/Circuitscape/Omniscape.jl.svg?branch=master)](https://travis-ci.org/Circuitscape/Omniscape.jl) [![Build status](https://ci.appveyor.com/api/projects/status/5mw77lobayetc9wh?svg=true)](https://ci.appveyor.com/project/vlandau/omniscape-jl) [![codecov](https://codecov.io/gh/Circuitscape/Omniscape.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Circuitscape/Omniscape.jl) | [![news](https://img.shields.io/badge/version-v0.2.2-orange)](https://github.com/Circuitscape/Omniscape.jl/blob/master/NEWS.md#news--changelog) | [![Gitter chat](https://badges.gitter.im/Circuitscape/Omniscape,jl.png)](https://gitter.im/Circuitscape/Omniscape.jl)
 
 
-Omniscape.jl is a Julia package that provides an open-source, updated version of [Omniscape](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest) with improved reliability and speed. Visit https://circuitscape.github.io/Omniscape.jl/stable for documentation.
+The Omniscape algorithm was first introduced by [McRae and colleagues](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest) in 2016 as a method to compute omnidirectional habitat connectivity. Omniscape.jl is an open-source, easy-to-use software package for Julia that offers an efficient and updated version of the Omniscape algorithm. Visit https://circuitscape.github.io/Omniscape.jl/stable for additional documentation.
+
 ## Installation
 
-Enter the following into a Julia terminal to install Omniscape.jl.
+Omniscape.jl currently requires Julia version 1.4 or greater. You can install Julia [here](https://julialang.org/downloads/). Once installation is complete, open a Julia terminal and run the following code to install Omniscape.jl.
 ```julia
 using Pkg; Pkg.add("Omniscape")
+```
+If you want to install the latest (unreleased) development version of Omniscape, you can do this by running:
+```julia
+using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "master"))
 ```
 
 ## Using with Docker
