@@ -5,7 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-Track progress toward v0.3.0 here: [Milestone - release v0.3.0](https://github.com/Circuitscape/Omniscape.jl/milestone/3)
+
+
+## [v0.3.0]
 - closed [#46](https://github.com/Circuitscape/Omniscape.jl/issues/46)
 - closed [#40](https://github.com/Circuitscape/Omniscape.jl/issues/40), added experimental 32-bit option
 - switched to using Circuitscape's tiff reading functions, bumped Circuitscape version dependency to 5.6
@@ -47,7 +49,8 @@ Track progress toward v0.3.0 here: [Milestone - release v0.3.0](https://github.c
 - method for block artifact correction
 - option to use resistance surface to assign source weights
 
-[Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.2...master
+[Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.3.0...master
+[v0.3.0]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.2...v0.3.0
 [v0.2.2]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.1...v0.2.2
 [v0.2.1]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/circuitscape/Omniscape.jl/compare/v0.1.4...v0.2.0
