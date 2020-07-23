@@ -16,5 +16,6 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/Circuitscape/Omniscape.jl.git"
+    repo = "github.com/Circuitscape/Omniscape.jl.git",
+    devbranch = "main"
 )
