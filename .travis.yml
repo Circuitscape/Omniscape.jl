@@ -25,7 +25,7 @@ jobs:
                                                Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl
     - stage: "Code coverage"
-      if: branch = master
+      if: branch = main
       julia: 1.4
       os: linux
       script:

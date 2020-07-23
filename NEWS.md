@@ -49,7 +49,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - method for block artifact correction
 - option to use resistance surface to assign source weights
 
-[Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.3.0...master
+[Unreleased]: https://github.com/circuitscape/Omniscape.jl/compare/v0.3.0...main
 [v0.3.0]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.2...v0.3.0
 [v0.2.2]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.1...v0.2.2
 [v0.2.1]: https://github.com/circuitscape/Omniscape.jl/compare/v0.2.0...v0.2.1

@@ -9,7 +9,7 @@ using Omniscape
 run_omniscape("path/to/config/file.ini")
 ```
 
-file.ini is a file specifying input data paths and options for Omniscape. See [this link](https://github.com/Circuitscape/Omniscape.jl/blob/master/test/input/config4.ini) for an example `.ini` file. The arguments specified in the .ini file are described in detail below.
+file.ini is a file specifying input data paths and options for Omniscape. See [this link](https://github.com/Circuitscape/Omniscape.jl/blob/main/test/input/config4.ini) for an example `.ini` file. The arguments specified in the .ini file are described in detail below.
 
 ### Parallel Processing
 
