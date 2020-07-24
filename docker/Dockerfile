@@ -15,7 +15,9 @@ RUN ln -s /julia-1.4.2/bin/julia /usr/bin/julia
 RUN julia -e 'using Pkg; Pkg.add(["Omniscape", "Test", "BenchmarkTools", "PackageCompiler"])'
 
 # Precompile Omniscape
-COPY precompile-omniscape.jl
-RUN julia precompile-omniscape.jl
+RUN julia -e "using PackageCompiler; \
+create_sysimage([:Omniscape]; \
+replace_default = true)"
+
 
 CMD ["/usr/bin/julia"]
