@@ -301,7 +301,7 @@ function get_conductance(
                               distance = radius + buffer)
 
     if resistance_file_is_conductance
-        conductances = resistance_clipped
+        conductance = resistance_clipped
     else
         conductance = 1 ./ resistance_clipped
         conductance[resistance_clipped .== -9999] .= -9999.
