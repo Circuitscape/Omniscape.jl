@@ -5,4 +5,4 @@ dev.Dockerfile
 build-env.sh
 run-juno.sh
 docker-build-dev-env.sh
-
+Manifest.toml
