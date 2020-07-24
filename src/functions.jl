@@ -119,8 +119,8 @@ function get_source(
     if buffer > 0
         ### Columns
         nrow_sub = size(source_subset)[1]
-        left_col_num = max(0, min(buffer, buffer + x - radius - buffer))
-        right_col_num = max(0, min(buffer, buffer + ncols - (x + radius + buffer)))
+        left_col_num = max(0, min(buffer, x - radius - 1))
+        right_col_num = max(0, min(buffer, ncols - (x + radius)))
 
         # Add left columns
         if left_col_num > 0
@@ -135,8 +135,8 @@ function get_source(
 
         ### Rows
         ncol_sub = size(source_subset)[2]
-        top_row_num = max(0, min(buffer, buffer + y - radius - buffer))
-        bottom_row_num = max(0, min(buffer, buffer + nrows - (y + radius + buffer)))
+        top_row_num = max(0, min(buffer, y - radius - 1))
+        bottom_row_num = max(0, min(buffer, nrows - (y + radius)))
 
         # Add top rows
         if top_row_num > 0
@@ -284,11 +284,12 @@ function get_ground(
     ground
 end
 
-function get_resistance(
+function get_conductance(
         raw_resistance::Array{T, 2} where T <: Number,
-        arguments::Dict{String, Int64};
+        arguments::Dict{String, Int64},
         x::Int64,
         y::Int64,
+        resistance_file_is_conductance::Bool
     )
 
     radius = arguments["radius"]
@@ -299,7 +300,14 @@ function get_resistance(
                               y = y,
                               distance = radius + buffer)
 
-    resistance = 1 ./ resistance_clipped
+    if resistance_file_is_conductance
+        conductances = resistance_clipped
+    else
+        conductance = 1 ./ resistance_clipped
+        conductance[resistance_clipped .== -9999] .= -9999.
+    end
+
+    conductance
 end
 
 
@@ -477,11 +485,12 @@ function solve_target!(
                         x = x_coord,
                         y = y_coord)
 
-    ## get resistance
-    resistance = get_resistance(resistance_raw,
-                                int_arguments,
-                                x = x_coord,
-                                y = y_coord)
+    ## get conductances for Omniscape
+    conductance = get_conductance(resistance_raw,
+                                 int_arguments,
+                                 x_coord,
+                                 y_coord,
+                                 resistance_file_is_conductance)
 
     grid_size = size(source)
     n_cells = prod(grid_size)
@@ -498,7 +507,7 @@ function solve_target!(
                                      false, false, solver, o)
 
     ## Run circuitscape
-    curr = calculate_current(resistance,
+    curr = calculate_current(conductance,
                              source,
                              ground,
                              flags,
@@ -508,9 +517,9 @@ function solve_target!(
     ## If normalize = True, calculate null map and normalize
     if calc_flow_potential == true
         @info "Calculating flow potential for target $(i) of $(n_targets)"
-        null_resistance = fill(convert(precision, 1.), grid_size)
+        null_conductance = fill(convert(precision, 1.), grid_size)
 
-        flow_potential = calculate_current(null_resistance,
+        flow_potential = calculate_current(null_conductance,
                                            source,
                                            ground,
                                            flags,
@@ -654,7 +663,7 @@ function calc_correction(
                               y = (arguments["radius"] + arguments["buffer"] + 1),
                               strength = float(arguments["block_size"] ^ 2))
 
-    resistance = clip(temp_source,
+    conductance = clip(temp_source,
                       x = arguments["radius"] + arguments["buffer"] + 1,
                       y = arguments["radius"] + arguments["buffer"] + 1,
                       distance = arguments["radius"] + arguments["buffer"])
@@ -665,14 +674,14 @@ function calc_correction(
     ground[arguments["radius"] + arguments["buffer"] + 1,
            arguments["radius"] + arguments["buffer"] + 1] = Inf
 
-    block_null_current = calculate_current(resistance,
+    block_null_current = calculate_current(conductance,
                                            source_block,
                                            ground,
                                            flags,
                                            cs_cfg,
                                            precision)
 
-    null_current =  calculate_current(resistance,
+    null_current =  calculate_current(conductance,
                                       source_null,
                                       ground,
                                       flags,
