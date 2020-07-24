@@ -70,17 +70,14 @@ function run_omniscape(path::String)
 
     check_resistance_values(resistance_raw) && return
 
-    # If resistance file is conductance, convert back to resistance
-    if resistance_file_is_conductance
-        resistance_raw[resistance_raw .!= -9999] = 1 ./ resistance_raw[resistance_raw .!= -9999]
-    end
-
     # Compute source strengths from resistance if needed
     if source_from_resistance
         sources_raw = deepcopy(resistance_raw)
-        sources_raw = 1 ./ sources_raw
-        sources_raw[resistance_raw .> r_cutoff] .= 0.0
-        sources_raw[resistance_raw .== -9999] .= 0.0
+        if !resistance_file_is_conductance
+            sources_raw = 1 ./ sources_raw
+            sources_raw[resistance_raw .> r_cutoff] .= 0.0
+            sources_raw[resistance_raw .== -9999] .= 0.0
+        end
     else
         sources_raster = Circuitscape.read_raster("$(cfg["source_file"])", precision)
         sources_raw = sources_raster[1]
@@ -291,7 +288,8 @@ function run_omniscape(path::String)
                               correction_array,
                               cum_currmap,
                               fp_cum_currmap,
-                              precision)
+                              precision,
+                              resistance_file_is_conductance)
             end
         end
     else
@@ -320,7 +318,8 @@ function run_omniscape(path::String)
                           correction_array,
                           cum_currmap,
                           fp_cum_currmap,
-                          precision)
+                          precision,
+                          resistance_file_is_conductance)
         end
     end
 
