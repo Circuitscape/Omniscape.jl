@@ -454,7 +454,8 @@ function solve_target!(
         correction_array::Array{T, 2} where T <: Number,
         cum_currmap::Array{T, 3} where T <: Number,
         fp_cum_currmap::Array{T, 3}  where T <: Number,
-        precision::DataType
+        precision::DataType,
+        resistance_file_is_conductance::Bool
     )
 
     ## get source

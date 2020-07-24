@@ -116,7 +116,7 @@ GC.gc()
 
 rm("test1", recursive = true)
 rm("test1_32bit", recursive = true)
-rm("test2", recursive = true)
+# rm("test2", recursive = true)
 rm("test2_1", recursive = true)
 rm("test2_2", recursive = true)
 rm("test3", recursive = true)

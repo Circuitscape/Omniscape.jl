@@ -288,7 +288,8 @@ function run_omniscape(path::String)
                               correction_array,
                               cum_currmap,
                               fp_cum_currmap,
-                              precision)
+                              precision,
+                              resistance_file_is_conductance)
             end
         end
     else
@@ -317,7 +318,8 @@ function run_omniscape(path::String)
                           correction_array,
                           cum_currmap,
                           fp_cum_currmap,
-                          precision)
+                          precision,
+                          resistance_file_is_conductance)
         end
     end
 
