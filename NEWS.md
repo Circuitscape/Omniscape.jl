@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
+- closed [#53](https://github.com/Circuitscape/Omniscape.jl/issues/53)
 
 ## [v0.3.0]
 - closed [#46](https://github.com/Circuitscape/Omniscape.jl/issues/46)
