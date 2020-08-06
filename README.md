@@ -4,7 +4,7 @@
 |:-----------------------------------------------------:|:------------------------------------:|:-----------:|
 | [![docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://Circuitscape.github.io/Omniscape.jl/stable) [![docs](https://img.shields.io/badge/docs-dev-blue.svg)](https://Circuitscape.github.io/Omniscape.jl/dev) | [![Build Status](https://travis-ci.org/Circuitscape/Omniscape.jl.svg?branch=main)](https://travis-ci.org/Circuitscape/Omniscape.jl) [![Build status](https://ci.appveyor.com/api/projects/status/5mw77lobayetc9wh?svg=true)](https://ci.appveyor.com/project/vlandau/omniscape-jl) [![codecov](https://codecov.io/gh/Circuitscape/Omniscape.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/Circuitscape/Omniscape.jl) | [![news](https://img.shields.io/badge/version-v0.3.0-orange)](https://github.com/Circuitscape/Omniscape.jl/blob/main/NEWS.md#news--changelog)
 
-The Omniscape algorithm was first introduced by [McRae and colleagues](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest) in 2016 as a method to compute omnidirectional habitat connectivity. Omniscape.jl is an open-source, easy-to-use software package for Julia that offers an efficient and updated version of the Omniscape algorithm. Check out [the docs](https://circuitscape.github.io/Omniscape.jl/stable) for additional information.
+The Omniscape algorithm was first introduced by [McRae and colleagues](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest) in 2016 as a method to compute omnidirectional habitat connectivity. Omniscape.jl is an open-source, easy-to-use software package for Julia that offers an efficient and updated implementation of the Omniscape algorithm. Check out [the docs](https://circuitscape.github.io/Omniscape.jl/stable) for additional information.
 
 ## Installation
 
@@ -12,14 +12,14 @@ Omniscape.jl currently requires Julia version 1.4 or greater. You can install Ju
 ```julia
 using Pkg; Pkg.add("Omniscape")
 ```
-If you want to install the latest (unreleased) development version of Omniscape, you can do this by running:
+If you want to install the latest (unreleased) development version of Omniscape, you can get it by running:
 ```julia
 using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 ```
 
 ## Using with Docker
 
-A Docker image with the latest version of Omniscape is [available on Docker Hub](https://hub.docker.com/r/vlandau/omniscape). To pull the image and start an Omniscape Docker container from your terminal, navigate to the directory containing your Omniscape input files (via `cd`) and run the following (set `JULIA_NUM_THREADS` to however many threads you want to use for parallel processing):
+A Docker image with the latest version of Omniscape (precompiled so `using Omniscape` will run instantly!) is [available on Docker Hub](https://hub.docker.com/r/vlandau/omniscape). To pull the image and start an Omniscape Docker container from your terminal, navigate to the directory containing your Omniscape input files (via `cd`) and run the following (set `JULIA_NUM_THREADS` to however many threads you want to use for parallel processing):
 
 On Linux/Mac:
 ```
