@@ -40,6 +40,10 @@ function init_cfg()
     cfg["condition1_upper"] = "0"
     cfg["condition2_upper"] = "0"
 
+    cfg["reclassify_resistance"] = "false"
+    cfg["reclass_table"] = "(browse to resistance reclass table file)"
+    cfg["write_reclassified_resistance"] = "false"
+
     cfg["allow_different_projections"] = "false"
 
     cfg
