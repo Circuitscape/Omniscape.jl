@@ -14,7 +14,7 @@ function init_cfg()
     cfg["buffer"] = "0"
     cfg["source_threshold"] = "0"
     cfg["source_from_resistance"] = "false"
-    cfg["r_cutoff"] = "0.0"
+    cfg["r_cutoff"] = "Inf"
     cfg["precision"] = "double"
 
     cfg["calc_flow_potential"] = "false"
