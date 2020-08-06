@@ -3,6 +3,7 @@ using Documenter, Omniscape
 const formats = Any[
     Documenter.HTML(
     	assets = ["assets/custom.css"],
+	edit_link = "main",
     ),
 ]
 
