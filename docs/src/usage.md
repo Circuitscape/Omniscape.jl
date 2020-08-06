@@ -53,7 +53,7 @@ julia
 
 **`resistance_file_is_conductance`:** One of true, false. Defaults to false. Specify whether the file specified by `resistance_file` is a conductance (rather than resistance) surface. Conductance is the inverse of resistance. Note that `r_cutoff` (an optional argument described below) must be in units of resistance even if a conductance file is supplied as input.
 
-**`r_cutoff`**: The maximum resistance value a cell can have to be included as a source. Only applies when `source_from_resistance` = true.
+**`r_cutoff`**: The maximum resistance value a cell can have to be included as a source. Only applies when `source_from_resistance` = true. Defaults to Inf (which allows all cells to be considered as sources regardless of the resistance value).
 
 **`buffer`**: A positive integer. Defaults to 0. Specifies an additional buffer distance beyond `radius` to clip the resistance and source layers to for each moving window iteration. Any source pixels beyond the `radius` but within the buffered area are set to 0. If 0, resistance and source layers will be clipped to a circle of size `radius` for each moving window iteration.
 
@@ -64,6 +64,29 @@ julia
 **`calc_flow_potential`:** One of true, false. Defaults to false. Specify whether to calculate flow potential. Flow potential calculates current flow in "null" conditions, where the resistance of the entire landscape is 1. If true, a flow potential raster will be calculated and written to the `project_name` directory. This can still be set to false even if `calc_normalized_current` = true if you want to avoid writing the flow potential raster to disk.
 
 **`allow_different_projections`:** One of true, false. Defaults to false. If true, warnings about non-matching projections are suppressed.
+
+#### Resistance reclassification
+Omniscape.jl allows you to reclassify categorical resistance surfaces internally based on a user-provided reclass table. This allows the user to avoid reclassifying rasters manually in a GIS, and an streamline your workflow.
+
+!!! note
+    If instead of a resistance raster, you provide Omniscape a conductance raster, then conductance is what Omniscape will reclassify based on the provided reclass table.
+
+**`reclassify_resistance`**: One of true, false. Defaults to false. Do you want Omniscape to reclassify your resistance/conductance raster using a reclass table that you provide?
+
+**`reclass_table`**: If `reclassify_resistance = true`, the file path of the reclass table. The reclass table is a two column, tab-separated .txt file. The first column contains the original resistance values in the resistance surface, and the second column specifies what those values should be changed to. Note that you don't need to include every value in your original raster. If you only want to reclassify 2 resistance values, then only include entries for those two values.
+
+Example reclass_table.txt:
+
+```
+1	3
+2	5
+3	1
+4	2
+5	4
+```
+
+**`write_reclassified_resistance`**: One of true, false. Defaults to false. Should the reclassified resistance/conductance raster be saved to the output folder
+
 
 #### Processing options
 **`parallelize`:** One of true, false. Defaults to true. Specify whether to use parallel processing.

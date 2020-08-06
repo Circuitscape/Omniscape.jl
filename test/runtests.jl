@@ -88,6 +88,7 @@ q, e = run_omniscape("input/config3.ini")
 d = run_omniscape("input/config2.ini")
 d_1 = run_omniscape("input/config2.ini")
 d_2 = run_omniscape("input/config2.ini")
+reclassed = run_omniscape("input/config_reclass.ini")
 
 @test typeof(f) == Array{Float64,2}
 @test typeof(g) == Array{Float64,2}
@@ -100,6 +101,7 @@ d_2 = run_omniscape("input/config2.ini")
 @test typeof(c1) == Array{Float32,2}
 @test typeof(d) == Array{Float64,2}
 @test typeof(e) == Array{Float64,2}
+@test typeof(reclassed) == Array{Float64,2}
 @test a ≈ d #parallel and serial produce same result
 
 # Single and double produce similar results
@@ -123,5 +125,6 @@ rm("test3", recursive = true)
 rm("test4", recursive = true)
 rm("test5", recursive = true)
 rm("test6", recursive = true)
+rm("test_reclass", recursive = true)
 
 @info "run_omniscape tests passed"

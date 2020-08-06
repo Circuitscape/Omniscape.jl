@@ -14,7 +14,7 @@ function init_cfg()
     cfg["buffer"] = "0"
     cfg["source_threshold"] = "0"
     cfg["source_from_resistance"] = "false"
-    cfg["r_cutoff"] = "0.0"
+    cfg["r_cutoff"] = "Inf"
     cfg["precision"] = "double"
 
     cfg["calc_flow_potential"] = "false"
@@ -39,6 +39,10 @@ function init_cfg()
     cfg["condition2_lower"] = "0"
     cfg["condition1_upper"] = "0"
     cfg["condition2_upper"] = "0"
+
+    cfg["reclassify_resistance"] = "false"
+    cfg["reclass_table"] = "(browse to resistance reclass table file)"
+    cfg["write_reclassified_resistance"] = "false"
 
     cfg["allow_different_projections"] = "false"
 

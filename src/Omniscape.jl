@@ -4,6 +4,7 @@ using LinearAlgebra.BLAS
 using Base.Threads
 using StatsBase
 using Statistics
+using DelimitedFiles
 
 include("config.jl")
 include("consts.jl")
