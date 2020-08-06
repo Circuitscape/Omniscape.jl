@@ -44,8 +44,8 @@ function get_targets(
 
     start = block_radius + 1
 
-    xs = [start:block_size:(ncols - block_radius - 1);]
-    ys = [start:block_size:(nrows - block_radius - 1);]
+    xs = [start:block_size:(ncols - block_radius);]
+    ys = [start:block_size:(nrows - block_radius);]
 
     ground_points = zeros(precision, (length(xs)*length(ys), 2))
 

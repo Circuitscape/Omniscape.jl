@@ -46,7 +46,8 @@ function run_omniscape(path::String)
     resistance_file_is_conductance = cfg["resistance_file_is_conductance"] in TRUELIST
     write_as_tif = cfg["write_as_tif"] in TRUELIST
     allow_different_projections = cfg["allow_different_projections"] in TRUELIST
-
+    reclassify = cfg["reclassify_resistance"] in TRUELIST
+    write_reclassified_resistance = cfg["write_reclassified_resistance"] in TRUELIST
 
     if int_arguments["block_size"] == 1
         correct_artifacts = false
@@ -69,6 +70,18 @@ function run_omniscape(path::String)
     transform = resistance_raster[3]
 
     check_resistance_values(resistance_raw) && return
+
+    # Reclassify resistance layer
+    if reclassify
+        resistance_old = deepcopy(resistance_raw)
+        reclass_table = convert.(precision, readdlm("$(cfg["reclass_table"])"))
+
+        for i in 1:(size(reclass_table)[1])
+            resistance_raw[resistance_old .== reclass_table[i, 1]] .= reclass_table[i, 2]
+        end
+
+        resistance_old = nothing # remove from memory
+    end
 
     # Compute source strengths from resistance if needed
     if source_from_resistance
@@ -198,7 +211,7 @@ function run_omniscape(path::String)
 
     ## Add parallel workers
     if parallelize
-        println("Starting up Omniscape. Using $(n_threads) workers in parallel.")
+        println("Starting up Omniscape. Using $(n_threads) workers in parallel. Using $(precision) precision")
 
         cum_currmap = fill(convert(precision, 0.),
                            int_arguments["nrows"],
@@ -215,7 +228,7 @@ function run_omniscape(path::String)
             fp_cum_currmap = Array{precision, 3}(undef, 1, 1, 1)
         end
     else
-        println("Starting up Omniscape. Running in serial using 1 worker.")
+        println("Starting up Omniscape. Running in serial using 1 worker. Using $(precision) precision")
         cum_currmap = fill(convert(precision, 0.),
                           int_arguments["nrows"],
                           int_arguments["ncols"],
@@ -356,6 +369,14 @@ function run_omniscape(path::String)
 
     # Copy .ini file to output directory
     cp(path, "$(project_name)/config.ini")
+
+    if reclassify && write_reclassified_resistance
+        Circuitscape.write_raster("$(project_name)/classified_resistance",
+                     resistance_raw,
+                     wkt,
+                     transform,
+                     file_format)
+    end
 
     ## Overwrite no data
     if mask_nodata
