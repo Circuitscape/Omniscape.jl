@@ -209,9 +209,10 @@ function run_omniscape(path::String)
                                  false, false,
                                  false, false)
 
+    precision_name = precision == Float64 ? "double" : "single"
     ## Add parallel workers
     if parallelize
-        println("Starting up Omniscape. Using $(n_threads) workers in parallel. Using $(precision) precision")
+        println("Starting up Omniscape. Using $(n_threads) workers in parallel. Using $(precision) precision...")
 
         cum_currmap = fill(convert(precision, 0.),
                            int_arguments["nrows"],
@@ -245,7 +246,7 @@ function run_omniscape(path::String)
     end
 
     if correct_artifacts
-        println("Calculating block artifact correction array")
+        println("Calculating block artifact correction array...")
         correction_array = calc_correction(int_arguments,
                                            cs_cfg,
                                            o,
