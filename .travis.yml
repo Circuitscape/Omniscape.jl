@@ -8,7 +8,6 @@ os:
   - osx
 
 julia:
-  - 1.4
   - 1.5
   - nightly
 
@@ -19,14 +18,14 @@ jobs:
   include:
     - stage: "Documentation"
       os: linux
-      julia: 1.4
+      julia: 1.5
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
                                                Pkg.instantiate()'
         - julia --project=docs/ docs/make.jl
     - stage: "Code coverage"
       if: branch = main
-      julia: 1.4
+      julia: 1.5
       os: linux
       script:
         - julia -e 'using Pkg;
