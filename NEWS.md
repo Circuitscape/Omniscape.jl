@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 - closed [#53](https://github.com/Circuitscape/Omniscape.jl/issues/53)
+- Added option to reclassify categorical resistance surfaces using a user-provide reclass table [#56](https://github.com/Circuitscape/Omniscape.jl/pull/56)
+- Fixed a minor error that sometimes prevented last row/column of targets from being solved and accumulating current [07e1704](https://github.com/Circuitscape/Omniscape.jl/commit/07e170411b17dc2979f83bc583d3262a53f7322b)
 
 ## [v0.3.0]
 - closed [#46](https://github.com/Circuitscape/Omniscape.jl/issues/46)
