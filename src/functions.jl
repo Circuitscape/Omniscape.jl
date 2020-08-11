@@ -459,6 +459,8 @@ function solve_target!(
     )
 
     ## get source
+    solve_start_time = time()
+
     @info "Solving target $(i) of $(n_targets)"
     x_coord = Int64(targets[i, 1])
     y_coord = Int64(targets[i, 2])
@@ -580,6 +582,8 @@ function solve_target!(
         fp_cum_currmap[ylower:yupper, xlower:xupper, threadid()] .=
             fp_cum_currmap[ylower:yupper, xlower:xupper, threadid()] .+ flow_potential
     end
+
+    @info "Target $(i) complete in $(round(time() - solve_start_time; digits = 4)) seconds"
 end
 
 function calc_correction(
