@@ -353,7 +353,7 @@ function calculate_current(
                                       hbmeta)
 
     # Generate advanced data
-    data = Circuitscape.compute_advanced_data(rasterdata, flags)
+    data = Circuitscape.compute_advanced_data(rasterdata, flags, cs_cfg)
 
     G = data.G
     nodemap = data.nodemap
