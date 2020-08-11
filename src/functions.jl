@@ -519,7 +519,6 @@ function solve_target!(
 
     ## If normalize = True, calculate null map and normalize
     if calc_flow_potential == true
-        @info "Calculating flow potential for target $(i) of $(n_targets)"
         null_conductance = fill(convert(precision, 1.), grid_size)
 
         flow_potential = calculate_current(null_conductance,
@@ -583,7 +582,7 @@ function solve_target!(
             fp_cum_currmap[ylower:yupper, xlower:xupper, threadid()] .+ flow_potential
     end
 
-    @info "Target $(i) complete in $(round(time() - solve_start_time; digits = 4)) seconds"
+    @info "Time taken to solve target $(i): $(round(time() - solve_start_time; digits = 4)) seconds"
 end
 
 function calc_correction(

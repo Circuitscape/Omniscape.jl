@@ -420,7 +420,7 @@ function run_omniscape(path::String)
                      file_format)
     end
 
-    println("Done")
+    println("Done!")
     println("Time taken to complete job: $(round(time() - start_time; digits = 4)) seconds")
 
     println("Outputs written to $(string(pwd(),"/",project_name))")
