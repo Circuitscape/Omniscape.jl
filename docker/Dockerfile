@@ -16,8 +16,8 @@ RUN julia -e 'using Pkg; Pkg.add(["Omniscape", "Test", "BenchmarkTools", "Packag
 
 # Precompile Omniscape
 RUN julia -e "using PackageCompiler; \
-create_sysimage([:Omniscape]; \
-replace_default = true)"
+    create_sysimage([:Omniscape]; \
+    replace_default = true)"
 
 
 CMD ["/usr/bin/julia"]
