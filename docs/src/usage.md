@@ -73,7 +73,7 @@ Omniscape.jl allows you to reclassify categorical resistance surfaces internally
 
 **`reclassify_resistance`**: One of true, false. Defaults to false. Do you want Omniscape to reclassify your resistance/conductance raster using a reclass table that you provide?
 
-**`reclass_table`**: If `reclassify_resistance = true`, the file path of the reclass table. The reclass table is a two column, tab-separated .txt file. The first column contains the original resistance values in the resistance surface, and the second column specifies what those values should be changed to. Note that you don't need to include every value in your original raster. If you only want to reclassify 2 resistance values, then only include entries for those two values.
+**`reclass_table`**: If `reclassify_resistance = true`, the file path to the reclass table you wish to use. The reclass table is a two column, tab-separated .txt file. The first column contains the original resistance values in the resistance surface, and the second column specifies what those values should be changed to. Note that you don't need to include an entry for every value in your original raster. If you only want to reclassify 2 specific resistance values, then only include entries for those two values.
 
 Example reclass_table.txt:
 
