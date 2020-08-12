@@ -8,7 +8,7 @@ The Omniscape algorithm was developed by [McRae and colleagues](https://www.rese
 
 ## Installation
 
-Omniscape.jl currently requires Julia version 1.5 or greater. You can install Julia [here](https://julialang.org/downloads/). Once installation is complete, open a Julia terminal and run the following code to install Omniscape.jl.
+Omniscape.jl currently requires Julia version 1.4 or greater. You can install Julia [here](https://julialang.org/downloads/). Once installation is complete, open a Julia terminal and run the following code to install Omniscape.jl.
 ```julia
 using Pkg; Pkg.add("Omniscape")
 ```
