@@ -39,7 +39,7 @@ Please also cite the [original work](https://www.researchgate.net/publication/30
 
 ## References
 
-[[1]](https://proceedings.juliacon.org/papers/10.21105/jcon.00058) Anantharaman, R., Hall, K., Shah, V., & Edelman, A. (2020). Circuitscape in Julia: Circuitscape in Julia: High Performance Connectivity Modelling to Support Conservation Decisions. *Proceedings of the JuliaCon Conferences* DOI: 10.21105/jcon.00058.
+[[1]](https://proceedings.juliacon.org/papers/10.21105/jcon.00058) Anantharaman, R., Hall, K., Shah, V., & Edelman, A. (2020). Circuitscape in Julia: Circuitscape in Julia: High Performance Connectivity Modelling to Support Conservation Decisions. *Proceedings of the JuliaCon Conferences*. DOI: 10.21105/jcon.00058.
 
 [[2]](https://circuitscape.org/pubs/McRae_2006_IBR_Evolution.pdf) McRae, B. H. (2006). Isolation by resistance. Evolution, 60(8), 1551-1561.
 
