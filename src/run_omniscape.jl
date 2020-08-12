@@ -212,7 +212,7 @@ function run_omniscape(path::String)
     precision_name = precision == Float64 ? "double" : "single"
     ## Add parallel workers
     if parallelize
-        println("Starting up Omniscape. Using $(n_threads) workers in parallel. Using $(precision) precision...")
+        println("Starting up Omniscape. Using $(n_threads) workers in parallel. Using $(precision_name) precision...")
 
         cum_currmap = fill(convert(precision, 0.),
                            int_arguments["nrows"],
@@ -229,7 +229,7 @@ function run_omniscape(path::String)
             fp_cum_currmap = Array{precision, 3}(undef, 1, 1, 1)
         end
     else
-        println("Starting up Omniscape. Running in serial using 1 worker. Using $(precision) precision")
+        println("Starting up Omniscape. Running in serial using 1 worker. Using $(precision_name) precision...")
         cum_currmap = fill(convert(precision, 0.),
                           int_arguments["nrows"],
                           int_arguments["ncols"],
@@ -420,7 +420,7 @@ function run_omniscape(path::String)
                      file_format)
     end
 
-    println("Done")
+    println("Done!")
     println("Time taken to complete job: $(round(time() - start_time; digits = 4)) seconds")
 
     println("Outputs written to $(string(pwd(),"/",project_name))")

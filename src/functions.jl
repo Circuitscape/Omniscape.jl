@@ -353,7 +353,7 @@ function calculate_current(
                                       hbmeta)
 
     # Generate advanced data
-    data = Circuitscape.compute_advanced_data(rasterdata, flags)
+    data = Circuitscape.compute_advanced_data(rasterdata, flags, cs_cfg)
 
     G = data.G
     nodemap = data.nodemap
@@ -459,6 +459,8 @@ function solve_target!(
     )
 
     ## get source
+    solve_start_time = time()
+
     @info "Solving target $(i) of $(n_targets)"
     x_coord = Int64(targets[i, 1])
     y_coord = Int64(targets[i, 2])
@@ -517,7 +519,6 @@ function solve_target!(
 
     ## If normalize = True, calculate null map and normalize
     if calc_flow_potential == true
-        @info "Calculating flow potential for target $(i) of $(n_targets)"
         null_conductance = fill(convert(precision, 1.), grid_size)
 
         flow_potential = calculate_current(null_conductance,
@@ -580,6 +581,8 @@ function solve_target!(
         fp_cum_currmap[ylower:yupper, xlower:xupper, threadid()] .=
             fp_cum_currmap[ylower:yupper, xlower:xupper, threadid()] .+ flow_potential
     end
+
+    @info "Time taken to solve target $(i): $(round(time() - solve_start_time; digits = 4)) seconds"
 end
 
 function calc_correction(
