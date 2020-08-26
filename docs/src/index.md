@@ -18,10 +18,10 @@ This package implements the omnidirectional connectivity algorithm developed by 
 
 ## Citing Omniscape.jl
 
-A formal paper detailing Omniscape.jl is forthcoming, but until it is published, please use the something like the following to cite Omniscape.jl if you use it in your work:
+A formal paper detailing Omniscape.jl is forthcoming, but until it is published, please use something like the following to cite Omniscape.jl if you use it in your work:
 > Landau, VA 2020. Omniscape.jl: An efficient and scalable implementation of the Omniscape algorithm in the Julia scientific computing language, vX.Y.Z, URL: https://github.com/Circuitscape/Omniscape.jl, DOI: 10.5281/zenodo.3955123.
 
-Note that the DOI and citation listed here is stale by one version release (docs are written prior to the new DOI being issued). You can go to https://zenodo.org/ and search for Omniscape to ensure you use the correct DOI.
+Note that the DOI listed here is stale by one version release (docs are written prior to the new DOI being issued). You can go to https://zenodo.org/ and search for Omniscape to ensure you use the correct DOI.
 
 Here's a bibtex entry:
 ```
@@ -39,7 +39,7 @@ Please also cite the [original work](https://www.researchgate.net/publication/30
 
 ## References
 
-[[1]](https://proceedings.juliacon.org/papers/10.21105/jcon.00058) Anantharaman, R., Hall, K., Shah, V., & Edelman, A. (2020). Circuitscape in Julia: Circuitscape in Julia: High Performance Connectivity Modelling to Support Conservation Decisions. *Proceedings of the JuliaCon Conferences* DOI: 10.21105/jcon.00058.
+[[1]](https://proceedings.juliacon.org/papers/10.21105/jcon.00058) Anantharaman, R., Hall, K., Shah, V., & Edelman, A. (2020). Circuitscape in Julia: Circuitscape in Julia: High Performance Connectivity Modelling to Support Conservation Decisions. *Proceedings of the JuliaCon Conferences*. DOI: 10.21105/jcon.00058.
 
 [[2]](https://circuitscape.org/pubs/McRae_2006_IBR_Evolution.pdf) McRae, B. H. (2006). Isolation by resistance. Evolution, 60(8), 1551-1561.
 
