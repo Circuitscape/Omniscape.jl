@@ -19,5 +19,4 @@ RUN julia -e "using PackageCompiler; \
     create_sysimage([:Omniscape]; \
     replace_default = true)"
 
-
 CMD ["/usr/bin/julia"]
