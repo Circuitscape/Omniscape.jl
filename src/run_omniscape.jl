@@ -245,10 +245,25 @@ function run_omniscape(path::String)
         end
     end
 
+    # Get raster flags
+    solver = "cg+amg"
+
+    # n_cells = int_arguments["nrows"] * int_arguments["ncols"]
+    # if n_cells <= 2000000
+    #     solver = "cholmod" # FIXME: "cholmod" not available in advanced mode
+    # end
+
+    flags = Circuitscape.RasterFlags(true, false, true,
+                                     false, false,
+                                     false, Symbol("rmvsrc"),
+                                     cfg["connect_four_neighbors_only"] in TRUELIST,
+                                     false, solver, o)
+
     if correct_artifacts
         println("Calculating block artifact correction array...")
         correction_array = calc_correction(int_arguments,
                                            cs_cfg,
+                                           flags,
                                            o,
                                            conditional,
                                            condition1,
@@ -269,6 +284,7 @@ function run_omniscape(path::String)
 
     ## Calculate and accumulate currents on each worker
     println("Solving targets")
+
     if parallelize
         parallel_batch_size = Int64(round(parse(Float64, cfg["parallel_batch_size"])))
         n_batches = Int(ceil(n_targets / parallel_batch_size))
@@ -285,6 +301,7 @@ function run_omniscape(path::String)
                               sources_raw,
                               resistance_raw,
                               cs_cfg,
+                              flags,
                               o,
                               calc_flow_potential || calc_normalized_current,
                               correct_artifacts,
@@ -315,6 +332,7 @@ function run_omniscape(path::String)
                           sources_raw,
                           resistance_raw,
                           cs_cfg,
+                          flags,
                           o,
                           calc_flow_potential || calc_normalized_current,
                           correct_artifacts,

@@ -65,6 +65,8 @@ julia
 
 **`allow_different_projections`:** One of true, false. Defaults to false. If true, warnings about non-matching projections are suppressed.
 
+**`connect_four_neighbors_only`:** One of true, false. Defaults to false. Circuitscape creates a graph (network) by connecting cells to their four (Fig. 4) or eight immediate neighbors. The default is eight (four cardinal and four diagonal neighbors). Set `connect_four_neighbors_only` to true if you want to connect cells to their four cardinal neighbors only.
+
 #### Resistance reclassification
 Omniscape.jl allows you to reclassify categorical resistance surfaces internally based on a user-provided reclass table. This allows the user to avoid reclassifying rasters manually in a GIS, and can streamline your workflow.
 

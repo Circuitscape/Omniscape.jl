@@ -17,6 +17,8 @@ function init_cfg()
     cfg["r_cutoff"] = "Inf"
     cfg["precision"] = "double"
 
+    cfg["connect_four_neighbors_only"] = "false"
+
     cfg["calc_flow_potential"] = "false"
     cfg["calc_normalized_current"] = "false"
 
