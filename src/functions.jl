@@ -437,7 +437,7 @@ function solve_target!(
         sources_raw::Array{T, 2} where T <: Number,
         resistance_raw::Array{T, 2} where T <: Number,
         cs_cfg::Dict{String, String},
-        flags::RasterFLags,
+        flags::Circuitscape.RasterFlags,
         o::Circuitscape.OutputFlags,
         calc_flow_potential::Bool,
         correct_artifacts::Bool,
@@ -577,7 +577,7 @@ end
 function calc_correction(
         arguments::Dict{String, Int64},
         cs_cfg::Dict{String, String},
-        flags,
+        flags::Circuitscape.RasterFlags,
         o,
         conditional::Bool,
         condition1_present::Array{T, 2} where T <: Number,
