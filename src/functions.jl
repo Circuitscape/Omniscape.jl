@@ -437,6 +437,7 @@ function solve_target!(
         sources_raw::Array{T, 2} where T <: Number,
         resistance_raw::Array{T, 2} where T <: Number,
         cs_cfg::Dict{String, String},
+        flags::Circuitscape.RasterFlags,
         o::Circuitscape.OutputFlags,
         calc_flow_potential::Bool,
         correct_artifacts::Bool,
@@ -496,18 +497,6 @@ function solve_target!(
                                  resistance_file_is_conductance)
 
     grid_size = size(source)
-    n_cells = prod(grid_size)
-
-    solver = "cg+amg"
-
-    # if n_cells <= 2000000
-    #     solver = "cholmod" # FIXME: "cholmod" not available in advanced mode
-    # end
-
-    flags = Circuitscape.RasterFlags(true, false, true,
-                                     false, false,
-                                     false, Symbol("rmvsrc"),
-                                     false, false, solver, o)
 
     ## Run circuitscape
     curr = calculate_current(conductance,
@@ -588,6 +577,7 @@ end
 function calc_correction(
         arguments::Dict{String, Int64},
         cs_cfg::Dict{String, String},
+        flags::Circuitscape.RasterFlags,
         o,
         conditional::Bool,
         condition1_present::Array{T, 2} where T <: Number,
@@ -606,17 +596,6 @@ function calc_correction(
     # This may not apply seamlessly in the case (if I add the option) that source strengths
     # are not adjusted by target weight, but stay the same according to their
     # original values. Something to keep in mind...
-
-    solver = "cg+amg"
-
-    # if (arguments["radius"]+1)^2 <= 2000000
-    #     solver = "cholmod" # FIXME: "cholmod" not available in advanced mode
-    # end
-
-    flags = Circuitscape.RasterFlags(true, false, true,
-                                     false, false,
-                                     false, Symbol("keepall"),
-                                     false, false, solver, o)
 
     temp_source = fill(convert(precision, 1.0),
                        arguments["radius"] * 2 + buffer * 2 + 1,
