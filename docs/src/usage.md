@@ -49,6 +49,7 @@ julia
 
 **`block_size`:** An odd integer. Defaults to 1. An **odd**, positive integer specifying the side length for source layer blocking in target generation. The block size option coarsens the source strength surface for the purposes of identifying target values and assigning source strength values.	
 
+<<<<<<< HEAD
 <table border="0"><tr>
 	<td> 
 		<figure>
@@ -64,6 +65,9 @@ julia
 	</td>
 </tr></table>
 
+=======
+![Block size of one](figs/sources_block_of_1.png) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![Block size of 3](figs/sources_block_of_3.png)
+>>>>>>> fd1b19533e0180597064f3c484adfd21d7a99698
 
 **`source_from_resistance`**: One of true, false. Should a source layer be derived using the resistance layer? If true, sources are calculated as the inverse of the resistance layer, and therefore it is not recommended that your resistance layer contain values less than 1. Sources will be set to 0 for all cells with a resistance greater than `r_cutoff` (described below). Defaults to false.
 
