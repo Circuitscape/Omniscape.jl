@@ -53,13 +53,13 @@ julia
 <table border="0"><tr>
 <td> 
 	<figure>
-		<img src='figs/sources_block_of_1.png' alt='missing'><br>
+		<img src='https://raw.githubusercontent.com/Circuitscape/Omniscape.jl/main/docs/src/figs/sources_block_of_1.png' alt='missing'><br>
 		<figcaption><em>Block size of 1</em></figcaption>
 	</figure>
 </td>
 <td> 
 	<figure>
-		<img src='figs/sources_block_of_3.png' alt='missing'><br>
+		<img src='https://raw.githubusercontent.com/Circuitscape/Omniscape.jl/main/docs/src/figs/sources_block_of_3.png' alt='missing'><br>
 		<figcaption><em>Block size of 3</em></figcaption>
 	</figure>
 </td>
