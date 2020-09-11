@@ -3,9 +3,7 @@ using Documenter, Omniscape
 const formats = Any[
     Documenter.HTML(
     	assets = [
-    		"assets/custom.css",
-    		asset("figs/sources_block_of_1.png", class = :css, islocal = true),
-    		asset("figs/sources_block_of_3.png", class = :css, islocal = true)
+    		"assets/custom.css"
     	],
 	edit_branch = "main",
     ),
