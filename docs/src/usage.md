@@ -47,19 +47,19 @@ julia
 ### Optional arguments
 #### General options
 
-**`block_size`:** An odd integer. Defaults to 1. An **odd**, positive integer specifying the side length for source layer blocking in target generation. The block size option coarsens the source strength surface for the purposes of identifying target values and assigning source strength values.	
+**`block_size`:** An odd integer. Defaults to 1. An **odd**, positive integer specifying the side length for source layer blocking in target generation. The block size option coarsens the source strength surface for the purposes of identifying target values and assigning source strength values. The figure below shows two source strength grids. On the left is the case when `block_size = 1`. In this scenario, every pixel in the grid with a source strength greater than 0 (or, if specified, `source_threshold`, described below) will be a target pixel. There will be a Circuitscape solve for each on of those pixels. Setting `block_size` to a value greater than one will reduce the number of targets, and therefore the number of Circuitscape solves. The figure below and to the right represents the case when `block_size` is set to three. In this case, the source strength grid is broken up into chunks of 9 pixels (3x3 blocks), shown with a thick black outline. Only the grey pixels will be considered as potential target pixels. The maximum number of Circuitscape solves for this source grid is reduced from 81 when `block_size = 1` to just 9 when `block_size = 3`. In the `block_size = 3` case, the grey pixels will be assigned a new source strength equal to the sum of the 9 pixels in the 3x3 block of pixels after setting any pixels with a source strength less than `source_threshold` to 0. This ensures that the total amount of current injected will be the same regardless of the value of `block_size`. 
 
 ```@raw html
 <table border="0"><tr>
 <td> 
 	<figure>
-		<img src='https://raw.githubusercontent.com/Circuitscape/Omniscape.jl/main/docs/src/figs/sources_block_of_1.png' alt='missing'><br>
+		<img src='../figs/sources_block_of_1.png' alt='missing'><br>
 		<figcaption><em>Block size of 1</em></figcaption>
 	</figure>
 </td>
 <td> 
 	<figure>
-		<img src='https://raw.githubusercontent.com/Circuitscape/Omniscape.jl/main/docs/src/figs/sources_block_of_3.png' alt='missing'><br>
+		<img src='../figs/sources_block_of_3.png' alt='missing'><br>
 		<figcaption><em>Block size of 3</em></figcaption>
 	</figure>
 </td>
