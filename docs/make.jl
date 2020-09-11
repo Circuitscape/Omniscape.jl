@@ -4,8 +4,8 @@ const formats = Any[
     Documenter.HTML(
     	assets = [
     		"assets/custom.css",
-    		"figs/sources_block_of_1.png",
-    		"figs/sources_block_of_3.png"
+    		asset("figs/sources_block_of_1.png", class = :css, islocal = true),
+    		asset("figs/sources_block_of_3.png", class = :css, islocal = true)
     	],
 	edit_branch = "main",
     ),
