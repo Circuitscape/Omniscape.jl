@@ -1,23 +1,44 @@
-# Usage
+# User Guide
+
+## Installation
+```julia
+using Pkg; Pkg.add("Omniscape")
+```
 
 ## Running Omniscape
 
-The following Julia code shows an example of how to run Omniscape after Omniscape.jl has been installed.
+Omniscape.jl provides a single user-facing function: `run_omniscape()`. The following Julia code shows an example of how to run this function in the Julia terminal.
 
 ```julia
 using Omniscape
 run_omniscape("path/to/config/file.ini")
 ```
 
-file.ini is a file specifying input data paths and options for Omniscape. See [this link](https://github.com/Circuitscape/Omniscape.jl/blob/main/test/input/config4.ini) for an example `.ini` file. The arguments specified in the .ini file are described in detail below.
+`run_omniscape()` accepts a single argument: the file path to an [INI file](https://en.wikipedia.org/wiki/INI_file) that specifies file paths for raster inputs and other user-specified options. An INI file can be created using any text editor (e.g. notepad) and saved with the .ini file extension. The following code block shows an example INI file. The headings in square brackets are not required. They are there for organization purposes and are ignored by `run_omniscape()`.
+```
+[Required arguments]
+resistance_file = resistance_surface.tif
+radius = 100
+block_size = 5
+project_name = output/example
+
+[General options]
+source_from_resistance = true
+r_cutoff = 99
+calc_normalized_current = true
+
+parallelize = true
+parallel_batch_size = 20
+
+[Output options] 
+write_raw_currmap = true
+```
+
+The full suite of arguments that can be specified in the .ini file are described in detail under "Arguments" below.
 
 ### Parallel Processing
 
-Omniscape uses parallel processing by default, but currently, Julia requires that the number of parallel threads to use be specified an environment variable called `JULIA_NUM_THREADS`. This environment variable needs to be defined prior to launching Julia. See the following example code for how to do this.
-
-**Setting `JULIA_NUM_THREADS` and starting up Julia to use 4 threads**:
-
-Run the following in your terminal:
+Omniscape uses parallel processing by default, but currently, Julia requires that the number of parallel threads to use be specified by an environment variable called `JULIA_NUM_THREADS`. This environment variable needs to be defined prior to launching Julia. The following examples demonstrate how to set `JULIA_NUM_THREADS` and start up Julia to use 4 threads from your terminal.
 
 On Linux/Mac
 ```bash

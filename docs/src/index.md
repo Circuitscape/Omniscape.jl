@@ -1,20 +1,38 @@
 # Omniscape.jl
 
-*A package to compute omnidirectional landscape connectivity*.
+*Omniscape.jl implements the Omniscape connectivity algorithm developed by [McRae et al. (2016)](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest).*
 
 Package repository: [https://github.com/Circuitscape/Omniscape.jl](https://github.com/Circuitscape/Omniscape.jl)
 
-!!! note
-    This package is currently in active development. Please test it out and [post issues](https://github.com/Circuitscape/Omniscape.jl/issues/new) to the GitHub repo with any bugs, feature requests, or questions.
+!!! note Before proceeding, it is strongly recommended that you familiarize yourself with the circuit theoretic approach to modeling landscape connectivity. See [McRae 2006](https://circuitscape.org/pubs/McRae_2006_IBR_Evolution.pdf) and [McRae et al. 2008](https://circuitscape.org/pubs/McRae_et_al_2008_Ecology.pdf) to learn more. See [Anantharaman et al. 2020](https://proceedings.juliacon.org/papers/10.21105/jcon.00058) for more on [Circuitscape.jl](https://github.com/Circuitscape/Omniscape.jl).
 
-## Installation
-```julia
-using Pkg; Pkg.add("Omniscape")
-```
 
-## Overview
+## The Omniscape Algorithm
 
-This package implements the omnidirectional connectivity algorithm developed by [McRae et al. (2016)](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest). Omniscape.jl is a moving window implementation of [Circuitscape.jl](https://github.com/Circuitscape/Circuitscape.jl) (Anantharaman et al. 2020). Circuitscape.jl applies circuit theory to make spatially-explicit predictions of connectivity using concepts developed by McRae (2006) and McRae et al. (2008).
+Omniscape works by applying Circuitscape iteratively through the landscape in a moving window with a user-specified radius. Omniscape requires two basic inputs: a resistance raster, and a source strength raster. The resistance raster defines the traversal cost for every pixel in the landscape. The source strength raster defines for every pixel the relative amount of current to be injected into that pixel. A diagram of the moving window, adapted and borrowed from McRae et al. 2016, is shown in figure 1 below.
+
+<img src='../figs/moving_window.png' width=350)> <br><em><b>Figure 1</b>: An illustration of the moving window iteration in the Omniscape algorithm.</em>
+
+The algorithm works as follows:
+1. The window centers on a pixel in the source strength surface that has a source strength greater than 0 (or a user specified threshold). This is referred to as the target pixel. 
+2. The source strength and resistance rasters are clipped to the circular window.
+3. Every pixel within the search radius that also has a source strength greater than 0 is identified. These are referred to as the source pixels.
+4. Circuitscape is run using the clipped resistance raster in “all-to-one” mode, where the target pixel is set to ground, and the source pixels are set as current sources. The total amount of current injected is equal to the source strength of the target pixel, and is divvied up among the source pixels in proportion to their source strengths.
+5. Steps 1-4 are repeated for every potential target pixel. The resulting current maps are summed to get a map of cumulative current flow. 
+
+Using this method, Omniscape evaluates connectivity between every possible pair of pixels in the landscape that are, a) valid sources (i.e. have a source strength greater than 0 or some other threshold) and b) are no further apart than the moving window radius.
+
+### Outputs
+
+Omniscape.jl provides three different outputs. 
+1. **Cumulative current flow**: the total current flowing through the landscape -- the result of the Omniscape algorithm described above.
+2. **Flow potential** (optional): current flow under "null" resistance conditions. Flow potential demonstrates what movement/flow would look like when movement is unconstrained by resistance and barriers. Flow potential is calculated exactly as cumulative current flow is, but with resistance set to 1 for the entire landscape.
+3. **Normalized current flow** (optional): calculated as cumulative current flow divided by flow potential. Normalized current helps identify areas where current is impeded or channelized (e.g. more or less current than expected under null resistance conditions). High values mean current flow is channelized, low values mean current is impeded.
+
+### Climate Connectivity
+
+Climate connectivity can be modeled using the conditional connectivity options in Omniscape. These options options allow the user to impose extra constraints on source and target identification and matching. For example the present day climate of the source pixels might be required to be similar to the projected future climate for the target pixel. Info on constraints is provided to Omniscape via raster layers. See the documentation on [conditional connectivity options](https://circuitscape.github.io/Omniscape.jl//usage/#Conditional-connectivity-options) for more info on how to implement this feature.
+
 
 ## Citing Omniscape.jl
 
@@ -39,12 +57,12 @@ Please also cite the [original work](https://www.researchgate.net/publication/30
 
 ## References
 
-[[1]](https://proceedings.juliacon.org/papers/10.21105/jcon.00058) Anantharaman, R., Hall, K., Shah, V., & Edelman, A. (2020). Circuitscape in Julia: Circuitscape in Julia: High Performance Connectivity Modelling to Support Conservation Decisions. *Proceedings of the JuliaCon Conferences*. DOI: 10.21105/jcon.00058.
+Anantharaman, R., Hall, K., Shah, V., & Edelman, A. (2020). Circuitscape in Julia: Circuitscape in Julia: High Performance Connectivity Modelling to Support Conservation Decisions. *Proceedings of the JuliaCon Conferences*. DOI: 10.21105/jcon.00058.
 
-[[2]](https://circuitscape.org/pubs/McRae_2006_IBR_Evolution.pdf) McRae, B. H. (2006). Isolation by resistance. Evolution, 60(8), 1551-1561.
+McRae, B. H. (2006). Isolation by resistance. *Evolution*, 60(8), 1551-1561.
 
-[[3]](https://circuitscape.org/pubs/McRae_et_al_2008_Ecology.pdf) McRae, B. H., Dickson, B. G., Keitt, T. H., & Shah, V. B. (2008). Using circuit theory to model connectivity in ecology, evolution, and conservation. Ecology, 89(10), 2712-2724.
+McRae, B. H., Dickson, B. G., Keitt, T. H., & Shah, V. B. (2008). Using circuit theory to model connectivity in ecology, evolution, and conservation. *Ecology*, 89(10), 2712-2724.
 
-[[4]](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest) McRae, B. H., Popper, K., Jones, A., Schindel, M., Buttrick, S., Hall, K., Unnasch, B. & Platt, J. (2016). Conserving nature’s stage: mapping omnidirectional connectivity for resilient terrestrial landscapes in the Pacific Northwest. *The Nature Conservancy*, Portland, Oregon.
+McRae, B. H., Popper, K., Jones, A., Schindel, M., Buttrick, S., Hall, K., Unnasch, B. & Platt, J. (2016). Conserving nature’s stage: mapping omnidirectional connectivity for resilient terrestrial landscapes in the Pacific Northwest. *The Nature Conservancy*, Portland, Oregon.
 
 
