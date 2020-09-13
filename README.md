@@ -1,4 +1,4 @@
-# Omniscape.jl
+<img src='docs/src/assets/logo.png' width=300/>
 
 | **Documentation** | **Chat** | **Build Status**| **Changelog**| 
 |:-----------------------------------------------------:|:------------------------------------:|:-----------:|:-------:|
