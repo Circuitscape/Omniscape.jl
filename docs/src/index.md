@@ -39,7 +39,7 @@ Omniscape.jl provides three different outputs.
 
 ### Climate Connectivity
 
-Climate connectivity can be modeled using the conditional connectivity options in Omniscape. These options options allow the user to impose extra constraints on source and target identification and matching. For example the present day climate of the source pixels might be required to be similar to the projected future climate for the target pixel. Info on constraints is provided to Omniscape via raster layers. See the documentation on [conditional connectivity options](@ref) for more info on how to implement this feature.
+Climate connectivity can be modeled using the conditional connectivity options in Omniscape. These options options allow the user to impose extra constraints on source and target identification and matching. For example the present day climate of the source pixels might be required to be similar to the projected future climate for the target pixel. Info on constraints is provided to Omniscape via raster layers. See the documentation on [Conditional connectivity options](@ref) for more info on how to implement this feature.
 
 
 ## Citing Omniscape.jl
@@ -47,7 +47,7 @@ Climate connectivity can be modeled using the conditional connectivity options i
 A formal paper detailing Omniscape.jl is forthcoming, but until it is published, please use something like the following to cite Omniscape.jl if you use it in your work:
 > Landau, VA 2020. Omniscape.jl: An efficient and scalable implementation of the Omniscape algorithm in the Julia scientific computing language, vX.Y.Z, URL: https://github.com/Circuitscape/Omniscape.jl, DOI: 10.5281/zenodo.3955123.
 
-Note that the DOI listed here is stale by one version release (docs are written prior to the new DOI being issued). You can go to https://zenodo.org/ and search for Omniscape to ensure you use the correct DOI.
+Note that the DOI listed here is stale (docs are written prior to the new DOI being issued). You can go to https://zenodo.org/ and search for Omniscape to ensure you use the correct DOI.
 
 Here's a bibtex entry:
 ```
