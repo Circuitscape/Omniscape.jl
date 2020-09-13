@@ -1,11 +1,5 @@
 # Omniscape.jl
 
-### Table of Contents
-
-```@contents
-Depth = 2
-```
-
 *Omniscape.jl implements the Omniscape connectivity algorithm developed by [McRae et al. (2016)](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest).*
 
 Package repository: [https://github.com/Circuitscape/Omniscape.jl](https://github.com/Circuitscape/Omniscape.jl)
@@ -14,6 +8,11 @@ Package repository: [https://github.com/Circuitscape/Omniscape.jl](https://githu
 
     Before proceeding, it is strongly recommended that you familiarize yourself with the circuit theoretic approach to modeling landscape connectivity. See [McRae 2006](https://circuitscape.org/pubs/McRae_2006_IBR_Evolution.pdf) and [McRae et al. 2008](https://circuitscape.org/pubs/McRae_et_al_2008_Ecology.pdf) to learn more. See [Anantharaman et al. 2020](https://proceedings.juliacon.org/papers/10.21105/jcon.00058) for more on [Circuitscape.jl](https://github.com/Circuitscape/Omniscape.jl).
 
+### Table of Contents
+
+```@contents
+Depth = 2
+```
 
 ## The Omniscape Algorithm
 
