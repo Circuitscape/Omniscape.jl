@@ -1,5 +1,7 @@
 # Omniscape.jl
 
+### Table of Contents
+
 ```@contents
 Depth = 2
 ```
@@ -39,7 +41,7 @@ Omniscape.jl provides three different outputs.
 
 ### Climate Connectivity
 
-Climate connectivity can be modeled using the conditional connectivity options in Omniscape. These options options allow the user to impose extra constraints on source and target identification and matching. For example the present day climate of the source pixels might be required to be similar to the projected future climate for the target pixel. Info on constraints is provided to Omniscape via raster layers. See the documentation on [Conditional connectivity options](@ref) for more info on how to implement this feature.
+Climate connectivity can be modeled using the conditional connectivity options in Omniscape. These options options allow the user to impose extra constraints on source and target identification and matching. For example the present day climate of the source pixels might be required to be similar to the projected future climate for the target pixel. Info on constraints is provided to Omniscape via raster layers. See the documentation on [Conditional Connectivity Options](@ref) for more info on how to implement this feature.
 
 
 ## Citing Omniscape.jl
