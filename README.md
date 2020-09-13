@@ -17,29 +17,6 @@ If you want to install the latest (unreleased) development version of Omniscape,
 using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 ```
 
-## Using with Docker
-
-A Docker image with the latest version of Omniscape (precompiled so `using Omniscape` will run instantly!) is [available on Docker Hub](https://hub.docker.com/r/vlandau/omniscape). To pull the image and start an Omniscape Docker container from your terminal, navigate to the directory containing your Omniscape input files (via `cd`) and run the following (setting `JULIA_NUM_THREADS` to however many threads you want to use for parallel processing):
-
-On Linux/Mac:
-```
-docker run -it --rm \
-	-v $(pwd):/home/omniscape \
-	-w /home/omniscape \
-	-e JULIA_NUM_THREADS=2 \
-	vlandau/omniscape:latest
-```
-
-On Windows (via Windows Command Line):
-```
-docker run -it --rm^
- -v %cd%:/home/omniscape^
- -w /home/omniscape^
- -e JULIA_NUM_THREADS=2^
- vlandau/omniscape:latest
-```
-Note that the `-v` flag and subsequent code will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory containing all needed input files). Once you're in Julia in the Docker container, you're ready to go! Make sure that the file paths in your .ini file are relative to the working directory from which you ran Docker.
-
 ## Citing Omniscape.jl
 
 A formal paper detailing Omniscape.jl is forthcoming, but until it is published, please use the something like the following to cite Omniscape.jl if you use it in your work:
