@@ -1,8 +1,13 @@
 # User Guide
 
 ## Installation
+The latest version of Omniscape.jl **requires Julia version 1.5 or greater**. You can install Julia [here](https://julialang.org/downloads/). Once installation is complete, open a Julia terminal and run the following code to install Omniscape.jl.
 ```julia
 using Pkg; Pkg.add("Omniscape")
+```
+If you want to install the latest (unreleased) development version of Omniscape.jl, you can get it by running:
+```julia
+using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 ```
 
 ## Running Omniscape
@@ -34,7 +39,7 @@ parallel_batch_size = 20
 write_raw_currmap = true
 ```
 
-The full suite of arguments that can be specified in the .ini file are described in detail under "Arguments" below.
+The full suite of arguments that can be specified in the .ini file are described in detail in [Arguments](@ref).
 
 ### Parallel Processing
 
@@ -176,3 +181,27 @@ Example reclass_table.txt:
 **`condition1_future_file`:** The file path to the data representing condition one in the future. Only needed if `compare_to_future` = 1 or `compare_to_future` = both. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that they have the exact same projection to ensure proper alignment.
 
 **`condition2_future_file`:** The file path to the data representing condition two in the future. Only needed if `n_conditions` = 2 *and* `compare_to_future` = 2 or `compare_to_future` = both. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that they have the exact same projection to ensure proper alignment.
+
+## Omniscape in Docker
+
+A Docker image with the latest version of Omniscape (precompiled so `using Omniscape` will run instantly!) is [available on Docker Hub](https://hub.docker.com/r/vlandau/omniscape). To pull the image and start the Docker container from your terminal, navigate to the directory containing your Omniscape input files via `cd` and run the following code (set `JULIA_NUM_THREADS` to the number of threads you want to use for parallel processing):
+
+On Linux/Mac:
+```
+docker run -it --rm \
+	-v $(pwd):/home/omniscape \
+	-w /home/omniscape \
+	-e JULIA_NUM_THREADS=2 \
+	vlandau/omniscape:latest
+```
+
+On Windows (via Windows Command Line):
+```
+docker run -it --rm^
+ -v %cd%:/home/omniscape^
+ -w /home/omniscape^
+ -e JULIA_NUM_THREADS=2^
+ vlandau/omniscape:latest
+```
+The `-v` flag and subsequent code will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory that containing your input files). Once you're in Julia in the Docker container, you're ready to go! Make sure that the file paths in your .ini file are relative to the working directory from which you ran Docker.
+
