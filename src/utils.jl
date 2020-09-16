@@ -87,7 +87,7 @@ end
 function get_source(
         source_array::Array{T, 2} where T <: Number,
         arguments::Dict{String, Int64},
-        conditional::Bool,
+        os_flags::OmniscapeFlags,
         condition1_present::Array{T, 2} where T <: Number,
         condition1_future::Array{T, 2} where T <: Number,
         condition2_present::Array{T, 2} where T <: Number,
@@ -167,7 +167,7 @@ function get_source(
     source_subset[source_subset .> 0] .=
         (source_subset[source_subset .> 0] * strength) / source_sum
 
-    if conditional
+    if os_flags.conditional
 
         xlower_buffered = Int64(max(x - radius - buffer, 1))
         xupper_buffered = Int64(min(x + radius + buffer, ncols))
@@ -289,7 +289,7 @@ function get_conductance(
         arguments::Dict{String, Int64},
         x::Int64,
         y::Int64,
-        resistance_file_is_conductance::Bool
+        os_flags::OmniscapeFlags
     )
 
     radius = arguments["radius"]
@@ -300,7 +300,7 @@ function get_conductance(
                               y = y,
                               distance = radius + buffer)
 
-    if resistance_file_is_conductance
+    if os_flags.resistance_file_is_conductance
         conductance = resistance_clipped
     else
         conductance = 1 ./ resistance_clipped
@@ -315,7 +315,7 @@ function calculate_current(
         resistance::Array{T, 2} where T <: Number,
         source::Array{T, 2} where T <: Number,
         ground::Array{T, 2} where T <: Number,
-        flags::Circuitscape.RasterFlags,
+        cs_flags::Circuitscape.RasterFlags,
         cs_cfg::Dict{String, String},
         T::DataType
     )
@@ -353,7 +353,7 @@ function calculate_current(
                                       hbmeta)
 
     # Generate advanced data
-    data = Circuitscape.compute_advanced_data(rasterdata, flags, cs_cfg)
+    data = Circuitscape.compute_advanced_data(rasterdata, cs_flags, cs_cfg)
 
     G = data.G
     nodemap = data.nodemap
@@ -369,12 +369,12 @@ function calculate_current(
     cellmap = data.cellmap
 
     # Flags
-    is_raster = flags.is_raster
-    is_alltoone = flags.is_alltoone
-    is_onetoall = flags.is_onetoall
-    write_v_maps = flags.outputflags.write_volt_maps
-    write_c_maps = flags.outputflags.write_cur_maps
-    write_cum_cur_map_only = flags.outputflags.write_cum_cur_map_only
+    is_raster = cs_flags.is_raster
+    is_alltoone = cs_flags.is_alltoone
+    is_onetoall = cs_flags.is_onetoall
+    write_v_maps = cs_flags.outputcs_flags.write_volt_maps
+    write_c_maps = cs_flags.outputcs_flags.write_cur_maps
+    write_cum_cur_map_only = cs_flags.outputcs_flags.write_cum_cur_map_only
 
     volt = zeros(eltype(G), size(nodemap))
     ind = findall(x -> x != 0,nodemap)
@@ -436,12 +436,10 @@ function solve_target!(
         targets::Array{T, 2} where T <: Number,
         sources_raw::Array{T, 2} where T <: Number,
         resistance_raw::Array{T, 2} where T <: Number,
+        os_flags::OmniscapeFlags,
         cs_cfg::Dict{String, String},
-        flags::Circuitscape.RasterFlags,
+        cs_flags::Circuitscape.RasterFlags,
         o::Circuitscape.OutputFlags,
-        calc_flow_potential::Bool,
-        correct_artifacts::Bool,
-        conditional::Bool,
         condition1_present::Array{T, 2} where T <: Number,
         condition1_future::Array{T, 2} where T <: Number,
         condition2_present::Array{T, 2} where T <: Number,
@@ -455,8 +453,7 @@ function solve_target!(
         correction_array::Array{T, 2} where T <: Number,
         cum_currmap::Array{T, 3} where T <: Number,
         fp_cum_currmap::Array{T, 3}  where T <: Number,
-        precision::DataType,
-        resistance_file_is_conductance::Bool
+        precision::DataType
     )
 
     ## get source
@@ -467,7 +464,7 @@ function solve_target!(
     y_coord = Int64(targets[i, 2])
     source = get_source(sources_raw,
                         int_arguments,
-                        conditional,
+                        os_flags,
                         condition1_present,
                         condition1_future,
                         condition2_present,
@@ -494,7 +491,7 @@ function solve_target!(
                                  int_arguments,
                                  x_coord,
                                  y_coord,
-                                 resistance_file_is_conductance)
+                                 os_flags)
 
     grid_size = size(source)
 
@@ -502,18 +499,18 @@ function solve_target!(
     curr = calculate_current(conductance,
                              source,
                              ground,
-                             flags,
+                             cs_flags,
                              cs_cfg,
                              precision)
 
     ## If normalize = True, calculate null map and normalize
-    if calc_flow_potential == true
+    if os_flags.compute_flow_potential
         null_conductance = fill(convert(precision, 1.), grid_size)
 
         flow_potential = calculate_current(null_conductance,
                                            source,
                                            ground,
-                                           flags,
+                                           cs_flags,
                                            cs_cfg,
                                            precision)
     end
@@ -548,7 +545,7 @@ function solve_target!(
 
         curr = curr .* correction_array2
 
-        if calc_flow_potential
+        if os_flags.compute_flow_potential
             flow_potential = flow_potential .* correction_array2
         end
     end
@@ -566,7 +563,7 @@ function solve_target!(
     cum_currmap[ylower:yupper, xlower:xupper, threadid()] .=
         cum_currmap[ylower:yupper, xlower:xupper, threadid()] .+ curr
 
-    if calc_flow_potential == true
+    if os_flags.compute_flow_potential
         fp_cum_currmap[ylower:yupper, xlower:xupper, threadid()] .=
             fp_cum_currmap[ylower:yupper, xlower:xupper, threadid()] .+ flow_potential
     end
@@ -576,10 +573,10 @@ end
 
 function calc_correction(
         arguments::Dict{String, Int64},
+        os_flags::OmniscapeFlags,
         cs_cfg::Dict{String, String},
-        flags::Circuitscape.RasterFlags,
-        o,
-        conditional::Bool,
+        cs_flags::Circuitscape.RasterFlags,
+        o::Circuitscape.OutputFlags,
         condition1_present::Array{T, 2} where T <: Number,
         condition1_future::Array{T, 2} where T <: Number,
         condition2_present::Array{T, 2} where T <: Number,
@@ -630,7 +627,7 @@ function calc_correction(
 
     source_block = get_source(temp_source,
                               arguments,
-                              conditional,
+                              os_flags,
                               condition1_present,
                               condition1_future,
                               condition2_present,
@@ -660,14 +657,14 @@ function calc_correction(
     block_null_current = calculate_current(conductance,
                                            source_block,
                                            ground,
-                                           flags,
+                                           cs_flags,
                                            cs_cfg,
                                            precision)
 
     null_current =  calculate_current(conductance,
                                       source_null,
                                       ground,
-                                      flags,
+                                      cs_flags,
                                       cs_cfg,
                                       precision)
     null_current_total = fill(convert(precision, 0.),
@@ -692,4 +689,23 @@ function calc_correction(
     correction = null_current_total ./ block_null_current
 
     correction
+end
+
+function get_omniscape_flags(full_cfg::Dict{Any, Any})
+    OmniscapeFlags(
+        calc_flow_potential = cfg["calc_flow_potential"] in TRUELIST
+        calc_normalized_current = cfg["calc_normalized_current"] in TRUELIST
+        compute_flow_potential = cfg["calc_flow_potential"] in TRUELIST || cfg["calc_normalized_current"] in TRUELIST
+        write_raw_currmap = cfg["write_raw_currmap"] in TRUELIST
+        parallelize = cfg["parallelize"] in TRUELIST
+        correct_artifacts = cfg["correct_artifacts"] in TRUELIST
+        source_from_resistance = cfg["source_from_resistance"] in TRUELIST
+        conditional = cfg["conditional"] in TRUELIST
+        mask_nodata = cfg["mask_nodata"] in TRUELIST
+        resistance_file_is_conductance = cfg["resistance_file_is_conductance"] in TRUELIST
+        write_as_tif = cfg["write_as_tif"] in TRUELIST
+        allow_different_projections = cfg["allow_different_projections"] in TRUELIST
+        reclassify = cfg["reclassify_resistance"] in TRUELIST
+        write_reclassified_resistance = cfg["write_reclassified_resistance"] in TRUELIST
+    )
 end

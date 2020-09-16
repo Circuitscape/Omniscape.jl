@@ -1,17 +1,119 @@
-"""
-    run_omniscape("path/to/config.ini")
+struct OmniscapeFlags
+    calc_flow_potential::Bool
+    calc_normalized_current::Bool
+    compute_flow_potential::Bool #bad name, but need a variable that stores the OR of the previous two
+    write_raw_currmap::Bool
+    parallelize::Bool
+    correct_artifacts::Bool
+    source_from_resistance::Bool
+    conditional::Bool
+    mask_nodata ::Bool
+    resistance_file_is_conductance::Bool
+    write_as_tif::Bool
+    allow_different_projections::Bool
+    reclassify::Bool
+    write_reclassified_resistance::Bool
+end
 
-Run the Omniscape algorithm using the files and options specified in a .ini file
 
-Visit https://circuitscape.github.io/Omniscape.jl/stable for detailed
-documentation
+#==
+Named args needed:
+- cfg::Dict{Any, Any}
+- resistance::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1)
+- source_strength::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1)
+- geotransform::Array{T, 1} where T <: Number = [0., 1, 0, size(resistance)[1], 0., -1.]
+- wkt::String = ""
+        can use GeoArrays.epsg2wkt(epsgcode::Int) to get convert and EPSG code to wkt
+- condition1::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1)
+- condition2::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1)
+- condition1_future::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1)
+- condition2_future::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1)
+==#
+
 """
-function run_omniscape(path::String)
+INI method:
+    run_omniscape(path::String)
+
+In-memory method:
+    run_omniscape(
+        cfg::Dict{String, String},
+        resistance::Array{T, 2} where T <: Number,
+        source_strength::Array{T, 2} where T <: Number,
+        condition1::Array{T, 2} where T <: Number,
+        condition2::Array{T, 2} where T <: Number,
+        condition1_future::Array{T, 2} where T <: Number,
+        condition2_future::Array{T, 2} where T <: Number,
+        geotransform::Array{T, 1} where T <: Number,
+        reclass_table::Array{T, 2} where T <: Number,
+        wkt::String
+    )
+
+# Keyward Arguments
+
+**`path`**: The path to an INI file containing run parameters. See the
+[Arguments](@ref) section of the User Guide for descriptions of the run
+paramters.
+
+**`cfg`**: A dictionary of Omniscape run parameters. See the [Arguments](@ref)
+section of the User Guide for descriptions of the run paramters and their
+default values. The in-memory method of `run_omniscape` ignores the following
+keys: resistance_file, source_file, reclass_table, condition1_file,
+condition2_file, condition1_future_file, and condition2_future_file. These
+all specify file paths, so they do not apply to the in-memory method
+of `run_omniscape` since this methods uses in-memory objects as inputs.
+
+**`resistance`**: An 2D array of resistance surface. Use a value of -9999 for
+NoData.
+
+**`source_strength`**: A 2D array (with size equal to `size(resistance)`) of
+source strength values. `source_strength` is only required if
+`source_from_resistance` in `cfg` is set to `"false"` (the default value).
+
+**`condition1`**: Optional. Required if `conditional` in`cfg` is set to "true".
+A 2D array (with size equal to `size(resistance)`). See
+[Climate Connectivity](@ref) and [Conditional Connectivity Options](@ref) for
+more information.
+
+**`condition2`**: Optional. Required if `conditional` in`cfg` is set to "true"
+and `n_conditions` in `cfg` is set to "2". A 2D array (with size equal to
+`size(resistance)`). See [Climate Connectivity](@ref) and
+[Conditional Connectivity Options](@ref) for more information.
+
+**`condition1_future`**: Optional. Required if `conditional` in`cfg` is set
+to "true" and `compare_to_future` in `cfg` is set to "1" or "both".
+A 2D array (with size equal to `size(resistance)`). See
+[Climate Connectivity](@ref) and [Conditional Connectivity Options](@ref) for
+more information.
+
+**`condition2`**: Optional. Required if `conditional` in`cfg` is set to "true",
+ `n_conditions` in `cfg` is set to "2", and `compare_to_future` in `cfg` is
+ set to "2" or "both". A 2D array (with size equal to `size(resistance)`).
+ See [Climate Connectivity](@ref) and [Conditional Connectivity Options](@ref)
+ for more information.
+
+**`wkt`**: Optionally specify a Well Known Text representation of the projection
+to use for your spatial data inputs.
+
+**`geotransform`**: In addition to `wkt`, optionally specify a geotransform.
+
+"""
+function run_omniscape(;
+        cfg::Dict{Any, Any},
+        resistance::Array{T, 2} where T <: Number,
+        source_strength::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1),
+        condition1::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1),
+        condition2::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1),
+        condition1_future::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1),
+        condition2_future::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1),
+        geotransform::Array{T, 1} where T <: Number = [0., 1, 0, size(resistance)[1], 0., -1.],
+        reclass_table::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 2),
+        wkt::String = "")
+
     start_time = time()
     n_threads = nthreads()
-    cfg_user = parse_cfg(path)
+    cfg_user = cfg
 
-    check_missing_args(cfg_user) && return
+    check_missing_args_dict(cfg_user) && return
 
     cfg = init_cfg()
     update_cfg!(cfg, cfg_user)
@@ -35,29 +137,17 @@ function run_omniscape(path::String)
     precision = cfg["precision"] in SINGLE ? Float32 : Float64
 
     # flags
-    calc_flow_potential = cfg["calc_flow_potential"] in TRUELIST
-    calc_normalized_current = cfg["calc_normalized_current"] in TRUELIST
-    write_raw_currmap = cfg["write_raw_currmap"] in TRUELIST
-    parallelize = cfg["parallelize"] in TRUELIST
-    correct_artifacts = cfg["correct_artifacts"] in TRUELIST
-    source_from_resistance = cfg["source_from_resistance"] in TRUELIST
-    conditional = cfg["conditional"] in TRUELIST
-    mask_nodata = cfg["mask_nodata"] in TRUELIST
-    resistance_file_is_conductance = cfg["resistance_file_is_conductance"] in TRUELIST
-    write_as_tif = cfg["write_as_tif"] in TRUELIST
-    allow_different_projections = cfg["allow_different_projections"] in TRUELIST
-    reclassify = cfg["reclassify_resistance"] in TRUELIST
-    write_reclassified_resistance = cfg["write_reclassified_resistance"] in TRUELIST
+    os_flags = get_OmniscapeFlags(cfg)
 
     if int_arguments["block_size"] == 1
-        correct_artifacts = false
+        os_flags.correct_artifacts = false
     end
 
     # other
     source_threshold = parse(Float64, cfg["source_threshold"])
     project_name = cfg["project_name"]
     r_cutoff = parse(Float64, cfg["r_cutoff"])
-    file_format = write_as_tif ? "tif" : "asc"
+    file_format = os_flags.write_as_tif ? "tif" : "asc"
 
     ## Set number of BLAS threads to 1
     BLAS.set_num_threads(1)
@@ -72,7 +162,8 @@ function run_omniscape(path::String)
     check_resistance_values(resistance_raw) && return
 
     # Reclassify resistance layer
-    if reclassify
+    # TODO create a function in utils.jl, reclassify_resistance()
+    if os_flags.reclassify
         resistance_old = deepcopy(resistance_raw)
         reclass_table = convert.(precision, readdlm("$(cfg["reclass_table"])"))
 
@@ -84,9 +175,9 @@ function run_omniscape(path::String)
     end
 
     # Compute source strengths from resistance if needed
-    if source_from_resistance
+    if os_flags.source_from_resistance
         sources_raw = deepcopy(resistance_raw)
-        if !resistance_file_is_conductance
+        if !os_flags.resistance_file_is_conductance
             sources_raw = 1 ./ sources_raw
             sources_raw[resistance_raw .> r_cutoff] .= 0.0
             sources_raw[resistance_raw .== -9999] .= 0.0
@@ -98,7 +189,7 @@ function run_omniscape(path::String)
         # Check for raster alignment
         check_raster_alignment(resistance_raster, sources_raster,
                                "resistance_file", "sources_file",
-                               allow_different_projections) && return
+                               os_flags.allow_different_projections) && return
 
         # get rid of unneeded raster to save memory
         sources_raster = nothing
@@ -114,14 +205,14 @@ function run_omniscape(path::String)
     int_arguments["ncols"] = size(sources_raw, 2)
 
     # Import conditional rasters and other conditional connectivity stuff
-    if conditional
+    if os_flags.conditional
         condition1_raster = Circuitscape.read_raster("$(cfg["condition1_file"])", precision)
         condition1 = condition1_raster[1]
 
         # Check for raster alignment
         check_raster_alignment(resistance_raster, condition1_raster,
                                "resistance_file", "condition1_file",
-                               allow_different_projections) && return
+                               os_flags.allow_different_projections) && return
 
         # get rid of unneeded raster to save memory
         condition1_raster = nothing
@@ -133,7 +224,7 @@ function run_omniscape(path::String)
             # Check for raster alignment
             check_raster_alignment(resistance_raster, condition1_future_raster,
                                    "resistance_file", "condition1_future_file",
-                                   allow_different_projections) && return
+                                   os_flags.allow_different_projections) && return
 
             # get rid of unneeded raster to save memory
             condition1_future_raster = nothing
@@ -148,7 +239,7 @@ function run_omniscape(path::String)
             # Check for raster alignment
             check_raster_alignment(resistance_raster, condition2_raster,
                                    "resistance_file", "condition2_file",
-                                   allow_different_projections) && return
+                                   os_flags.allow_different_projections) && return
 
             # get rid of unneeded raster to save memory
             condition2_raster = nothing
@@ -160,7 +251,7 @@ function run_omniscape(path::String)
                 # Check for raster alignment
                 check_raster_alignment(resistance_raster, condition2_future_raster,
                                        "resistance_file", "condition2_future_file",
-                                       allow_different_projections) && return
+                                       os_flags.allow_different_projections) && return
 
                 # get rid of unneeded raster to save memory
                 condition2_future_raster = nothing
@@ -211,7 +302,7 @@ function run_omniscape(path::String)
 
     precision_name = precision == Float64 ? "double" : "single"
     ## Add parallel workers
-    if parallelize
+    if os_flags.parallelize
         println("Starting up Omniscape. Using $(n_threads) workers in parallel. Using $(precision_name) precision...")
 
         cum_currmap = fill(convert(precision, 0.),
@@ -219,7 +310,7 @@ function run_omniscape(path::String)
                            int_arguments["ncols"],
                            n_threads)
 
-        if calc_flow_potential || calc_normalized_current
+        if os_flags.calc_flow_potential || os_flags.calc_normalized_current
             fp_cum_currmap = fill(convert(precision, 0.),
                                   int_arguments["nrows"],
                                   int_arguments["ncols"],
@@ -235,7 +326,7 @@ function run_omniscape(path::String)
                           int_arguments["ncols"],
                           1)
 
-        if calc_flow_potential || calc_normalized_current
+        if os_flags.calc_flow_potential || os_flags.calc_normalized_current
             fp_cum_currmap = fill(convert(precision, 0.),
                                   int_arguments["nrows"],
                                   int_arguments["ncols"],
@@ -253,19 +344,19 @@ function run_omniscape(path::String)
     #     solver = "cholmod" # FIXME: "cholmod" not available in advanced mode
     # end
 
-    flags = Circuitscape.RasterFlags(true, false, true,
+    cs_flags = Circuitscape.RasterFlags(true, false, true,
                                      false, false,
                                      false, Symbol("rmvsrc"),
                                      cfg["connect_four_neighbors_only"] in TRUELIST,
                                      false, solver, o)
 
-    if correct_artifacts
+    if os_flags.correct_artifacts
         println("Calculating block artifact correction array...")
         correction_array = calc_correction(int_arguments,
+                                           os_flags,
                                            cs_cfg,
-                                           flags,
+                                           cs_flags,
                                            o,
-                                           conditional,
                                            condition1,
                                            condition1_future,
                                            condition2,
@@ -285,7 +376,7 @@ function run_omniscape(path::String)
     ## Calculate and accumulate currents on each worker
     println("Solving targets")
 
-    if parallelize
+    if os_flags.parallelize
         parallel_batch_size = Int64(round(parse(Float64, cfg["parallel_batch_size"])))
         n_batches = Int(ceil(n_targets / parallel_batch_size))
 
@@ -300,12 +391,10 @@ function run_omniscape(path::String)
                               targets,
                               sources_raw,
                               resistance_raw,
+                              os_flags,
                               cs_cfg,
-                              flags,
+                              cs_flags,
                               o,
-                              calc_flow_potential || calc_normalized_current,
-                              correct_artifacts,
-                              conditional,
                               condition1,
                               condition1_future,
                               condition2,
@@ -319,8 +408,7 @@ function run_omniscape(path::String)
                               correction_array,
                               cum_currmap,
                               fp_cum_currmap,
-                              precision,
-                              resistance_file_is_conductance)
+                              precision)
             end
         end
     else
@@ -331,12 +419,10 @@ function run_omniscape(path::String)
                           targets,
                           sources_raw,
                           resistance_raw,
+                          os_flags,
                           cs_cfg,
-                          flags,
+                          cs_flags,
                           o,
-                          calc_flow_potential || calc_normalized_current,
-                          correct_artifacts,
-                          conditional,
                           condition1,
                           condition1_future,
                           condition2,
@@ -350,8 +436,7 @@ function run_omniscape(path::String)
                           correction_array,
                           cum_currmap,
                           fp_cum_currmap,
-                          precision,
-                          resistance_file_is_conductance)
+                          precision)
         end
     end
 
@@ -366,12 +451,12 @@ function run_omniscape(path::String)
     ## Collapse 3-dim cum current arrays to 2-dim via sum
     cum_currmap = dropdims(sum(cum_currmap, dims = 3), dims = 3)
 
-    if calc_flow_potential || calc_normalized_current
+    if os_flags.calc_flow_potential || os_flags.calc_normalized_current
         fp_cum_currmap = dropdims(sum(fp_cum_currmap, dims = 3), dims = 3)
     end
 
     ## Normalize by flow potential
-    if calc_normalized_current
+    if os_flags.calc_normalized_current
         normalized_cum_currmap = cum_currmap ./ fp_cum_currmap
         # replace NaNs with 0's
         normalized_cum_currmap[isnan.(normalized_cum_currmap)] .= 0
@@ -389,7 +474,7 @@ function run_omniscape(path::String)
     # Copy .ini file to output directory
     cp(path, "$(project_name)/config.ini")
 
-    if reclassify && write_reclassified_resistance
+    if os_flags.reclassify && os_flags.write_reclassified_resistance
         Circuitscape.write_raster("$(project_name)/classified_resistance",
                      resistance_raw,
                      wkt,
@@ -398,11 +483,11 @@ function run_omniscape(path::String)
     end
 
     ## Overwrite no data
-    if mask_nodata
-        if calc_normalized_current
+    if os_flags.mask_nodata
+        if os_flags.calc_normalized_current
             normalized_cum_currmap[resistance_raw .== -9999] .= -9999
         end
-        if calc_flow_potential
+        if os_flags.calc_flow_potential
             fp_cum_currmap[resistance_raw .== -9999] .= -9999
         end
         cum_currmap[resistance_raw .== -9999] .= -9999
@@ -413,7 +498,7 @@ function run_omniscape(path::String)
     GC.gc()
 
     ## Write outputs
-    if write_raw_currmap
+    if os_flags.write_raw_currmap
         Circuitscape.write_raster("$(project_name)/cum_currmap",
                      cum_currmap,
                      wkt,
@@ -421,7 +506,7 @@ function run_omniscape(path::String)
                      file_format)
     end
 
-    if calc_flow_potential
+    if os_flags.calc_flow_potential
         Circuitscape.write_raster("$(project_name)/flow_potential",
                      fp_cum_currmap,
                      wkt,
@@ -430,7 +515,7 @@ function run_omniscape(path::String)
     end
 
 
-    if calc_normalized_current
+    if os_flags.calc_normalized_current
         Circuitscape.write_raster("$(project_name)/normalized_cum_currmap",
                      normalized_cum_currmap,
                      wkt,
@@ -444,11 +529,11 @@ function run_omniscape(path::String)
     println("Outputs written to $(string(pwd(),"/",project_name))")
 
     ## Return outputs, depending on user options
-    if calc_normalized_current && !calc_flow_potential
+    if os_flags.calc_normalized_current && !os_flags.calc_flow_potential
         return cum_currmap, normalized_cum_currmap
-    elseif !calc_normalized_current && calc_flow_potential
+    elseif !os_flags.calc_normalized_current && os_flags.calc_flow_potential
         return cum_currmap, fp_cum_currmap
-    elseif calc_normalized_current && calc_flow_potential
+    elseif os_flags.calc_normalized_current && os_flags.calc_flow_potential
         return cum_currmap, fp_cum_currmap, normalized_cum_currmap
     else
         return cum_currmap
