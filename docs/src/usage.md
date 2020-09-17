@@ -149,14 +149,17 @@ Example reclass_table.txt:
 **`write_as_tif`:** One of true, false. Defaults to true. Should outputs be written in tif format? If false, outputs are written in .asc format.
 
 
-#### Conditional Connectivity Options
+#### Conditional Connectivity Options (experimental)
+
+Currently, Omniscape stores NoData values in array representations of input raster data as -9999. It is important to be aware of this in the context of conditional connectivity raster inputs. Rarely, this could result in NoData values being inadvertently interpreted as potential sources. See [#68](@ref) for more information.
+
 **`conditional`:** One of true, false. Defaults to false. Should conditional source/target matching be used? That is, should a given target only be connected to sources that meet similarity conditions to the target? If false, _none_ of the arguments described bellow are needed. If true, then gridded data with values for each pixel are used to compare targets and sources and determine which pairs should be connected according to user-specified criteria.
 
 **`n_conditions`:** One of 1, 2. Defaults to 1. The number of conditions to use for conditional source/target matching.
 
 *If `n_conditions` = 1:*
 
-**`condition1_file`:** The file path to the data representing condition one in present day. Only needed if `conditional` = true. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that it also has the exact same projection to ensure proper alignment.
+**`condition1_file`:** The file path to the data representing condition one in present day. Only needed if `conditional` = true. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that it also has the exact same projection to ensure proper alignment. Ensure that every pixel in the source strength raster has a corresponding value (not NoData) in `condition1_file`.
 
 **`comparison1`:** One of within or equal. Defaults to within. How should conditions be compared when determining whether to connect a source/target pair. If within, then the value of condition 1 for the source must be within the following range, where target is the value at the target pixel or block: (target + `condition1_lower`, target + `condition1_upper`).  `condition1_lower` and `condition1_upper` are explained further below. If equal, then the value at the source pixel must be equal to the value at the target pixel.
 
@@ -166,7 +169,7 @@ Example reclass_table.txt:
 
 *If `n_conditions` = 2:*
 
-**`condition2_file`:** The file path to the data representing condition two in present day. Only needed if `conditional` = true and `n_conditions` = 2. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that it also has the exact same projection to ensure proper alignment.
+**`condition2_file`:** The file path to the data representing condition two in present day. Only needed if `conditional` = true and `n_conditions` = 2. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that it also has the exact same projection to ensure proper alignment. Ensure that every pixel in the source strength raster has a corresponding value (not NoData) in `condition2_file`.
 
 **`comparison2`:** One of within or equal. Defaults to within. Only applies if `n_conditions` = 2. How should conditions be compared when determining whether to connect a source/target pair. If within, then the value of condition 2 for the source must be within the following range, where target is the value at the target pixel or block: (target + `condition2_lower`, target + `condition2_upper`).  `condition2_lower` and `condition2_upper` are explained further below. If equal, then the value at the source pixel must be equal to the value at the target pixel.
 
@@ -178,9 +181,9 @@ Example reclass_table.txt:
 
 **`compare_to_future`:** One of none, 1, 2, or both. Which condition(s) should compare the future condition in targets with present-day conditions in sources when determining which pairs to connect? For any condition(s) specified in this argument, two data layers are needed: one with future condition values for all pixels in the study area, and one for present day condition values for all pixels in the study area. Defaults to "none".
 
-**`condition1_future_file`:** The file path to the data representing condition one in the future. Only needed if `compare_to_future` = 1 or `compare_to_future` = both. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that they have the exact same projection to ensure proper alignment.
+**`condition1_future_file`:** The file path to the data representing condition one in the future. Only needed if `compare_to_future` = 1 or `compare_to_future` = both. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that they have the exact same projection to ensure proper alignment. Ensure that every pixel in the source strength raster has a corresponding value (not NoData) in `condition1_future_file`.
 
-**`condition2_future_file`:** The file path to the data representing condition two in the future. Only needed if `n_conditions` = 2 *and* `compare_to_future` = 2 or `compare_to_future` = both. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that they have the exact same projection to ensure proper alignment.
+**`condition2_future_file`:** The file path to the data representing condition two in the future. Only needed if `n_conditions` = 2 *and* `compare_to_future` = 2 or `compare_to_future` = both. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that they have the exact same projection to ensure proper alignment. Ensure that every pixel in the source strength raster has a corresponding value (not NoData) in `condition2_future_file`.
 
 ## Omniscape in Docker
 
