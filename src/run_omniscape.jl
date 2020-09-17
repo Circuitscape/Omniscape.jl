@@ -85,14 +85,14 @@ function run_omniscape(path::String)
 
     # Compute source strengths from resistance if needed
     if source_from_resistance
-        sources_raw = deepcopy(resistance)
+        source_strength = deepcopy(resistance)
         if !resistance_file_is_conductance
-            sources_raw = 1 ./ sources_raw
+            source_strength = 1 ./ source_strength
         end
-        sources_raw[coalesce.(sources_raw .< 1/r_cutoff, false)] .= 0.0 # handles replacing NoData with 0 as well
+        source_strength[coalesce.(source_strength .< 1/r_cutoff, true)] .= 0.0 # handles replacing NoData with 0 as well
     else
         sources_raster = read_raster("$(cfg["source_file"])", precision)
-        sources_raw = sources_raster[1]
+        source_strength = sources_raster[1]
 
         # Check for raster alignment
         check_raster_alignment(resistance_raster, sources_raster,
@@ -103,14 +103,14 @@ function run_omniscape(path::String)
         sources_raster = nothing
 
         # overwrite nodata with 0
-        sources_raw[ismissing.(sources_raw)] .= 0.0
+        source_strength[ismissing.(source_strength)] .= 0.0
 
         # Set values < user-specified threshold to 0
-        sources_raw[coalesce.(sources_raw .< source_threshold, false)] .= 0.0
+        source_strength[source_strength .< source_threshold] .= 0.0
     end
 
-    int_arguments["nrows"] = size(sources_raw, 1)
-    int_arguments["ncols"] = size(sources_raw, 2)
+    int_arguments["nrows"] = size(source_strength, 1)
+    int_arguments["ncols"] = size(source_strength, 2)
 
     # Import conditional rasters and other conditional connectivity stuff
     if conditional
@@ -194,7 +194,7 @@ function run_omniscape(path::String)
     Circuitscape.update!(cs_cfg, cs_cfg_dict)
 
     ## Calculate targets
-    targets = get_targets(sources_raw,
+    targets = get_targets(source_strength,
                           int_arguments,
                           precision)
 
@@ -299,7 +299,7 @@ function run_omniscape(path::String)
                               n_targets,
                               int_arguments,
                               targets,
-                              sources_raw,
+                              source_strength,
                               resistance,
                               cs_cfg,
                               flags,
@@ -331,7 +331,7 @@ function run_omniscape(path::String)
                           n_targets,
                           int_arguments,
                           targets,
-                          sources_raw,
+                          source_strength,
                           resistance,
                           cs_cfg,
                           flags,
@@ -359,7 +359,7 @@ function run_omniscape(path::String)
     end
 
     ## Set some objects to nothing to free up memory
-    sources_raw = nothing
+    source_strength = nothing
     condition1 = nothing
     condition1_future = nothing
     condition2 = nothing

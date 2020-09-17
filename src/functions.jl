@@ -1,7 +1,7 @@
 abstract type Data end
 
 function clip(
-        A::Array{T, 2} where T <: Number;
+        A::Array{Union{Missing, T}, 2} where T <: Number;
         x::Int64,
         y::Int64,
         distance::Int64
@@ -25,7 +25,7 @@ function clip(
 
     dist = [sqrt((j - new_x)^2 + (i - new_y)^2) for i = 1:dim1, j = 1:dim2]
 
-    A_sub[dist .> distance] .= -9999
+    A_sub[dist .> distance] .= missing
 
     A_sub
 end
@@ -85,13 +85,13 @@ end
 # x and y defined by targets object. Ultimately the for loop will be done by
 # iterating through rows of targets object
 function get_source(
-        source_array::Array{T, 2} where T <: Number,
+        source_array::Array{Union{Missing, T}, 2} where T <: Number,
         arguments::Dict{String, Int64},
         conditional::Bool,
-        condition1_present::Array{T, 2} where T <: Number,
-        condition1_future::Array{T, 2} where T <: Number,
-        condition2_present::Array{T, 2} where T <: Number,
-        condition2_future::Array{T, 2} where T <: Number,
+        condition1_present::Array{Union{Missing, T}, 2} where T <: Number,
+        condition1_future::Array{Union{Missing, T}, 2} where T <: Number,
+        condition2_present::Array{Union{Missing, T}, 2} where T <: Number,
+        condition2_future::Array{Union{Missing, T}, 2} where T <: Number,
         comparison1::String,
         comparison2::String,
         condition1_lower::Number,
@@ -124,13 +124,13 @@ function get_source(
 
         # Add left columns
         if left_col_num > 0
-            source_subset = hcat(fill(convert(precision, -9999.), (nrow_sub, left_col_num)),
+            source_subset = hcat(fill(missing, (nrow_sub, left_col_num)),
                                  source_subset)
         end
         # Add right columns
         if right_col_num > 0
             source_subset = hcat(source_subset,
-                                 fill(convert(precision, -9999.), (nrow_sub, right_col_num)))
+                                 fill(missing, (nrow_sub, right_col_num)))
         end
 
         ### Rows
@@ -140,13 +140,13 @@ function get_source(
 
         # Add top rows
         if top_row_num > 0
-            source_subset = vcat(fill(convert(precision, -9999.), (top_row_num, ncol_sub)),
+            source_subset = vcat(fill(missing, (top_row_num, ncol_sub)),
                                     source_subset)
         end
         #Add bottom rows
         if bottom_row_num > 0
             source_subset = vcat(source_subset,
-                                 fill(convert(precision, -9999.), (bottom_row_num, ncol_sub)))
+                                 fill(missing, (bottom_row_num, ncol_sub)))
         end
     end
 
@@ -434,18 +434,18 @@ function solve_target!(
         n_targets::Int64,
         int_arguments::Dict{String, Int64},
         targets::Array{T, 2} where T <: Number,
-        sources_raw::Array{T, 2} where T <: Number,
-        resistance::Array{T, 2} where T <: Number,
+        source_strength::Array{Union{Missing, T}, 2} where T <: Number,
+        resistance::Array{Union{Missing, T}, 2} where T <: Number,
         cs_cfg::Dict{String, String},
         flags::Circuitscape.RasterFlags,
         o::Circuitscape.OutputFlags,
         calc_flow_potential::Bool,
         correct_artifacts::Bool,
         conditional::Bool,
-        condition1_present::Array{T, 2} where T <: Number,
-        condition1_future::Array{T, 2} where T <: Number,
-        condition2_present::Array{T, 2} where T <: Number,
-        condition2_future::Array{T, 2} where T <: Number,
+        condition1_present::Array{Union{Missing, T}, 2} where T <: Number,
+        condition1_future::Array{Union{Missing, T}, 2} where T <: Number,
+        condition2_present::Array{Union{Missing, T}, 2} where T <: Number,
+        condition2_future::Array{Union{Missing, T}, 2} where T <: Number,
         comparison1::String,
         comparison2::String,
         condition1_lower::Number,
@@ -464,7 +464,7 @@ function solve_target!(
 
     x_coord = Int64(targets[i, 1])
     y_coord = Int64(targets[i, 2])
-    source = get_source(sources_raw,
+    source = get_source(source_strength,
                         int_arguments,
                         conditional,
                         condition1_present,

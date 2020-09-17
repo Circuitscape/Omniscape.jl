@@ -38,7 +38,7 @@ function check_raster_alignment(raster1, raster2, name1, name2, allow_different_
 end
 
 function check_resistance_values(resistance)
-    bad_values = minimum(resistance[resistance .!= -9999]) <= 0
+    bad_values = minimum(resistance[(!).(ismissing.(resistance)])) <= 0
 
     if bad_values
         bad_resistance_values_error()
