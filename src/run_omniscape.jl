@@ -284,9 +284,10 @@ function run_omniscape(path::String)
     ## Calculate and accumulate currents on each worker
     println("Solving moving window targets...")
 
+    ## Create progress object
+    p = Progress(n_targets; dt = 0.25, barlen = 60)
+    
     if parallelize
-        p = Progress(n_targets; dt = 0.1, barlen = 60)
-        
         parallel_batch_size = Int64(round(parse(Float64, cfg["parallel_batch_size"])))
         n_batches = Int(ceil(n_targets / parallel_batch_size))
 
@@ -326,9 +327,6 @@ function run_omniscape(path::String)
             end
         end
     else
-        ## Create progress object
-        p = Progress(n_targets; dt = 0.25, barlen = 60)
-
         for i in 1:n_targets
             solve_target!(i,
                           n_targets,
