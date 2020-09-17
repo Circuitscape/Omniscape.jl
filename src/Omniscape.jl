@@ -5,6 +5,7 @@ using Base.Threads
 using StatsBase
 using Statistics
 using DelimitedFiles
+using ProgressMeter
 
 include("config.jl")
 include("consts.jl")
