@@ -300,7 +300,7 @@ function get_conductance(
                               y = y,
                               distance = radius + buffer)
 
-    if os_flags.resistance_file_is_conductance
+    if os_flags.resistance_is_conductance
         conductance = resistance_clipped
     else
         conductance = 1 ./ resistance_clipped
@@ -434,8 +434,8 @@ function solve_target!(
         n_targets::Int64,
         int_arguments::Dict{String, Int64},
         targets::Array{T, 2} where T <: Number,
-        sources_raw::Array{T, 2} where T <: Number,
-        resistance_raw::Array{T, 2} where T <: Number,
+        source_strength::Array{T, 2} where T <: Number,
+        resistance::Array{T, 2} where T <: Number,
         os_flags::OmniscapeFlags,
         cs_cfg::Dict{String, String},
         cs_flags::Circuitscape.RasterFlags,
@@ -459,10 +459,9 @@ function solve_target!(
     ## get source
     solve_start_time = time()
 
-    @info "Solving target $(i) of $(n_targets)"
     x_coord = Int64(targets[i, 1])
     y_coord = Int64(targets[i, 2])
-    source = get_source(sources_raw,
+    source = get_source(source_strength,
                         int_arguments,
                         os_flags,
                         condition1_present,
@@ -487,7 +486,7 @@ function solve_target!(
                         y = y_coord)
 
     ## get conductances for Omniscape
-    conductance = get_conductance(resistance_raw,
+    conductance = get_conductance(resistance,
                                  int_arguments,
                                  x_coord,
                                  y_coord,
@@ -568,7 +567,6 @@ function solve_target!(
             fp_cum_currmap[ylower:yupper, xlower:xupper, threadid()] .+ flow_potential
     end
 
-    @info "Time taken to solve target $(i): $(round(time() - solve_start_time; digits = 4)) seconds"
 end
 
 function calc_correction(
@@ -691,7 +689,7 @@ function calc_correction(
     correction
 end
 
-function get_omniscape_flags(full_cfg::Dict{Any, Any})
+function get_omniscape_flags(cfg::Dict{Any, Any})
     OmniscapeFlags(
         calc_flow_potential = cfg["calc_flow_potential"] in TRUELIST
         calc_normalized_current = cfg["calc_normalized_current"] in TRUELIST
@@ -702,10 +700,20 @@ function get_omniscape_flags(full_cfg::Dict{Any, Any})
         source_from_resistance = cfg["source_from_resistance"] in TRUELIST
         conditional = cfg["conditional"] in TRUELIST
         mask_nodata = cfg["mask_nodata"] in TRUELIST
-        resistance_file_is_conductance = cfg["resistance_file_is_conductance"] in TRUELIST
+        resistance_is_conductance = cfg["resistance_is_conductance"] in TRUELIST
         write_as_tif = cfg["write_as_tif"] in TRUELIST
         allow_different_projections = cfg["allow_different_projections"] in TRUELIST
         reclassify = cfg["reclassify_resistance"] in TRUELIST
         write_reclassified_resistance = cfg["write_reclassified_resistance"] in TRUELIST
     )
 end
+
+function elementwise_invert_resistance(resistance::Array{T, 2} where T <: Number),
+                                       cfg::Dict{Any, Any})
+    source_strength = deepcopy(resistance)
+
+    if !haskey(cfg, "resistance_is_conductance") || !cfg["resistance_is_conductance"] in TRUELIST
+        source_strength = 1 ./ source_strength
+        source_strength[resistance ==]
+end
+

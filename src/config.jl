@@ -2,7 +2,7 @@ function init_cfg()
     cfg = Dict{String, String}()
 
     cfg["resistance_file"] = ""
-    cfg["resistance_file_is_conductance"] = "false"
+    cfg["resistance_is_conductance"] = "false"
     cfg["source_file"] = ""
     cfg["project_name"] = "(filename prefix for project)"
 

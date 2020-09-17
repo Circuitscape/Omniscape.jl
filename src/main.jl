@@ -1,34 +1,19 @@
 struct OmniscapeFlags
     calc_flow_potential::Bool
     calc_normalized_current::Bool
-    compute_flow_potential::Bool #bad name, but need a variable that stores the OR of the previous two
+    compute_flow_potential::Bool #bad name, but need a variable that stores the "or" of the previous two, internal use only
     write_raw_currmap::Bool
     parallelize::Bool
     correct_artifacts::Bool
     source_from_resistance::Bool
     conditional::Bool
     mask_nodata ::Bool
-    resistance_file_is_conductance::Bool
+    resistance_is_conductance::Bool
     write_as_tif::Bool
     allow_different_projections::Bool
     reclassify::Bool
     write_reclassified_resistance::Bool
 end
-
-
-#==
-Named args needed:
-- cfg::Dict{Any, Any}
-- resistance::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1)
-- source_strength::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1)
-- geotransform::Array{T, 1} where T <: Number = [0., 1, 0, size(resistance)[1], 0., -1.]
-- wkt::String = ""
-        can use GeoArrays.epsg2wkt(epsgcode::Int) to get convert and EPSG code to wkt
-- condition1::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1)
-- condition2::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1)
-- condition1_future::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1)
-- condition2_future::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1)
-==#
 
 """
 INI method:
@@ -36,78 +21,92 @@ INI method:
 
 In-memory method:
     run_omniscape(
-        cfg::Dict{String, String},
-        resistance::Array{T, 2} where T <: Number,
-        source_strength::Array{T, 2} where T <: Number,
-        condition1::Array{T, 2} where T <: Number,
-        condition2::Array{T, 2} where T <: Number,
-        condition1_future::Array{T, 2} where T <: Number,
-        condition2_future::Array{T, 2} where T <: Number,
-        geotransform::Array{T, 1} where T <: Number,
-        reclass_table::Array{T, 2} where T <: Number,
-        wkt::String
+        cfg::Dict{String, String}
+        resistance::Array{Float64, 2};
+        source_strength =  = 1 ./ resistance,
+        condition1 = Array{Float64, 2}(undef, 1, 1),
+        condition2 = Array{Float64, 2}(undef, 1, 1),
+        condition1_future = Array{Float64, 2}(undef, 1, 1),
+        condition2_future = Array{Float64, 2}(undef, 1, 1),
+        wkt= "",
+        geotransform = [0.0, 1.0, 0.0, 0.0, 0.0, -1.0],
+        reclass_table = Array{Float64, 2}(undef, 1, 2)
     )
 
-# Keyward Arguments
 
+# Parameters
 **`path`**: The path to an INI file containing run parameters. See the
 [Arguments](@ref) section of the User Guide for descriptions of the run
 paramters.
 
 **`cfg`**: A dictionary of Omniscape run parameters. See the [Arguments](@ref)
-section of the User Guide for descriptions of the run paramters and their
+section of the User Guide for descriptions of the run parameters and their
 default values. The in-memory method of `run_omniscape` ignores the following
 keys: resistance_file, source_file, reclass_table, condition1_file,
 condition2_file, condition1_future_file, and condition2_future_file. These
 all specify file paths, so they do not apply to the in-memory method
-of `run_omniscape` since this methods uses in-memory objects as inputs.
+of `run_omniscape`.
 
-**`resistance`**: An 2D array of resistance surface. Use a value of -9999 for
-NoData.
+**`resistance`**: An 2D, north-oriented array of resistance values. Use a value
+of -9999 for NoData (infinite resistance). `resistance` cannot contain zeros or
+negative values other than -9999.
 
-**`source_strength`**: A 2D array (with size equal to `size(resistance)`) of
-source strength values. `source_strength` is only required if
-`source_from_resistance` in `cfg` is set to `"false"` (the default value).
+
+# Keyword Arguments
+
+**`source_strength`**: A 2D, north-oriented array (with size equal to
+`size(resistance)`) of source strength values. `source_strength` is only
+required if `source_from_resistance` in `cfg` is set to `"false"`
+(the default value). `source_strength` cannot contain negative values other than
+-9999 for NoData.
 
 **`condition1`**: Optional. Required if `conditional` in`cfg` is set to "true".
-A 2D array (with size equal to `size(resistance)`). See
+A 2D, north-oriented array (with size equal to `size(resistance)`). See
 [Climate Connectivity](@ref) and [Conditional Connectivity Options](@ref) for
 more information.
 
 **`condition2`**: Optional. Required if `conditional` in`cfg` is set to "true"
-and `n_conditions` in `cfg` is set to "2". A 2D array (with size equal to
-`size(resistance)`). See [Climate Connectivity](@ref) and
+and `n_conditions` in `cfg` is set to "2". A 2D, north-oriented array (with size
+equal to `size(resistance)`). See [Climate Connectivity](@ref) and
 [Conditional Connectivity Options](@ref) for more information.
 
-**`condition1_future`**: Optional. Required if `conditional` in`cfg` is set
+**`condition1_future`**: Optional. Required if `conditional` in `cfg` is set
 to "true" and `compare_to_future` in `cfg` is set to "1" or "both".
-A 2D array (with size equal to `size(resistance)`). See
+A 2D, north-oriented array (with size equal to `size(resistance)`). See
 [Climate Connectivity](@ref) and [Conditional Connectivity Options](@ref) for
 more information.
 
-**`condition2`**: Optional. Required if `conditional` in`cfg` is set to "true",
- `n_conditions` in `cfg` is set to "2", and `compare_to_future` in `cfg` is
- set to "2" or "both". A 2D array (with size equal to `size(resistance)`).
- See [Climate Connectivity](@ref) and [Conditional Connectivity Options](@ref)
- for more information.
+**`condition2_future`**: Optional. A 2D, north-oriented array (with size equal to
+`size(resistance)`). See [Climate Connectivity](@ref) and
+[Conditional Connectivity Options](@ref) for more information. Required if
+`conditional` in`cfg` is set to "true", `n_conditions` in `cfg` is set to "2",
+and `compare_to_future` in `cfg` is set to "2" or "both".
 
 **`wkt`**: Optionally specify a Well Known Text representation of the projection
-to use for your spatial data inputs.
+used for your spatial data inputs. Only used if Omniscape writes raster
+outputs to disk. Fed into `ArchGDAL.setproj!` in `Circuitscape.write_raster`.
+Can be obtained from a
 
 **`geotransform`**: In addition to `wkt`, optionally specify a geotransform.
+The geotransform is a 6-element vector with elements as follows for a north up
+oriented image: `[<x coord of upper left orner>, <pixel width>,
+<row rotation (typically 0)>, <y coord of upper left corner>,
+<column rotation (typically 0)>, <pixel height (negative number)>]`.
+Only used if Omniscape writes raster outputs to disk. Fed into
+`ArchGDAL.setgeotransform!` in `Circuitscape.write_raster`.
 
 """
-function run_omniscape(;
-        cfg::Dict{Any, Any},
+function run_omniscape(
+        cfg::Dict{Any, Any};
         resistance::Array{T, 2} where T <: Number,
-        source_strength::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1),
+        source_strength = elementwise_invert_resistance(resistance, cfg),
         condition1::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1),
         condition2::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1),
-        condition1_future::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1),
-        condition2_future::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1),
-        geotransform::Array{T, 1} where T <: Number = [0., 1, 0, size(resistance)[1], 0., -1.],
-        reclass_table::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 2),
-        wkt::String = "")
+        condition1_future = condition1,
+        condition2_future = condition2
+        geotransform::Array{Float64, 1} = [0., 1., 0., 0., 0., -1.0],
+        wkt::String = "",
+        reclass_table::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 2))
 
     start_time = time()
     n_threads = nthreads()
@@ -155,20 +154,20 @@ function run_omniscape(;
     ## Import sources and resistances
     resistance_raster = Circuitscape.read_raster("$(cfg["resistance_file"])", precision)
 
-    resistance_raw = resistance_raster[1]
+    resistance = resistance_raster[1]
     wkt = resistance_raster[2]
     transform = resistance_raster[3]
 
-    check_resistance_values(resistance_raw) && return
+    check_resistance_values(resistance) && return
 
     # Reclassify resistance layer
     # TODO create a function in utils.jl, reclassify_resistance()
     if os_flags.reclassify
-        resistance_old = deepcopy(resistance_raw)
+        resistance_old = deepcopy(resistance)
         reclass_table = convert.(precision, readdlm("$(cfg["reclass_table"])"))
 
         for i in 1:(size(reclass_table)[1])
-            resistance_raw[resistance_old .== reclass_table[i, 1]] .= reclass_table[i, 2]
+            resistance[resistance_old .== reclass_table[i, 1]] .= reclass_table[i, 2]
         end
 
         resistance_old = nothing # remove from memory
@@ -176,102 +175,17 @@ function run_omniscape(;
 
     # Compute source strengths from resistance if needed
     if os_flags.source_from_resistance
-        sources_raw = deepcopy(resistance_raw)
-        if !os_flags.resistance_file_is_conductance
-            sources_raw = 1 ./ sources_raw
-            sources_raw[resistance_raw .> r_cutoff] .= 0.0
-            sources_raw[resistance_raw .== -9999] .= 0.0
+        source_strength = deepcopy(resistance)
+        if !os_flags.resistance_is_conductance
+            source_strength = 1 ./ source_strength
         end
+        source_strength[source_strength .< 1/r_cutoff] .= 0.0
     else
-        sources_raster = Circuitscape.read_raster("$(cfg["source_file"])", precision)
-        sources_raw = sources_raster[1]
-
-        # Check for raster alignment
-        check_raster_alignment(resistance_raster, sources_raster,
-                               "resistance_file", "sources_file",
-                               os_flags.allow_different_projections) && return
-
-        # get rid of unneeded raster to save memory
-        sources_raster = nothing
-
-        # overwrite nodata with 0
-        sources_raw[sources_raw .== -9999] .= 0.0
-
-        # Set values < user-specified threshold to 0
-        sources_raw[sources_raw .< source_threshold] .= 0.0
+        source_strength[source_strength .< source_threshold] .= 0.0
     end
 
-    int_arguments["nrows"] = size(sources_raw, 1)
-    int_arguments["ncols"] = size(sources_raw, 2)
-
-    # Import conditional rasters and other conditional connectivity stuff
-    if os_flags.conditional
-        condition1_raster = Circuitscape.read_raster("$(cfg["condition1_file"])", precision)
-        condition1 = condition1_raster[1]
-
-        # Check for raster alignment
-        check_raster_alignment(resistance_raster, condition1_raster,
-                               "resistance_file", "condition1_file",
-                               os_flags.allow_different_projections) && return
-
-        # get rid of unneeded raster to save memory
-        condition1_raster = nothing
-
-        if compare_to_future == "1" || compare_to_future == "both"
-            condition1_future_raster = Circuitscape.read_raster("$(cfg["condition1_future_file"])", precision)
-            condition1_future = condition1_future_raster[1]
-
-            # Check for raster alignment
-            check_raster_alignment(resistance_raster, condition1_future_raster,
-                                   "resistance_file", "condition1_future_file",
-                                   os_flags.allow_different_projections) && return
-
-            # get rid of unneeded raster to save memory
-            condition1_future_raster = nothing
-        else
-            condition1_future = condition1
-        end
-
-        if int_arguments["n_conditions"] == 2
-            condition2_raster = Circuitscape.read_raster("$(cfg["condition2_file"])", precision)
-            condition2 = condition2_raster[1]
-
-            # Check for raster alignment
-            check_raster_alignment(resistance_raster, condition2_raster,
-                                   "resistance_file", "condition2_file",
-                                   os_flags.allow_different_projections) && return
-
-            # get rid of unneeded raster to save memory
-            condition2_raster = nothing
-
-            if compare_to_future == "2" || compare_to_future == "both"
-                condition2_future_raster = Circuitscape.read_raster("$(cfg["condition2_future_file"])", precision)
-                condition2_future = condition2_future_raster[1]
-
-                # Check for raster alignment
-                check_raster_alignment(resistance_raster, condition2_future_raster,
-                                       "resistance_file", "condition2_future_file",
-                                       os_flags.allow_different_projections) && return
-
-                # get rid of unneeded raster to save memory
-                condition2_future_raster = nothing
-            else
-                condition2_future = condition2
-            end
-
-        else
-            condition2 = Array{Float64, 2}(undef, 1, 1)
-            condition2_future = condition2
-        end
-    else
-        condition1 = Array{Float64, 2}(undef, 1, 1)
-        condition2 = Array{Float64, 2}(undef, 1, 1)
-        condition1_future = condition1
-        condition2_future = condition2
-    end
-
-    # get rid of unneeded raster to save memory
-    resistance_raster = nothing
+    int_arguments["nrows"] = size(source_strength, 1)
+    int_arguments["ncols"] = size(source_strength, 2)
 
     comparison1 = cfg["comparison1"]
     comparison2 = cfg["comparison2"]
@@ -286,7 +200,7 @@ function run_omniscape(;
     Circuitscape.update!(cs_cfg, cs_cfg_dict)
 
     ## Calculate targets
-    targets = get_targets(sources_raw,
+    targets = get_targets(source_strength,
                           int_arguments,
                           precision)
 
@@ -389,8 +303,8 @@ function run_omniscape(;
                               n_targets,
                               int_arguments,
                               targets,
-                              sources_raw,
-                              resistance_raw,
+                              source_strength,
+                              resistance,
                               os_flags,
                               cs_cfg,
                               cs_flags,
@@ -417,8 +331,8 @@ function run_omniscape(;
                           n_targets,
                           int_arguments,
                           targets,
-                          sources_raw,
-                          resistance_raw,
+                          source_strength,
+                          resistance,
                           os_flags,
                           cs_cfg,
                           cs_flags,
@@ -441,7 +355,7 @@ function run_omniscape(;
     end
 
     ## Set some objects to nothing to free up memory
-    sources_raw = nothing
+    source_strength = nothing
     condition1 = nothing
     condition1_future = nothing
     condition2 = nothing
@@ -476,7 +390,7 @@ function run_omniscape(;
 
     if os_flags.reclassify && os_flags.write_reclassified_resistance
         Circuitscape.write_raster("$(project_name)/classified_resistance",
-                     resistance_raw,
+                     resistance,
                      wkt,
                      transform,
                      file_format)
@@ -485,16 +399,16 @@ function run_omniscape(;
     ## Overwrite no data
     if os_flags.mask_nodata
         if os_flags.calc_normalized_current
-            normalized_cum_currmap[resistance_raw .== -9999] .= -9999
+            normalized_cum_currmap[resistance .== -9999] .= -9999
         end
         if os_flags.calc_flow_potential
-            fp_cum_currmap[resistance_raw .== -9999] .= -9999
+            fp_cum_currmap[resistance .== -9999] .= -9999
         end
-        cum_currmap[resistance_raw .== -9999] .= -9999
+        cum_currmap[resistance .== -9999] .= -9999
     end
 
     # Get rid of resistance
-    resistance_raw = nothing
+    resistance = nothing
     GC.gc()
 
     ## Write outputs
