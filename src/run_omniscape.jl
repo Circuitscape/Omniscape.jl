@@ -88,9 +88,8 @@ function run_omniscape(path::String)
         sources_raw = deepcopy(resistance_raw)
         if !resistance_file_is_conductance
             sources_raw = 1 ./ sources_raw
-            sources_raw[resistance_raw .> r_cutoff] .= 0.0
-            sources_raw[resistance_raw .== -9999] .= 0.0
         end
+        source_strength[source_strength .< 1/r_cutoff] .= 0.0 # handles replacing NoData with 0 as well
     else
         sources_raster = Circuitscape.read_raster("$(cfg["source_file"])", precision)
         sources_raw = sources_raster[1]
