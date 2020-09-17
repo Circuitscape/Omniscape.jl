@@ -285,7 +285,7 @@ function get_ground(
 end
 
 function get_conductance(
-        raw_resistance::Array{T, 2} where T <: Number,
+        resistance::Array{T, 2} where T <: Number,
         arguments::Dict{String, Int64},
         x::Int64,
         y::Int64,
@@ -295,7 +295,7 @@ function get_conductance(
     radius = arguments["radius"]
     buffer = arguments["buffer"]
 
-    resistance_clipped = clip(raw_resistance,
+    resistance_clipped = clip(resistance,
                               x = x,
                               y = y,
                               distance = radius + buffer)
@@ -312,7 +312,7 @@ end
 
 
 function calculate_current(
-        resistance::Array{T, 2} where T <: Number,
+        conductance::Array{T, 2} where T <: Number,
         source::Array{T, 2} where T <: Number,
         ground::Array{T, 2} where T <: Number,
         flags::Circuitscape.RasterFlags,
@@ -322,7 +322,7 @@ function calculate_current(
     V = Int64
 
     # get raster data
-    cellmap = resistance
+    cellmap = conductance
     polymap = Matrix{V}(undef, 0, 0)
     source_map = source
     ground_map = ground
@@ -377,7 +377,7 @@ function calculate_current(
     write_cum_cur_map_only = flags.outputflags.write_cum_cur_map_only
 
     volt = zeros(eltype(G), size(nodemap))
-    ind = findall(x -> x != 0,nodemap)
+    ind = findall(x -> x != 0, nodemap)
     f_local = Vector{eltype(G)}()
     solver_called = false
     voltages = Vector{eltype(G)}()
@@ -435,7 +435,7 @@ function solve_target!(
         int_arguments::Dict{String, Int64},
         targets::Array{T, 2} where T <: Number,
         sources_raw::Array{T, 2} where T <: Number,
-        resistance_raw::Array{T, 2} where T <: Number,
+        resistance::Array{T, 2} where T <: Number,
         cs_cfg::Dict{String, String},
         flags::Circuitscape.RasterFlags,
         o::Circuitscape.OutputFlags,
@@ -489,7 +489,7 @@ function solve_target!(
                         y = y_coord)
 
     ## get conductances for Omniscape
-    conductance = get_conductance(resistance_raw,
+    conductance = get_conductance(resistance,
                                  int_arguments,
                                  x_coord,
                                  y_coord,

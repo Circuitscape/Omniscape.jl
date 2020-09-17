@@ -43,7 +43,8 @@ end
 
 # Write a single band raster, either in .tif or .asc format,
 # inspired by GeoArrays.write()
-# Intended to only write rasters with no values < 0
+# Intended to only write rasters with no values < 0, so NoData as -9999 will
+# always be safe
 function write_raster(fn_prefix::String,
                       array::Array{Union{Missing, T}, 2} where T <: Number,
                       wkt::String,
@@ -99,4 +100,3 @@ function write_raster(fn_prefix::String,
     end
 
 end
-

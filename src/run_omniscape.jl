@@ -65,19 +65,19 @@ function run_omniscape(path::String)
     ## Import sources and resistances
     resistance_raster = read_raster("$(cfg["resistance_file"])", precision)
 
-    resistance_raw = resistance_raster[1]
+    resistance = resistance_raster[1]
     wkt = resistance_raster[2]
     transform = resistance_raster[3]
 
-    check_resistance_values(resistance_raw) && return
+    check_resistance_values(resistance) && return
 
     # Reclassify resistance layer
     if reclassify
-        resistance_old = deepcopy(resistance_raw)
+        resistance_old = deepcopy(resistance)
         reclass_table = convert.(precision, readdlm("$(cfg["reclass_table"])"))
 
         for i in 1:(size(reclass_table)[1])
-            resistance_raw[resistance_old .== reclass_table[i, 1]] .= reclass_table[i, 2]
+            resistance[resistance_old .== reclass_table[i, 1]] .= reclass_table[i, 2]
         end
 
         resistance_old = nothing # remove from memory
@@ -85,12 +85,11 @@ function run_omniscape(path::String)
 
     # Compute source strengths from resistance if needed
     if source_from_resistance
-        sources_raw = deepcopy(resistance_raw)
+        sources_raw = deepcopy(resistance)
         if !resistance_file_is_conductance
             sources_raw = 1 ./ sources_raw
-            sources_raw[resistance_raw .> r_cutoff] .= 0.0
-            sources_raw[ismissing.(resistance_raw)] .= 0.0
         end
+        sources_raw[coalesce.(sources_raw .< 1/r_cutoff, false)] .= 0.0 # handles replacing NoData with 0 as well
     else
         sources_raster = read_raster("$(cfg["source_file"])", precision)
         sources_raw = sources_raster[1]
@@ -301,7 +300,7 @@ function run_omniscape(path::String)
                               int_arguments,
                               targets,
                               sources_raw,
-                              resistance_raw,
+                              resistance,
                               cs_cfg,
                               flags,
                               o,
@@ -333,7 +332,7 @@ function run_omniscape(path::String)
                           int_arguments,
                           targets,
                           sources_raw,
-                          resistance_raw,
+                          resistance,
                           cs_cfg,
                           flags,
                           o,
@@ -395,7 +394,7 @@ function run_omniscape(path::String)
 
     if reclassify && write_reclassified_resistance
         write_raster("$(project_name)/classified_resistance",
-                     resistance_raw,
+                     resistance,
                      wkt,
                      transform,
                      file_format)
@@ -404,16 +403,16 @@ function run_omniscape(path::String)
     ## Overwrite no data
     if mask_nodata
         if calc_normalized_current
-            normalized_cum_currmap[resistance_raw .== -9999] .= -9999
+            normalized_cum_currmap[coalesce(resistance .== -9999, false)] .= -9999
         end
         if calc_flow_potential
-            fp_cum_currmap[resistance_raw .== -9999] .= -9999
+            fp_cum_currmap[resistance .== -9999] .= -9999
         end
-        cum_currmap[resistance_raw .== -9999] .= -9999
+        cum_currmap[resistance .== -9999] .= -9999
     end
 
     # Get rid of resistance
-    resistance_raw = nothing
+    resistance = nothing
     GC.gc()
 
     ## Write outputs
