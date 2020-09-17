@@ -168,12 +168,12 @@ function run_omniscape(path::String)
             end
 
         else
-            condition2 = Array{Float64, 2}(undef, 1, 1)
+            condition2 = Array{Union{Missing, T}, 2}(undef, 1, 1)
             condition2_future = condition2
         end
     else
-        condition1 = Array{Float64, 2}(undef, 1, 1)
-        condition2 = Array{Float64, 2}(undef, 1, 1)
+        condition1 = Array{Union{Missing, T}, 2}(undef, 1, 1)
+        condition2 = Array{Union{Missing, T}, 2}(undef, 1, 1)
         condition1_future = condition1
         condition2_future = condition2
     end
