@@ -245,7 +245,6 @@ function run_omniscape(path::String)
         end
     end
 
-    # Get raster flags
     solver = "cg+amg"
 
     # n_cells = int_arguments["nrows"] * int_arguments["ncols"]
@@ -283,8 +282,11 @@ function run_omniscape(path::String)
     end
 
     ## Calculate and accumulate currents on each worker
-    println("Solving targets")
+    println("Solving moving window targets...")
 
+    ## Create progress object
+    p = Progress(n_targets; dt = 0.25, barlen = 60)
+    
     if parallelize
         parallel_batch_size = Int64(round(parse(Float64, cfg["parallel_batch_size"])))
         n_batches = Int(ceil(n_targets / parallel_batch_size))
@@ -321,6 +323,7 @@ function run_omniscape(path::String)
                               fp_cum_currmap,
                               precision,
                               resistance_file_is_conductance)
+                next!(p)
             end
         end
     else
@@ -352,6 +355,7 @@ function run_omniscape(path::String)
                           fp_cum_currmap,
                           precision,
                           resistance_file_is_conductance)
+            next!(p)
         end
     end
 
