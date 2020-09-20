@@ -26,12 +26,13 @@ x = 5
 y = 4
 con1_lower = -1.0
 con1_upper = 1.0
+source_subset = convert(Array{Union{Float64, Missing}, 2}, source_subset)
 Omniscape.source_target_match!(source_subset,
                      1,
-                     con1pres,
-                     con1fut,
-                     Array{Float64, 2}(undef, 1, 1),
-                     Array{Float64, 2}(undef, 1, 1),
+                     convert(Array{Union{Float64, Missing}, 2}, con1pres),
+                     convert(Array{Union{Float64, Missing}, 2}, con1fut),
+                     Array{Union{Float64, Missing}, 2}(undef, 1, 1),
+                     Array{Union{Float64, Missing}, 2}(undef, 1, 1),
                      "within",
                      "within",
                      con1_lower, # lower bound to be within for comparisome
@@ -54,13 +55,13 @@ target_val = con1fut[y, x]
 @info "conditional connectivity tests passed"
 
 ## Check that targets are IDed properly
-sources_raw = Circuitscape.read_raster("input/source.asc", Float64)[1]
+source_strength = Omniscape.read_raster("input/source.asc", Float64)[1]
 int_arguments = Dict{String, Int64}()
 int_arguments["block_size"] = 7
 int_arguments["block_radius"] = 3 # must be (size - 1) / 2
-int_arguments["nrows"] = size(sources_raw)[1]
-int_arguments["ncols"] = size(sources_raw)[2]
-targets = Omniscape.get_targets(sources_raw,
+int_arguments["nrows"] = size(source_strength)[1]
+int_arguments["ncols"] = size(source_strength)[2]
+targets = Omniscape.get_targets(source_strength,
                                 int_arguments,
                                 Float64)
 
@@ -73,7 +74,7 @@ n_targets = floor(int_arguments["nrows"] / int_arguments["block_size"]) *
                                     # not have 0's
 
 # correct source strength for a target
-block_sources = sources_raw[Int(targets[1,2] - int_arguments["block_radius"]):Int(targets[1,2] + int_arguments["block_radius"]),
+block_sources = source_strength[Int(targets[1,2] - int_arguments["block_radius"]):Int(targets[1,2] + int_arguments["block_radius"]),
                             Int(targets[1,1] - int_arguments["block_radius"]):Int(targets[1,1] + int_arguments["block_radius"])]
 @test targets[1,3] ≈ sum(block_sources)
 @info "target tests passed"

@@ -63,21 +63,21 @@ function run_omniscape(path::String)
     BLAS.set_num_threads(1)
 
     ## Import sources and resistances
-    resistance_raster = Circuitscape.read_raster("$(cfg["resistance_file"])", precision)
+    resistance_raster = read_raster("$(cfg["resistance_file"])", precision)
 
-    resistance_raw = resistance_raster[1]
+    resistance = resistance_raster[1]
     wkt = resistance_raster[2]
     transform = resistance_raster[3]
 
-    check_resistance_values(resistance_raw) && return
+    check_resistance_values(resistance) && return
 
     # Reclassify resistance layer
     if reclassify
-        resistance_old = deepcopy(resistance_raw)
+        resistance_old = deepcopy(resistance)
         reclass_table = convert.(precision, readdlm("$(cfg["reclass_table"])"))
 
         for i in 1:(size(reclass_table)[1])
-            resistance_raw[resistance_old .== reclass_table[i, 1]] .= reclass_table[i, 2]
+            resistance[coalesce.(resistance_old .== reclass_table[i, 1], false)] .= reclass_table[i, 2]
         end
 
         resistance_old = nothing # remove from memory
@@ -85,14 +85,14 @@ function run_omniscape(path::String)
 
     # Compute source strengths from resistance if needed
     if source_from_resistance
-        sources_raw = deepcopy(resistance_raw)
+        source_strength = deepcopy(resistance)
         if !resistance_file_is_conductance
-            sources_raw = 1 ./ sources_raw
+            source_strength = Array{Union{precision, Missing}, 2}(1 ./ source_strength)
         end
-        sources_raw[sources_raw .< 1/r_cutoff] .= 0.0 # handles replacing NoData with 0 as well
+        source_strength[coalesce.(source_strength .< 1/r_cutoff, true)] .= 0.0 # handles replacing NoData with 0 as well
     else
-        sources_raster = Circuitscape.read_raster("$(cfg["source_file"])", precision)
-        sources_raw = sources_raster[1]
+        sources_raster = read_raster("$(cfg["source_file"])", precision)
+        source_strength = sources_raster[1]
 
         # Check for raster alignment
         check_raster_alignment(resistance_raster, sources_raster,
@@ -103,18 +103,18 @@ function run_omniscape(path::String)
         sources_raster = nothing
 
         # overwrite nodata with 0
-        sources_raw[sources_raw .== -9999] .= 0.0
+        source_strength[ismissing.(source_strength)] .= 0.0
 
         # Set values < user-specified threshold to 0
-        sources_raw[sources_raw .< source_threshold] .= 0.0
+        source_strength[source_strength .< source_threshold] .= 0.0
     end
 
-    int_arguments["nrows"] = size(sources_raw, 1)
-    int_arguments["ncols"] = size(sources_raw, 2)
+    int_arguments["nrows"] = size(source_strength, 1)
+    int_arguments["ncols"] = size(source_strength, 2)
 
     # Import conditional rasters and other conditional connectivity stuff
     if conditional
-        condition1_raster = Circuitscape.read_raster("$(cfg["condition1_file"])", precision)
+        condition1_raster = read_raster("$(cfg["condition1_file"])", precision)
         condition1 = condition1_raster[1]
 
         # Check for raster alignment
@@ -122,11 +122,11 @@ function run_omniscape(path::String)
                                "resistance_file", "condition1_file",
                                allow_different_projections) && return
 
-        # get rid of unneeded raster to save memory
+        # get rid of unneedecheck_rasterd raster to save memory
         condition1_raster = nothing
 
         if compare_to_future == "1" || compare_to_future == "both"
-            condition1_future_raster = Circuitscape.read_raster("$(cfg["condition1_future_file"])", precision)
+            condition1_future_raster = read_raster("$(cfg["condition1_future_file"])", precision)
             condition1_future = condition1_future_raster[1]
 
             # Check for raster alignment
@@ -141,7 +141,7 @@ function run_omniscape(path::String)
         end
 
         if int_arguments["n_conditions"] == 2
-            condition2_raster = Circuitscape.read_raster("$(cfg["condition2_file"])", precision)
+            condition2_raster = read_raster("$(cfg["condition2_file"])", precision)
             condition2 = condition2_raster[1]
 
             # Check for raster alignment
@@ -153,7 +153,7 @@ function run_omniscape(path::String)
             condition2_raster = nothing
 
             if compare_to_future == "2" || compare_to_future == "both"
-                condition2_future_raster = Circuitscape.read_raster("$(cfg["condition2_future_file"])", precision)
+                condition2_future_raster = read_raster("$(cfg["condition2_future_file"])", precision)
                 condition2_future = condition2_future_raster[1]
 
                 # Check for raster alignment
@@ -168,12 +168,12 @@ function run_omniscape(path::String)
             end
 
         else
-            condition2 = Array{Float64, 2}(undef, 1, 1)
+            condition2 = Array{Union{Missing, precision}, 2}(undef, 1, 1)
             condition2_future = condition2
         end
     else
-        condition1 = Array{Float64, 2}(undef, 1, 1)
-        condition2 = Array{Float64, 2}(undef, 1, 1)
+        condition1 = Array{Union{Missing, precision}, 2}(undef, 1, 1)
+        condition2 = Array{Union{Missing, precision}, 2}(undef, 1, 1)
         condition1_future = condition1
         condition2_future = condition2
     end
@@ -194,7 +194,7 @@ function run_omniscape(path::String)
     Circuitscape.update!(cs_cfg, cs_cfg_dict)
 
     ## Calculate targets
-    targets = get_targets(sources_raw,
+    targets = get_targets(source_strength,
                           int_arguments,
                           precision)
 
@@ -248,7 +248,7 @@ function run_omniscape(path::String)
 
     # n_cells = int_arguments["nrows"] * int_arguments["ncols"]
     # if n_cells <= 2000000
-    #     solver = "cholmod" # FIXME: "cholmod" not available in advanced mode
+    #     solver = "cholmod" # TODO: "cholmod" not available in advanced mode
     # end
 
     flags = Circuitscape.RasterFlags(true, false, true,
@@ -277,7 +277,7 @@ function run_omniscape(path::String)
                                            precision)
 
     else
-        correction_array = Array{Float64, 2}(undef, 1, 1)
+        correction_array = Array{precision, 2}(undef, 1, 1)
     end
 
     ## Calculate and accumulate currents on each worker
@@ -285,7 +285,7 @@ function run_omniscape(path::String)
 
     ## Create progress object
     p = Progress(n_targets; dt = 0.25, barlen = 60)
-    
+
     if parallelize
         parallel_batch_size = Int64(round(parse(Float64, cfg["parallel_batch_size"])))
         n_batches = Int(ceil(n_targets / parallel_batch_size))
@@ -299,8 +299,8 @@ function run_omniscape(path::String)
                               n_targets,
                               int_arguments,
                               targets,
-                              sources_raw,
-                              resistance_raw,
+                              source_strength,
+                              resistance,
                               cs_cfg,
                               flags,
                               o,
@@ -331,8 +331,8 @@ function run_omniscape(path::String)
                           n_targets,
                           int_arguments,
                           targets,
-                          sources_raw,
-                          resistance_raw,
+                          source_strength,
+                          resistance,
                           cs_cfg,
                           flags,
                           o,
@@ -359,7 +359,7 @@ function run_omniscape(path::String)
     end
 
     ## Set some objects to nothing to free up memory
-    sources_raw = nothing
+    source_strength = nothing
     condition1 = nothing
     condition1_future = nothing
     condition2 = nothing
@@ -392,32 +392,32 @@ function run_omniscape(path::String)
     # Copy .ini file to output directory
     cp(path, "$(project_name)/config.ini")
 
+    ## Overwrite no data
+    if mask_nodata
+        if calc_normalized_current
+            normalized_cum_currmap[ismissing.(resistance)] .= -9999
+        end
+        if calc_flow_potential
+            fp_cum_currmap[ismissing.(resistance)] .= -9999
+        end
+        cum_currmap[ismissing.(resistance)] .= -9999
+    end
+
+    # Get rid of resistance (save first if needed)
     if reclassify && write_reclassified_resistance
-        Circuitscape.write_raster("$(project_name)/classified_resistance",
-                     resistance_raw,
+        resistance[ismissing.(resistance)] .= -9999
+        write_raster("$(project_name)/classified_resistance",
+                     convert(Array{precision, 2}, resistance),
                      wkt,
                      transform,
                      file_format)
     end
-
-    ## Overwrite no data
-    if mask_nodata
-        if calc_normalized_current
-            normalized_cum_currmap[resistance_raw .== -9999] .= -9999
-        end
-        if calc_flow_potential
-            fp_cum_currmap[resistance_raw .== -9999] .= -9999
-        end
-        cum_currmap[resistance_raw .== -9999] .= -9999
-    end
-
-    # Get rid of resistance
-    resistance_raw = nothing
+    resistance = nothing
     GC.gc()
 
     ## Write outputs
     if write_raw_currmap
-        Circuitscape.write_raster("$(project_name)/cum_currmap",
+        write_raster("$(project_name)/cum_currmap",
                      cum_currmap,
                      wkt,
                      transform,
@@ -425,7 +425,7 @@ function run_omniscape(path::String)
     end
 
     if calc_flow_potential
-        Circuitscape.write_raster("$(project_name)/flow_potential",
+        write_raster("$(project_name)/flow_potential",
                      fp_cum_currmap,
                      wkt,
                      transform,
@@ -434,7 +434,7 @@ function run_omniscape(path::String)
 
 
     if calc_normalized_current
-        Circuitscape.write_raster("$(project_name)/normalized_cum_currmap",
+        write_raster("$(project_name)/normalized_cum_currmap",
                      normalized_cum_currmap,
                      wkt,
                      transform,

@@ -1,13 +1,15 @@
 module Omniscape
-using Circuitscape
-using LinearAlgebra.BLAS
+using ArchGDAL
 using Base.Threads
+using Circuitscape
+using DelimitedFiles
+using LinearAlgebra.BLAS
+using ProgressMeter
 using StatsBase
 using Statistics
-using DelimitedFiles
-using ProgressMeter
 
 include("config.jl")
+include("io.jl")
 include("consts.jl")
 include("functions.jl")
 include("run_omniscape.jl")
