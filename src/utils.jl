@@ -378,9 +378,9 @@ function calculate_current(
     is_raster = cs_flags.is_raster
     is_alltoone = cs_flags.is_alltoone
     is_onetoall = cs_flags.is_onetoall
-    write_v_maps = cs_flags.outputcs_flags.write_volt_maps
-    write_c_maps = cs_flags.outputcs_flags.write_cur_maps
-    write_cum_cur_map_only = cs_flags.outputcs_flags.write_cum_cur_map_only
+    write_v_maps = cs_flags.outputflags.write_volt_maps
+    write_c_maps = cs_flags.outputflags.write_cur_maps
+    write_cum_cur_map_only = cs_flags.outputflags.write_cum_cur_map_only
 
     volt = zeros(eltype(G), size(nodemap))
     ind = findall(x -> x != 0, nodemap)
@@ -517,7 +517,7 @@ function solve_target!(
                                            precision)
     end
 
-    if correct_artifacts
+    if os_flags.correct_artifacts && !(int_arguments["block_size"] == 1)
         correction_array2 = deepcopy(correction_array)
         lowerxcut = 1
         upperxcut = size(correction_array, 2)
@@ -689,31 +689,39 @@ function calc_correction(
     correction
 end
 
-function get_omniscape_flags(cfg::Dict{Any, Any})
+function get_omniscape_flags(cfg::Dict{String, String})
     OmniscapeFlags(
-        calc_flow_potential = cfg["calc_flow_potential"] in TRUELIST
-        calc_normalized_current = cfg["calc_normalized_current"] in TRUELIST
-        compute_flow_potential = cfg["calc_flow_potential"] in TRUELIST || cfg["calc_normalized_current"] in TRUELIST
-        write_raw_currmap = cfg["write_raw_currmap"] in TRUELIST
-        parallelize = cfg["parallelize"] in TRUELIST
-        correct_artifacts = cfg["correct_artifacts"] in TRUELIST
-        source_from_resistance = cfg["source_from_resistance"] in TRUELIST
-        conditional = cfg["conditional"] in TRUELIST
-        mask_nodata = cfg["mask_nodata"] in TRUELIST
-        resistance_is_conductance = cfg["resistance_is_conductance"] in TRUELIST
-        write_as_tif = cfg["write_as_tif"] in TRUELIST
-        allow_different_projections = cfg["allow_different_projections"] in TRUELIST
-        reclassify = cfg["reclassify_resistance"] in TRUELIST
-        write_reclassified_resistance = cfg["write_reclassified_resistance"] in TRUELIST
+        cfg["calc_flow_potential"] in TRUELIST,
+        cfg["calc_normalized_current"] in TRUELIST,
+        cfg["calc_flow_potential"] in TRUELIST || cfg["calc_normalized_current"] in TRUELIST,
+        cfg["write_raw_currmap"] in TRUELIST,
+        cfg["parallelize"] in TRUELIST,
+        cfg["correct_artifacts"] in TRUELIST,
+        cfg["source_from_resistance"] in TRUELIST,
+        cfg["conditional"] in TRUELIST,
+        cfg["mask_nodata"] in TRUELIST,
+        cfg["resistance_is_conductance"] in TRUELIST,
+        cfg["write_as_tif"] in TRUELIST,
+        cfg["allow_different_projections"] in TRUELIST,
+        cfg["reclassify_resistance"] in TRUELIST,
+        cfg["write_reclassified_resistance"] in TRUELIST
     )
 end
 
-function elementwise_invert_resistance(resistance::Array{T, 2} where T <: Number),
-                                       cfg::Dict{Any, Any})
-    source_strength = deepcopy(resistance)
+# Calculate the source layer using resistance surface and arguments from cfg
+function source_from_resistance(resistance::Array{Union{T, Missing}, 2} where T <: Number,
+                                       cfg::Dict{String, String})
+    full_cfg = init_cfg()
+    update_cfg!(full_cfg, cfg)
+    r_cutoff = parse(Float64, full_cfg["r_cutoff"])
+    precision = full_cfg["precision"] in SINGLE ? Float32 : Float64
 
-    if !haskey(cfg, "resistance_is_conductance") || !cfg["resistance_is_conductance"] in TRUELIST
-        source_strength = 1 ./ source_strength
-        source_strength[resistance ==]
+    source_strength = deepcopy(resistance)
+    if full_cfg["resistance_is_conductance"] ∉ TRUELIST
+        source_strength = Array{Union{precision, Missing}, 2}(1 ./ source_strength)
+    end
+    source_strength[coalesce.(source_strength .< 1/r_cutoff, true)] .= 0.0 # handles replacing NoData with 0 as well
+
+    source_strength
 end
 

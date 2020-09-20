@@ -8,6 +8,7 @@ using ProgressMeter
 using StatsBase
 using Statistics
 
+include("structs.jl")
 include("config.jl")
 include("io.jl")
 include("consts.jl")

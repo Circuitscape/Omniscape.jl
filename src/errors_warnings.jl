@@ -58,7 +58,7 @@ function check_block_size(block_size)
 end
 
 function check_missing_args_ini(cfg)
-    indices = indexin(REQUIRED_ARGS, convert.(String, keys(cfg)))
+    indices = indexin(REQUIRED_ARGS_INI, convert.(String, keys(cfg)))
     indices[indices .== nothing] .= 0
 
     is_missing = indices .== 0
@@ -72,7 +72,7 @@ function check_missing_args_ini(cfg)
 end
 
 function check_missing_args_dict(cfg)
-    indices = indexin(REQUIRED_ARGS, convert.(String, keys(cfg)))
+    indices = indexin(REQUIRED_ARGS_DICT, convert.(String, keys(cfg)))
     indices[indices .== nothing] .= 0
 
     is_missing = indices .== 0

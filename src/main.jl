@@ -1,20 +1,3 @@
-struct OmniscapeFlags
-    calc_flow_potential::Bool
-    calc_normalized_current::Bool
-    compute_flow_potential::Bool #bad name, but need a variable that stores the "or" of the previous two, internal use only
-    write_raw_currmap::Bool
-    parallelize::Bool
-    correct_artifacts::Bool
-    source_from_resistance::Bool
-    conditional::Bool
-    mask_nodata ::Bool
-    resistance_is_conductance::Bool
-    write_as_tif::Bool
-    allow_different_projections::Bool
-    reclassify::Bool
-    write_reclassified_resistance::Bool
-end
-
 """
 INI method:
     run_omniscape(path::String)
@@ -22,17 +5,20 @@ INI method:
 In-memory method:
     run_omniscape(
         cfg::Dict{String, String}
-        resistance::Array{Float64, 2};
-        source_strength =  = 1 ./ resistance,
-        condition1 = Array{Float64, 2}(undef, 1, 1),
-        condition2 = Array{Float64, 2}(undef, 1, 1),
-        condition1_future = Array{Float64, 2}(undef, 1, 1),
-        condition2_future = Array{Float64, 2}(undef, 1, 1),
+        resistance::Array{Union{Float64, Missing}, 2};
+        source_strength = 1 ./ resistance,
+        condition1 = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
+        condition2 = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
+        condition1_future = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
+        condition2_future = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
         wkt= "",
         geotransform = [0.0, 1.0, 0.0, 0.0, 0.0, -1.0],
         reclass_table = Array{Float64, 2}(undef, 1, 2)
     )
 
+Compute omnidirectional current flow. All array inputs for the in-memory method
+should be of type `Array{Union{T, Missing}, 2} where T <: Number`, with
+`missing` used for NoData pixels.
 
 # Parameters
 **`path`**: The path to an INI file containing run parameters. See the
@@ -57,8 +43,7 @@ negative values other than -9999.
 **`source_strength`**: A 2D, north-oriented array (with size equal to
 `size(resistance)`) of source strength values. `source_strength` is only
 required if `source_from_resistance` in `cfg` is set to `"false"`
-(the default value). `source_strength` cannot contain negative values other than
--9999 for NoData.
+(the default value).
 
 **`condition1`**: Optional. Required if `conditional` in`cfg` is set to "true".
 A 2D, north-oriented array (with size equal to `size(resistance)`). See
@@ -97,13 +82,13 @@ Only used if Omniscape writes raster outputs to disk. Fed into
 
 """
 function run_omniscape(
-        cfg::Dict{Any, Any};
-        resistance::Array{Union{precision, Missing}, 2} where T <: Number,
-        source_strength = elementwise_invert_resistance(resistance, cfg),
-        condition1::Array{Union{precision, Missing}, 2} where T <: Number = Array{Union{precision, Missing}, 2}(undef, 1, 1),
-        condition2::Array{Union{precision, Missing}, 2} where T <: Number = Array{Union{precision, Missing}, 2}(undef, 1, 1),
+        cfg::Dict{String, String};
+        resistance::Array{Union{T, Missing}, 2} where T <: Number,
+        source_strength = source_from_resistance(resistance, cfg),
+        condition1::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{T, Missing}, 2}(undef, 1, 1),
+        condition2::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{T, Missing}, 2}(undef, 1, 1),
         condition1_future = condition1,
-        condition2_future = condition2
+        condition2_future = condition2,
         geotransform::Array{Float64, 1} = [0., 1., 0., 0., 0., -1.0],
         wkt::String = "",
         reclass_table::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 2))
@@ -136,11 +121,7 @@ function run_omniscape(
     precision = cfg["precision"] in SINGLE ? Float32 : Float64
 
     # flags
-    os_flags = get_OmniscapeFlags(cfg)
-
-    if int_arguments["block_size"] == 1
-        os_flags.correct_artifacts = false
-    end
+    os_flags = get_omniscape_flags(cfg)
 
     # other
     source_threshold = parse(Float64, cfg["source_threshold"])
@@ -157,23 +138,10 @@ function run_omniscape(
     # TODO create a function in utils.jl, reclassify_resistance()
     if os_flags.reclassify
         resistance_old = deepcopy(resistance)
-        reclass_table = convert.(precision, readdlm("$(cfg["reclass_table"])"))
-
         for i in 1:(size(reclass_table)[1])
             resistance[coalesce.(resistance_old .== reclass_table[i, 1], false)] .= reclass_table[i, 2]
         end
-
         resistance_old = nothing # remove from memory
-    end
-
-    # Compute source strengths from resistance if needed
-    if os_flags.source_from_resistance
-        if !os_flags.resistance_is_conductance
-            source_strength = Array{Union{precision, Missing}, 2}(1 ./ source_strength)
-        end
-        source_strength[coalesce.(source_strength .< 1/r_cutoff, true)] .= 0.0 # handles replacing NoData with 0 as well
-    else
-        source_strength[source_strength .< source_threshold] .= 0.0
     end
 
     int_arguments["nrows"] = size(source_strength, 1)
@@ -255,7 +223,7 @@ function run_omniscape(
                                         cfg["connect_four_neighbors_only"] in TRUELIST,
                                         false, solver, o)
 
-    if os_flags.correct_artifacts
+    if os_flags.correct_artifacts && !(int_arguments["block_size"] == 1)
         println("Calculating block artifact correction array...")
         correction_array = calc_correction(int_arguments,
                                            os_flags,
@@ -378,39 +346,26 @@ function run_omniscape(
         dir_suffix+=1
     end
     isdir(project_name) && (project_name = string(project_name, "_$(dir_suffix)"))
-
     mkpath(project_name)
-
-    # Copy .ini file to output directory
-    cp(path, "$(project_name)/config.ini")
-
-    if os_flags.reclassify && os_flags.write_reclassified_resistance
-        Circuitscape.write_raster("$(project_name)/classified_resistance",
-                     resistance,
-                     wkt,
-                     transform,
-                     file_format)
-    end
 
     ## Overwrite no data
     if os_flags.mask_nodata
         if os_flags.calc_normalized_current
-            normalized_cum_currmap[resistance .== -9999] .= -9999
+            normalized_cum_currmap[ismissing.(resistance)] .= -9999
         end
         if os_flags.calc_flow_potential
-            fp_cum_currmap[resistance .== -9999] .= -9999
+            fp_cum_currmap[ismissing.(resistance)] .= -9999
         end
-        cum_currmap[resistance .== -9999] .= -9999
+        cum_currmap[ismissing.(resistance)] .= -9999
     end
 
-    # Get rid of resistance
     # Get rid of resistance (save first if needed)
-    if reclassify && write_reclassified_resistance
+    if os_flags.reclassify && os_flags.write_reclassified_resistance
         resistance[ismissing.(resistance)] .= -9999
         write_raster("$(project_name)/classified_resistance",
                      convert(Array{precision, 2}, resistance),
                      wkt,
-                     transform,
+                     geotransform,
                      file_format)
     end
     resistance = nothing
@@ -421,7 +376,7 @@ function run_omniscape(
         write_raster("$(project_name)/cum_currmap",
                      cum_currmap,
                      wkt,
-                     transform,
+                     geotransform,
                      file_format)
     end
 
@@ -429,7 +384,7 @@ function run_omniscape(
         write_raster("$(project_name)/flow_potential",
                      fp_cum_currmap,
                      wkt,
-                     transform,
+                     geotransform,
                      file_format)
     end
 
@@ -438,7 +393,7 @@ function run_omniscape(
         write_raster("$(project_name)/normalized_cum_currmap",
                      normalized_cum_currmap,
                      wkt,
-                     transform,
+                     geotransform,
                      file_format)
     end
 
@@ -459,3 +414,137 @@ function run_omniscape(
     end
 end
 
+function run_omniscape(path::String)
+    cfg_user = parse_cfg(path)
+    check_missing_args_ini(cfg_user) && return
+
+    cfg = init_cfg()
+    update_cfg!(cfg, cfg_user)
+
+    ## flags and other cfg args
+    os_flags = get_omniscape_flags(cfg)
+    compare_to_future = lowercase(cfg["compare_to_future"])
+    precision = cfg["precision"] in SINGLE ? Float32 : Float64
+    n_conditions = Int64(round(parse(Float64, cfg["n_conditions"])))
+    allow_different_projections = cfg["allow_different_projections"] in TRUELIST
+    source_threshold = parse(precision, cfg["source_threshold"])
+
+    ## Load resistance
+    resistance_raster = read_raster("$(cfg["resistance_file"])", precision)
+    resistance = resistance_raster[1]
+
+    wkt = resistance_raster[2]
+    geotransform = resistance_raster[3]
+
+    check_resistance_values(resistance) && return
+
+    ## Load reclass table if applicable
+    if os_flags.reclassify
+        reclass_table = convert.(precision, readdlm("$(cfg["reclass_table"])"))
+    else
+        reclass_table = Array{Float64, 2}(undef, 1, 2)
+    end
+
+    ## Load source strengths
+    if !os_flags.source_from_resistance
+        sources_raster = read_raster("$(cfg["source_file"])", precision)
+        source_strength = sources_raster[1]
+
+        # Check for raster alignment
+        check_raster_alignment(resistance_raster, sources_raster,
+                               "resistance_file", "sources_file",
+                               allow_different_projections) && return
+
+        # get rid of unneeded raster to save memory
+        sources_raster = nothing
+
+        # overwrite nodata with 0
+        source_strength[ismissing.(source_strength)] .= 0.0
+
+        # Set values < user-specified threshold to 0
+        source_strength[source_strength .< source_threshold] .= 0.0
+    else
+        source_strength = source_from_resistance(resistance, cfg)
+    end
+
+    ## Load condition rasters
+    if os_flags.conditional
+        condition1_raster = read_raster("$(cfg["condition1_file"])", precision)
+        condition1 = condition1_raster[1]
+
+        # Check for raster alignment
+        check_raster_alignment(resistance_raster, condition1_raster,
+                               "resistance_file", "condition1_file",
+                               allow_different_projections) && return
+
+        # get rid of unneedecheck_rasterd raster to save memory
+        condition1_raster = nothing
+
+        if compare_to_future == "1" || compare_to_future == "both"
+            condition1_future_raster = read_raster("$(cfg["condition1_future_file"])", precision)
+            condition1_future = condition1_future_raster[1]
+
+            # Check for raster alignment
+            check_raster_alignment(resistance_raster, condition1_future_raster,
+                                   "resistance_file", "condition1_future_file",
+                                   allow_different_projections) && return
+
+            # get rid of unneeded raster to save memory
+            condition1_future_raster = nothing
+        else
+            condition1_future = condition1
+        end
+
+        if n_conditions == 2
+            condition2_raster = read_raster("$(cfg["condition2_file"])", precision)
+            condition2 = condition2_raster[1]
+
+            # Check for raster alignment
+            check_raster_alignment(resistance_raster, condition2_raster,
+                                   "resistance_file", "condition2_file",
+                                   allow_different_projections) && return
+
+            # get rid of unneeded raster to save memory
+            condition2_raster = nothing
+
+            if compare_to_future == "2" || compare_to_future == "both"
+                condition2_future_raster = read_raster("$(cfg["condition2_future_file"])", precision)
+                condition2_future = condition2_future_raster[1]
+
+                # Check for raster alignment
+                check_raster_alignment(resistance_raster, condition2_future_raster,
+                                       "resistance_file", "condition2_future_file",
+                                       allow_different_projections) && return
+
+                # get rid of unneeded raster to save memory
+                condition2_future_raster = nothing
+            else
+                condition2_future = condition2
+            end
+
+        else
+            condition2 = Array{Union{Missing, precision}, 2}(undef, 1, 1)
+            condition2_future = condition2
+        end
+    else
+        condition1 = Array{Union{Missing, precision}, 2}(undef, 1, 1)
+        condition2 = Array{Union{Missing, precision}, 2}(undef, 1, 1)
+        condition1_future = condition1
+        condition2_future = condition2
+    end
+
+    resistance_raster = nothing
+
+    run_omniscape(
+        cfg;
+        resistance,
+        source_strength = source_strength,
+        condition1 = condition1,
+        condition2 = condition2,
+        condition1_future = condition1_future,
+        condition2_future = condition2_future,
+        geotransform = geotransform,
+        wkt = wkt,
+        reclass_table = reclass_table
+    )
+end
