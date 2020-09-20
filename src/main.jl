@@ -98,10 +98,10 @@ Only used if Omniscape writes raster outputs to disk. Fed into
 """
 function run_omniscape(
         cfg::Dict{Any, Any};
-        resistance::Array{T, 2} where T <: Number,
+        resistance::Array{Union{precision, Missing}, 2} where T <: Number,
         source_strength = elementwise_invert_resistance(resistance, cfg),
-        condition1::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1),
-        condition2::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 1),
+        condition1::Array{Union{precision, Missing}, 2} where T <: Number = Array{Union{precision, Missing}, 2}(undef, 1, 1),
+        condition2::Array{Union{precision, Missing}, 2} where T <: Number = Array{Union{precision, Missing}, 2}(undef, 1, 1),
         condition1_future = condition1,
         condition2_future = condition2
         geotransform::Array{Float64, 1} = [0., 1., 0., 0., 0., -1.0],
@@ -151,13 +151,6 @@ function run_omniscape(
     ## Set number of BLAS threads to 1
     BLAS.set_num_threads(1)
 
-    ## Import sources and resistances
-    resistance_raster = Circuitscape.read_raster("$(cfg["resistance_file"])", precision)
-
-    resistance = resistance_raster[1]
-    wkt = resistance_raster[2]
-    transform = resistance_raster[3]
-
     check_resistance_values(resistance) && return
 
     # Reclassify resistance layer
@@ -167,7 +160,7 @@ function run_omniscape(
         reclass_table = convert.(precision, readdlm("$(cfg["reclass_table"])"))
 
         for i in 1:(size(reclass_table)[1])
-            resistance[resistance_old .== reclass_table[i, 1]] .= reclass_table[i, 2]
+            resistance[coalesce.(resistance_old .== reclass_table[i, 1], false)] .= reclass_table[i, 2]
         end
 
         resistance_old = nothing # remove from memory
@@ -175,11 +168,10 @@ function run_omniscape(
 
     # Compute source strengths from resistance if needed
     if os_flags.source_from_resistance
-        source_strength = deepcopy(resistance)
         if !os_flags.resistance_is_conductance
-            source_strength = 1 ./ source_strength
+            source_strength = Array{Union{precision, Missing}, 2}(1 ./ source_strength)
         end
-        source_strength[source_strength .< 1/r_cutoff] .= 0.0
+        source_strength[coalesce.(source_strength .< 1/r_cutoff, true)] .= 0.0 # handles replacing NoData with 0 as well
     else
         source_strength[source_strength .< source_threshold] .= 0.0
     end
@@ -250,19 +242,18 @@ function run_omniscape(
         end
     end
 
-    # Get raster flags
     solver = "cg+amg"
 
     # n_cells = int_arguments["nrows"] * int_arguments["ncols"]
     # if n_cells <= 2000000
-    #     solver = "cholmod" # FIXME: "cholmod" not available in advanced mode
+    #     solver = "cholmod" # TODO: "cholmod" not available in advanced mode
     # end
 
     cs_flags = Circuitscape.RasterFlags(true, false, true,
-                                     false, false,
-                                     false, Symbol("rmvsrc"),
-                                     cfg["connect_four_neighbors_only"] in TRUELIST,
-                                     false, solver, o)
+                                        false, false,
+                                        false, Symbol("rmvsrc"),
+                                        cfg["connect_four_neighbors_only"] in TRUELIST,
+                                        false, solver, o)
 
     if os_flags.correct_artifacts
         println("Calculating block artifact correction array...")
@@ -284,11 +275,14 @@ function run_omniscape(
                                            precision)
 
     else
-        correction_array = Array{Float64, 2}(undef, 1, 1)
+        correction_array = Array{precision, 2}(undef, 1, 1)
     end
 
     ## Calculate and accumulate currents on each worker
-    println("Solving targets")
+    println("Solving moving window targets...")
+
+    ## Create progress object
+    p = Progress(n_targets; dt = 0.25, barlen = 60)
 
     if os_flags.parallelize
         parallel_batch_size = Int64(round(parse(Float64, cfg["parallel_batch_size"])))
@@ -323,6 +317,7 @@ function run_omniscape(
                               cum_currmap,
                               fp_cum_currmap,
                               precision)
+            next!(p)
             end
         end
     else
@@ -351,6 +346,7 @@ function run_omniscape(
                           cum_currmap,
                           fp_cum_currmap,
                           precision)
+            next!(p)
         end
     end
 
@@ -408,12 +404,21 @@ function run_omniscape(
     end
 
     # Get rid of resistance
+    # Get rid of resistance (save first if needed)
+    if reclassify && write_reclassified_resistance
+        resistance[ismissing.(resistance)] .= -9999
+        write_raster("$(project_name)/classified_resistance",
+                     convert(Array{precision, 2}, resistance),
+                     wkt,
+                     transform,
+                     file_format)
+    end
     resistance = nothing
     GC.gc()
 
     ## Write outputs
     if os_flags.write_raw_currmap
-        Circuitscape.write_raster("$(project_name)/cum_currmap",
+        write_raster("$(project_name)/cum_currmap",
                      cum_currmap,
                      wkt,
                      transform,
@@ -421,7 +426,7 @@ function run_omniscape(
     end
 
     if os_flags.calc_flow_potential
-        Circuitscape.write_raster("$(project_name)/flow_potential",
+        write_raster("$(project_name)/flow_potential",
                      fp_cum_currmap,
                      wkt,
                      transform,
@@ -430,7 +435,7 @@ function run_omniscape(
 
 
     if os_flags.calc_normalized_current
-        Circuitscape.write_raster("$(project_name)/normalized_cum_currmap",
+        write_raster("$(project_name)/normalized_cum_currmap",
                      normalized_cum_currmap,
                      wkt,
                      transform,
