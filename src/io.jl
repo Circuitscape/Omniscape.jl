@@ -46,18 +46,11 @@ end
 # Intended to only write rasters with no values < 0, so NoData as -9999 will
 # always be safe
 function write_raster(fn_prefix::String,
-                      array::Array{Union{Missing, T}, 2} where T <: Number,
+                      array::Array{T, 2} where T <: Number,
                       wkt::String,
                       transform,
                       file_format::String)
-    # Handle missing values, replace with typemin for nodata setting
-    # and to Array{T, 2}
-    no_data_val = -9999
-    data_eltype = eltype(array)
-    dtype = data_eltype.a == Missing ? data_eltype.b : data_eltype.a
-    array[ismissing.(array)] .= nodata_val
-
-    array = convert(Array{dtype, 2}, array)
+    dtype = eltype(array)
 
     # transponse array back to columns by rows
     array_t = permutedims(array, [2, 1])
@@ -87,7 +80,7 @@ function write_raster(fn_prefix::String,
         ArchGDAL.write!(band, array_t)
 
         # Write nodata and projection info
-        ArchGDAL.setnodatavalue!(band, nodata_val)
+        ArchGDAL.setnodatavalue!(band, -9999)
         ArchGDAL.setgeotransform!(dataset, transform)
         ArchGDAL.setproj!(dataset, wkt)
 

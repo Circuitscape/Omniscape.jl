@@ -23,16 +23,16 @@ function clip(
     new_x = min(distance + 1, x)
     new_y = min(distance + 1, y)
 
-    dist = [sqrt((j - new_x)^2 + (i - new_y)^2) for i = 1:dim1, j = 1:dim2]
+    dist_array = [sqrt((j - new_x)^2 + (i - new_y)^2) for i = 1:dim1, j = 1:dim2]
 
-    A_sub[dist .> distance] .= missing
+    A_sub[dist_array .> distance] .= missing
 
     A_sub
 end
 
 
 function get_targets(
-        source_array::Array{T, 2} where T <: Number,
+        source_array::Array{Union{T, Missing}, 2} where T <: Number,
         arguments::Dict{String, Int64},
         precision::DataType
     )
@@ -74,10 +74,12 @@ function get_targets(
         ylower = Int64(ground_points[i, 2] - block_radius)
         yupper = min(Int64(ground_points[i, 2] + block_radius), nrows)
 
+        # source_array is Array{Union{T, Missing}, 2} but should have no
+        # missings, so not having skipmissings be okay
         ground_points[i, 3] = sum(source_array[ylower:yupper, xlower:xupper])
     end
 
-    # get rid of ground_points with strength below 0
+    # get rid of ground_points with strength equal to 0
     targets = ground_points[ground_points[:, 3] .> 0, 1:3]
     targets
 end
@@ -115,7 +117,7 @@ function get_source(
                          y = y,
                          distance = radius)
 
-    # Append NoData (-9999) if buffer > 0
+    # Append missing if buffer > 0
     if buffer > 0
         ### Columns
         nrow_sub = size(source_subset)[1]
@@ -141,7 +143,7 @@ function get_source(
         # Add top rows
         if top_row_num > 0
             source_subset = vcat(fill(missing, (top_row_num, ncol_sub)),
-                                    source_subset)
+                                 source_subset)
         end
         #Add bottom rows
         if bottom_row_num > 0
@@ -151,9 +153,9 @@ function get_source(
     end
 
     # Replace nodata vals with 0s
-    source_subset[source_subset .== -9999] .= 0.0
+    source_subset[ismissing.(source_subset)] .= 0.0
 
-    # Set any sources inside target to NoData
+    # Set any sources inside target block to 0
     xlower_sub = (radius + buffer  + 1) - block_radius
     xupper_sub = min((radius + buffer  + 1)  + block_radius, ncols)
     ylower_sub = (radius + buffer + 1)  - block_radius
@@ -163,12 +165,11 @@ function get_source(
 
     # allocate total current equal to target "strength", divide among sources
     # according to their source strengths
-    source_sum = sum(source_subset[source_subset .> 0])
+    source_sum = sum(source_subset[coalesce.(source_subset .> 0, false)])
     source_subset[source_subset .> 0] .=
-        (source_subset[source_subset .> 0] * strength) / source_sum
+        (source_subset[coalesce.(source_subset .> 0, false)] * strength) / source_sum
 
     if conditional
-
         xlower_buffered = Int64(max(x - radius - buffer, 1))
         xupper_buffered = Int64(min(x + radius + buffer, ncols))
         ylower_buffered = Int64(max(y - radius - buffer, 1))
@@ -203,12 +204,12 @@ function get_source(
     source_subset
 end
 
-function source_target_match!(source_subset::Array{T,2} where T <: Number,
+function source_target_match!(source_subset::Array{Union{T, Missing}, 2} where T <: Number,
                               n_conditions::Int64,
-                              condition1_present::Array{T,2} where T <: Number,
-                              condition1_future::Array{T,2} where T <: Number,
-                              condition2_present::Array{T,2} where T <: Number,
-                              condition2_future::Array{T,2} where T <: Number,
+                              condition1_present::Array{Union{T, Missing}, 2} where T <: Number,
+                              condition1_future::Array{Union{T, Missing}, 2} where T <: Number,
+                              condition2_present::Array{Union{T, Missing}, 2} where T <: Number,
+                              condition2_future::Array{Union{T, Missing}, 2} where T <: Number,
                               comparison1::String,
                               comparison2::String,
                               condition1_lower::Number,
@@ -228,24 +229,24 @@ function source_target_match!(source_subset::Array{T,2} where T <: Number,
                                              xlower_buffered:xupper_buffered]
 
     if comparison1 == "within"
-      value1 = median(condition1_future[ylower:yupper, xlower:xupper])
-      source_subset[((con1_present_subset .- value1) .> condition1_upper) .|
-          ((con1_present_subset .- value1) .< condition1_lower)] .= 0
+      value1 = median(skipmissing(condition1_future[ylower:yupper, xlower:xupper]))
+      source_subset[coalesce.(((con1_present_subset .- value1) .> condition1_upper) .|
+          ((con1_present_subset .- value1) .< condition1_lower), false)] .= 0
     elseif comparison1 == "equals"
-      value1 = mode(condition1_future[ylower:yupper, xlower:xupper])
-      source_subset[con1_present_subset .!= value1] .= 0
+      value1 = mode(skipmissing(condition1_future[ylower:yupper, xlower:xupper]))
+      source_subset[coalesce.(con1_present_subset .!= value1, false)] .= 0
     end
 
     if n_conditions == 2
       con2_present_subset = condition2_present[ylower_buffered:yupper_buffered,
-                               xlower_buffered:xupper_buffered]
+                                               xlower_buffered:xupper_buffered]
       if comparison2 == "within"
-          value2 = median(condition2_future[ylower:yupper, xlower:xupper])
-          source_subset[((con2_present_subset .- value2) .> condition2_upper) .|
-              ((con2_present_subset .- value2) .< condition2_lower)] .= 0
+          value2 = median(skipmissing(condition2_future[ylower:yupper, xlower:xupper]))
+          source_subset[coalesce.(((con2_present_subset .- value2) .> condition2_upper) .|
+              ((con2_present_subset .- value2) .< condition2_lower), false)] .= 0
       elseif comparison2 == "equals"
-          value2 = mode(condition2_future[ylower:yupper, xlower:xupper])
-          source_subset[con2_present_subset .!= value2] .= 0
+          value2 = mode(skipmissing(condition2_future[ylower:yupper, xlower:xupper]))
+          source_subset[coalesce.(con2_present_subset .!= value2, false)] .= 0
       end
     end
 end
@@ -285,7 +286,7 @@ function get_ground(
 end
 
 function get_conductance(
-        resistance::Array{T, 2} where T <: Number,
+        resistance::Array{Union{T, Missing}, 2} where T <: Number,
         arguments::Dict{String, Int64},
         x::Int64,
         y::Int64,
@@ -304,7 +305,6 @@ function get_conductance(
         conductance = resistance_clipped
     else
         conductance = 1 ./ resistance_clipped
-        conductance[resistance_clipped .== -9999] .= -9999.
     end
 
     conductance
@@ -312,14 +312,21 @@ end
 
 
 function calculate_current(
-        conductance::Array{T, 2} where T <: Number,
-        source::Array{T, 2} where T <: Number,
+        conductance::Array{Union{T, Missing}, 2} where T <: Number,
+        source::Array{Union{T, Missing}, 2} where T <: Number,
         ground::Array{T, 2} where T <: Number,
         flags::Circuitscape.RasterFlags,
         cs_cfg::Dict{String, String},
         T::DataType
     )
     V = Int64
+
+    # Replace missings with -9999, then convert to Array{T, 2}
+    # prior to circuitscape
+    conductance[ismissing.(conductance)] .= -9999
+    source[ismissing.(source)] .= -9999
+    conductance = convert(Array{T, 2}, conductance)
+    source = convert(Array{T, 2}, source)
 
     # get raster data
     cellmap = conductance
@@ -458,10 +465,7 @@ function solve_target!(
         precision::DataType,
         resistance_file_is_conductance::Bool
     )
-
     ## get source
-    solve_start_time = time()
-
     x_coord = Int64(targets[i, 1])
     y_coord = Int64(targets[i, 2])
     source = get_source(source_strength,
@@ -490,10 +494,10 @@ function solve_target!(
 
     ## get conductances for Omniscape
     conductance = get_conductance(resistance,
-                                 int_arguments,
-                                 x_coord,
-                                 y_coord,
-                                 resistance_file_is_conductance)
+                                  int_arguments,
+                                  x_coord,
+                                  y_coord,
+                                  resistance_file_is_conductance)
 
     grid_size = size(source)
 
@@ -507,7 +511,7 @@ function solve_target!(
 
     ## If normalize = True, calculate null map and normalize
     if calc_flow_potential == true
-        null_conductance = fill(convert(precision, 1.), grid_size)
+        null_conductance = convert(Array{Union{precision, Missing}, 2}, fill(1, grid_size))
 
         flow_potential = calculate_current(null_conductance,
                                            source,
@@ -525,8 +529,7 @@ function solve_target!(
         upperycut = size(correction_array, 1)
 
         if x_coord > int_arguments["ncols"] - (int_arguments["radius"] + int_arguments["buffer"])
-            upperxcut = upperxcut -
-                            (upperxcut - grid_size[2])
+            upperxcut = upperxcut - (upperxcut - grid_size[2])
         end
 
         if x_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
@@ -534,8 +537,7 @@ function solve_target!(
         end
 
         if y_coord > int_arguments["nrows"] - (int_arguments["radius"] + int_arguments["buffer"])
-            upperycut = upperycut -
-                            (upperycut - grid_size[1])
+            upperycut = upperycut - (upperycut - grid_size[1])
         end
 
         if y_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
@@ -553,12 +555,10 @@ function solve_target!(
     end
 
     ## Accumulate values
-    xlower = max(x_coord - int_arguments["radius"] - int_arguments["buffer"],
-                 1)
+    xlower = max(x_coord - int_arguments["radius"] - int_arguments["buffer"], 1)
     xupper = min(x_coord + int_arguments["radius"] + int_arguments["buffer"],
                  int_arguments["ncols"])
-    ylower = max(y_coord - int_arguments["radius"] - int_arguments["buffer"],
-                 1)
+    ylower = max(y_coord - int_arguments["radius"] - int_arguments["buffer"], 1)
     yupper = min(y_coord + int_arguments["radius"] + int_arguments["buffer"],
                  int_arguments["nrows"])
 
@@ -578,10 +578,10 @@ function calc_correction(
         flags::Circuitscape.RasterFlags,
         o,
         conditional::Bool,
-        condition1_present::Array{T, 2} where T <: Number,
-        condition1_future::Array{T, 2} where T <: Number,
-        condition2_present::Array{T, 2} where T <: Number,
-        condition2_future::Array{T, 2} where T <: Number,
+        condition1_present::Array{Union{T, Missing}, 2} where T <: Number,
+        condition1_future::Array{Union{T, Missing}, 2} where T <: Number,
+        condition2_present::Array{Union{T, Missing}, 2}where T <: Number,
+        condition2_future::Array{Union{T, Missing}, 2} where T <: Number,
         comparison1::String,
         comparison2::String,
         condition1_lower::Number,
@@ -595,38 +595,38 @@ function calc_correction(
     # are not adjusted by target weight, but stay the same according to their
     # original values. Something to keep in mind...
 
-    temp_source = fill(convert(precision, 1.0),
-                       arguments["radius"] * 2 + buffer * 2 + 1,
-                       arguments["radius"] * 2 + buffer * 2 + 1)
+    temp_source = convert(Array{Union{precision, Missing}, 2},
+                          fill(1.0,
+                               arguments["radius"] * 2 + buffer * 2 + 1,
+                               arguments["radius"] * 2 + buffer * 2 + 1))
 
-    temp_source_clip = clip(temp_source,
+    source_null = clip(temp_source,
                             x = arguments["radius"] + buffer + 1,
                             y = arguments["radius"] + buffer + 1,
                             distance = arguments["radius"])
 
     # Append NoData (-9999) if buffer > 0
     if buffer > 0
-        column_dims = (size(temp_source_clip)[1], buffer)
+        column_dims = (size(source_null)[1], buffer)
         # Add columns
-        temp_source_clip = hcat(fill(convert(precision, -9999.), column_dims),
-                                temp_source_clip,
-                                fill(convert(precision, -9999.), column_dims))
+        source_null = hcat(fill(missing, column_dims),
+                                source_null,
+                                fill(missing, column_dims))
 
-        row_dims = (buffer, size(temp_source_clip)[2])
+        row_dims = (buffer, size(source_null)[2])
         # Add rows
-        temp_source_clip = vcat(fill(convert(precision, -9999.), row_dims),
-                                temp_source_clip,
-                                fill(convert(precision, -9999.), row_dims))
+        source_null = vcat(fill(missing, row_dims),
+                                source_null,
+                                fill(missing, row_dims))
     end
-    source_null = deepcopy(temp_source_clip)
-    n_sources = sum(source_null[source_null .!= -9999])
+    n_sources = sum(source_null[(!).(ismissing.(source_null))])
 
-    source_null[source_null .== -9999] .= 0.0
+    source_null[ismissing.(source_null)] .= 0.0
     source_null[arguments["radius"] + arguments["buffer"] + 1,
                 arguments["radius"] + arguments["buffer"] + 1] = 0.0
     source_null[source_null .!= 0.0] .= 1 / (n_sources - 1)
 
-    source_block = get_source(temp_source,
+    source_blocked = get_source(temp_source,
                               arguments,
                               conditional,
                               condition1_present,
@@ -645,9 +645,9 @@ function calc_correction(
                               strength = float(arguments["block_size"] ^ 2))
 
     conductance = clip(temp_source,
-                      x = arguments["radius"] + arguments["buffer"] + 1,
-                      y = arguments["radius"] + arguments["buffer"] + 1,
-                      distance = arguments["radius"] + arguments["buffer"])
+                       x = arguments["radius"] + arguments["buffer"] + 1,
+                       y = arguments["radius"] + arguments["buffer"] + 1,
+                       distance = arguments["radius"] + arguments["buffer"])
 
     ground = fill(convert(precision, 0.0),
                   size(source_null))
@@ -655,8 +655,9 @@ function calc_correction(
     ground[arguments["radius"] + arguments["buffer"] + 1,
            arguments["radius"] + arguments["buffer"] + 1] = Inf
 
+
     block_null_current = calculate_current(conductance,
-                                           source_block,
+                                           source_blocked,
                                            ground,
                                            flags,
                                            cs_cfg,
@@ -680,7 +681,7 @@ function calc_correction(
     end
 
     null_current_total = null_current_total[(arguments["block_radius"] + 1):(size(null_current, 1) + arguments["block_radius"]),
-                                             (arguments["block_radius"] + 1):(size(null_current, 2) + arguments["block_radius"])]
+                                            (arguments["block_radius"] + 1):(size(null_current, 2) + arguments["block_radius"])]
 
     null_current_total[block_null_current .== 0.] .= 0
 
