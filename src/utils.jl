@@ -710,13 +710,23 @@ end
 
 # Calculate the source layer using resistance surface and arguments from cfg
 function source_from_resistance(resistance::Array{Union{T, Missing}, 2} where T <: Number,
-                                       cfg::Dict{String, String})
+                                cfg::Dict{String, String},
+                                reclass_table::Array{T, 2} where T <: Number)
     full_cfg = init_cfg()
     update_cfg!(full_cfg, cfg)
     r_cutoff = parse(Float64, full_cfg["r_cutoff"])
     precision = full_cfg["precision"] in SINGLE ? Float32 : Float64
+    reclassify = full_cfg["reclassify_resistance"] in TRUELIST
 
-    source_strength = deepcopy(resistance)
+    if reclassify
+        resistance_for_source = deepcopy(resistance)
+        reclassify_resistance!(resistance_for_source)
+    else
+        resistance_for_source = resistance
+    end
+
+    source_strength = deepcopy(resistance_for_source)
+
     if full_cfg["resistance_is_conductance"] ∉ TRUELIST
         source_strength = Array{Union{precision, Missing}, 2}(1 ./ source_strength)
     end
@@ -725,3 +735,12 @@ function source_from_resistance(resistance::Array{Union{T, Missing}, 2} where T 
     source_strength
 end
 
+
+function reclassify_resistance!(resistance::Array{Union{T, Missing}, 2} where T <: Number,
+                                reclass_table::Array{T, 2} where T <: Number)
+    resistance_old = deepcopy(resistance)
+    for i in 1:(size(reclass_table)[1])
+        resistance[coalesce.(resistance_old .== reclass_table[i, 1], false)] .= reclass_table[i, 2]
+    end
+    resistance_old = nothing # remove from memory
+end

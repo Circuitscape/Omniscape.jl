@@ -33,12 +33,15 @@ condition2_file, condition1_future_file, and condition2_future_file. These
 all specify file paths, so they do not apply to the in-memory method
 of `run_omniscape`.
 
-**`resistance`**: An 2D, north-oriented array of resistance values. Use a value
-of -9999 for NoData (infinite resistance). `resistance` cannot contain zeros or
-negative values other than -9999.
-
+**`resistance`**: An 2D, north-oriented array of resistance values. Use
+`missing` for NoData (infinite resistance). `resistance` cannot contain zeros or
+negative values.
 
 # Keyword Arguments
+
+**`reclass_table`**:  A two column array. The first column contains the original
+resistance values in the resistance surface, and the second column specifies
+what those values should be changed to.
 
 **`source_strength`**: A 2D, north-oriented array (with size equal to
 `size(resistance)`) of source strength values. `source_strength` is only
@@ -82,16 +85,16 @@ Only used if Omniscape writes raster outputs to disk. Fed into
 
 """
 function run_omniscape(
-        cfg::Dict{String, String};
-        resistance::Array{Union{T, Missing}, 2} where T <: Number,
-        source_strength = source_from_resistance(resistance, cfg),
+        cfg::Dict{String, String},
+        resistance::Array{Union{T, Missing}, 2} where T <: Number;
+        reclass_table::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 2),
+        source_strength = source_from_resistance(resistance, cfg, reclass_table),
         condition1::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{T, Missing}, 2}(undef, 1, 1),
         condition2::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{T, Missing}, 2}(undef, 1, 1),
         condition1_future = condition1,
         condition2_future = condition2,
         geotransform::Array{Float64, 1} = [0., 1., 0., 0., 0., -1.0],
-        wkt::String = "",
-        reclass_table::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 2))
+        wkt::String = "")
 
     start_time = time()
     n_threads = nthreads()
