@@ -12,14 +12,20 @@ using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 
 ## Running Omniscape
 
-Omniscape.jl provides a single user-facing function: `run_omniscape()`. The following Julia code shows an example of how to run this function in the Julia terminal.
+Omniscape.jl provides a single user-facing function: `run_omniscape()`.
+
+```@docs
+run_omniscape
+```
+
+The following Julia code shows an example of how to run the function in the Julia terminal.
 
 ```julia
 using Omniscape
 run_omniscape("path/to/config/file.ini")
 ```
 
-`run_omniscape()` accepts a single argument: the file path to an [INI file](https://en.wikipedia.org/wiki/INI_file) that specifies file paths for raster inputs and other user-specified options. An INI file can be created using any text editor (e.g. notepad) and saved with the .ini file extension. The following code block shows an example INI file. The headings in square brackets are not required. They are there for organization purposes and are ignored by `run_omniscape()`.
+`run_omniscape()` offers two methods. The firsts accepts the path to an [INI file](https://en.wikipedia.org/wiki/INI_file) specifying file paths for raster inputs and other user-specified options. An INI file can be created using any text editor (e.g. notepad) and saved with the .ini file extension. The following code block shows an example INI file. The headings in square brackets are not required. They are there for organization purposes and are ignored by `run_omniscape()`.
 ```
 [Required arguments]
 resistance_file = resistance_surface.tif
@@ -38,6 +44,8 @@ parallel_batch_size = 20
 [Output options]
 write_raw_currmap = true
 ```
+
+The second ethod of `run_omniscape` accepts in-memory objects representing resistance and other spatial data inputs, and a dictionary of arguments specifying Omniscape options.
 
 The full suite of arguments that can be specified in the .ini file are described in detail in [Arguments](@ref).
 
