@@ -1,8 +1,10 @@
 """
 INI method:
+
     run_omniscape(path::String)
 
 In-memory method:
+
     run_omniscape(
         cfg::Dict{String, String}
         resistance::Array{Union{Float64, Missing}, 2};

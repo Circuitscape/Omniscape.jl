@@ -14,10 +14,6 @@ using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 
 Omniscape.jl provides a single user-facing function: `run_omniscape()`.
 
-```@docs
-run_omniscape
-```
-
 The following Julia code shows an example of how to run the function in the Julia terminal.
 
 ```julia
@@ -157,7 +153,7 @@ Example reclass_table.txt:
 **`write_as_tif`:** One of true, false. Defaults to true. Should outputs be written in tif format? If false, outputs are written in .asc format.
 
 
-#### Conditional Connectivity Options (experimental)
+#### Conditional Connectivity Options
 
 Currently, Omniscape stores NoData values in array representations of input raster data as -9999. It is important to be aware of this in the context of conditional connectivity raster inputs. Rarely, this could result in NoData values being inadvertently interpreted as potential sources. See [#68](@ref) for more information.
 
@@ -216,3 +212,7 @@ docker run -it --rm^
 ```
 The `-v` flag and subsequent code will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory that containing your input files). Once you're in Julia in the Docker container, you're ready to go! Make sure that the file paths in your .ini file are relative to the working directory from which you ran Docker.
 
+# Function Documentation
+```@docs
+run_omniscape
+```
