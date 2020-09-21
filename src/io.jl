@@ -31,7 +31,7 @@ function read_raster(path::String, T)
         # Line to handle NaNs in datasets read from tifs
         array_t[isnan.(array_t)] .= nodata_val
 
-        array = convert(Array{Union{Missing, T}}, permutedims(array_t, [2, 1]))
+        array = convert(Array{Union{Missing, T}, 2}, permutedims(array_t, [2, 1]))
 
         array[array .== nodata_val] .= missing
         
