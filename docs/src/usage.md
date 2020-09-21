@@ -41,7 +41,7 @@ parallel_batch_size = 20
 write_raw_currmap = true
 ```
 
-The second ethod of `run_omniscape` accepts in-memory objects representing resistance and other spatial data inputs, and a dictionary of arguments specifying Omniscape options.
+The second method of `run_omniscape` accepts in-memory objects representing resistance and other spatial data inputs, and a dictionary of arguments specifying Omniscape options.
 
 The full suite of arguments that can be specified in the .ini file are described in detail in [Arguments](@ref).
 
