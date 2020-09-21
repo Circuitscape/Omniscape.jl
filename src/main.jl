@@ -409,13 +409,13 @@ function run_omniscape(
     # convert arrays, replace -9999's with missing
     cum_currmap = convert_and_fill_missing(cum_currmap, precision)
 
-    if calc_normalized_current && !calc_flow_potential
+    if os_flags.calc_normalized_current && !os_flags.calc_flow_potential
         normalized_cum_currmap = convert_and_fill_missing(normalized_cum_currmap, precision)
         return cum_currmap, normalized_cum_currmap
-    elseif !calc_normalized_current && calc_flow_potential
+    elseif !os_flags.calc_normalized_current && os_flags.calc_flow_potential
         fp_cum_currmap = convert_and_fill_missing(fp_cum_currmap, precision)
         return cum_currmap, fp_cum_currmap
-    elseif calc_normalized_current && calc_flow_potential
+    elseif os_flags.calc_normalized_current && os_flags.calc_flow_potential
         fp_cum_currmap = convert_and_fill_missing(fp_cum_currmap, precision)
         normalized_cum_currmap = convert_and_fill_missing(normalized_cum_currmap, precision)
         return cum_currmap, fp_cum_currmap, normalized_cum_currmap
