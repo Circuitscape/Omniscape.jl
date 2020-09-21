@@ -12,14 +12,20 @@ using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 
 ## Running Omniscape
 
-Omniscape.jl provides a single user-facing function: `run_omniscape()`. The following Julia code shows an example of how to run this function in the Julia terminal.
+Omniscape.jl provides a single user-facing function: `run_omniscape()`.
+
+```@docs
+run_omniscape
+```
+
+The following Julia code shows an example of how to run the function in the Julia terminal.
 
 ```julia
 using Omniscape
 run_omniscape("path/to/config/file.ini")
 ```
 
-`run_omniscape()` accepts a single argument: the file path to an [INI file](https://en.wikipedia.org/wiki/INI_file) that specifies file paths for raster inputs and other user-specified options. An INI file can be created using any text editor (e.g. notepad) and saved with the .ini file extension. The following code block shows an example INI file. The headings in square brackets are not required. They are there for organization purposes and are ignored by `run_omniscape()`.
+`run_omniscape()` offers two methods. The firsts accepts the path to an [INI file](https://en.wikipedia.org/wiki/INI_file) specifying file paths for raster inputs and other user-specified options. An INI file can be created using any text editor (e.g. notepad) and saved with the .ini file extension. The following code block shows an example INI file. The headings in square brackets are not required. They are there for organization purposes and are ignored by `run_omniscape()`.
 ```
 [Required arguments]
 resistance_file = resistance_surface.tif
@@ -29,15 +35,17 @@ project_name = output/example
 
 [General options]
 source_from_resistance = true
-r_cutoff = 99
+r_cutoff = 50
 calc_normalized_current = true
 
 parallelize = true
 parallel_batch_size = 20
 
-[Output options] 
+[Output options]
 write_raw_currmap = true
 ```
+
+The second ethod of `run_omniscape` accepts in-memory objects representing resistance and other spatial data inputs, and a dictionary of arguments specifying Omniscape options.
 
 The full suite of arguments that can be specified in the .ini file are described in detail in [Arguments](@ref).
 
@@ -77,13 +85,13 @@ julia
 
 ```@raw html
 <table border="0"><tr>
-<td> 
+<td>
 	<figure>
 		<img src='../figs/sources_block_of_1.png' alt='missing'><br>
 		<figcaption><em>Block size of 1</em></figcaption>
 	</figure>
 </td>
-<td> 
+<td>
 	<figure>
 		<img src='../figs/sources_block_of_3.png' alt='missing'><br>
 		<figcaption><em>Block size of 3</em></figcaption>
@@ -94,7 +102,7 @@ julia
 
 **`source_from_resistance`**: One of true, false. Should a source layer be derived using the resistance layer? If true, sources are calculated as the inverse of the resistance layer, and therefore it is not recommended that your resistance layer contain values less than 1. Sources will be set to 0 for all cells with a resistance greater than `r_cutoff` (described below). Defaults to false.
 
-**`resistance_file_is_conductance`:** One of true, false. Defaults to false. Specify whether the file specified by `resistance_file` is a conductance (rather than resistance) surface. Conductance is the inverse of resistance. Note that `r_cutoff` (an optional argument described below) must be in units of resistance even if a conductance file is supplied as input.
+**`resistance_is_conductance`:** One of true, false. Defaults to false. Specify whether the file specified by `resistance_file` is a conductance (rather than resistance) surface. Conductance is the inverse of resistance. Note that `r_cutoff` (an optional argument described below) must be in units of resistance even if a conductance file is supplied as input.
 
 **`r_cutoff`**: The maximum resistance value a cell can have to be included as a source. Only applies when `source_from_resistance` = true. Defaults to Inf (which allows all cells to be considered as sources regardless of the resistance value).
 

@@ -1,9 +1,9 @@
 function init_cfg()
     cfg = Dict{String, String}()
 
-    cfg["resistance_file"] = "(path for resistance file)"
-    cfg["resistance_file_is_conductance"] = "false"
-    cfg["source_file"] = "(path for source file)"
+    cfg["resistance_file"] = ""
+    cfg["resistance_is_conductance"] = "false"
+    cfg["source_file"] = ""
     cfg["project_name"] = "(filename prefix for project)"
 
     cfg["parallelize"] = "true"
@@ -33,10 +33,10 @@ function init_cfg()
     cfg["conditional"] = "false"
     cfg["n_conditions"] = "1"
     cfg["compare_to_future"] = "none"
-    cfg["condition1_file"] = "(path for condition 1 file)"
-    cfg["condition2_file"] = "(path for condition 2 file)"
-    cfg["condition1_future_file"] = "(path for future condition 1 file)"
-    cfg["condition2_future_file"] = "(path for future condition 2 file)"
+    cfg["condition1_file"] = ""
+    cfg["condition2_file"] = ""
+    cfg["condition1_future_file"] = ""
+    cfg["condition2_future_file"] = ""
     cfg["comparison1"] = "within"
     cfg["comparison2"] = "within"
     cfg["condition1_lower"] = "0"
@@ -45,7 +45,7 @@ function init_cfg()
     cfg["condition2_upper"] = "0"
 
     cfg["reclassify_resistance"] = "false"
-    cfg["reclass_table"] = "(path for resistance reclass table file)"
+    cfg["reclass_table"] = ""
     cfg["write_reclassified_resistance"] = "false"
 
     cfg["allow_different_projections"] = "false"

@@ -56,6 +56,7 @@ target_val = con1fut[y, x]
 
 ## Check that targets are IDed properly
 source_strength = Omniscape.read_raster("input/source.asc", Float64)[1]
+
 int_arguments = Dict{String, Int64}()
 int_arguments["block_size"] = 7
 int_arguments["block_radius"] = 3 # must be (size - 1) / 2

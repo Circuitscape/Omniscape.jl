@@ -8,11 +8,12 @@ using ProgressMeter
 using StatsBase
 using Statistics
 
+include("structs.jl")
 include("config.jl")
 include("io.jl")
 include("consts.jl")
-include("functions.jl")
-include("run_omniscape.jl")
+include("utils.jl")
+include("main.jl")
 include("errors_warnings.jl")
 export run_omniscape
 
