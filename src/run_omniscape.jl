@@ -447,11 +447,18 @@ function run_omniscape(path::String)
     println("Outputs written to $(string(pwd(),"/",project_name))")
 
     ## Return outputs, depending on user options
+    # convert arrays, replace -9999's with missing
+    cum_currmap = convert_and_fill_missing(cum_currmap, precision)
+
     if calc_normalized_current && !calc_flow_potential
+        normalized_cum_currmap = convert_and_fill_missing(normalized_cum_currmap, precision)
         return cum_currmap, normalized_cum_currmap
     elseif !calc_normalized_current && calc_flow_potential
+        fp_cum_currmap = convert_and_fill_missing(fp_cum_currmap, precision)
         return cum_currmap, fp_cum_currmap
     elseif calc_normalized_current && calc_flow_potential
+        fp_cum_currmap = convert_and_fill_missing(fp_cum_currmap, precision)
+        normalized_cum_currmap = convert_and_fill_missing(normalized_cum_currmap, precision)
         return cum_currmap, fp_cum_currmap, normalized_cum_currmap
     else
         return cum_currmap
