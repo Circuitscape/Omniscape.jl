@@ -13,7 +13,7 @@ makedocs(
 	format = formats,
     modules = [Omniscape],
     authors = "Vincent A. Landau",
-    sitename = " ",
+    sitename = "Omniscape.jl",
     pages = ["Home" => "index.md",
     		 "User Guide" => "usage.md",],
 )
