@@ -21,7 +21,8 @@ using Omniscape
 run_omniscape("path/to/config/file.ini")
 ```
 
-`run_omniscape()` offers two methods. The firsts accepts the path to an [INI file](https://en.wikipedia.org/wiki/INI_file) specifying file paths for raster inputs and other user-specified options. An INI file can be created using any text editor (e.g. notepad) and saved with the .ini file extension. The following code block shows an example INI file. The headings in square brackets are not required. They are there for organization purposes and are ignored by `run_omniscape()`.
+`run_omniscape()` offers two methods. The firsts accepts the path to an [INI file](https://en.wikipedia.org/wiki/INI_file) that specifies file paths for raster inputs and other user-specified options. An INI file can be created using any text editor (e.g. notepad) and saved with the .ini file extension. The following code block shows an example INI file. The headings in square brackets are not required. They are there for organization purposes and are ignored by `run_omniscape()`.
+
 ```
 [Required arguments]
 resistance_file = resistance_surface.tif

@@ -74,16 +74,14 @@ and `compare_to_future` in `cfg` is set to "2" or "both".
 
 **`wkt`**: Optionally specify a Well Known Text representation of the projection
 used for your spatial data inputs. Only used if Omniscape writes raster
-outputs to disk. Fed into `ArchGDAL.setproj!` in `Circuitscape.write_raster`.
-Can be obtained from a
+outputs to disk.
 
 **`geotransform`**: In addition to `wkt`, optionally specify a geotransform.
 The geotransform is a 6-element vector with elements as follows for a north up
 oriented image: `[<x coord of upper left orner>, <pixel width>,
 <row rotation (typically 0)>, <y coord of upper left corner>,
 <column rotation (typically 0)>, <pixel height (negative number)>]`.
-Only used if Omniscape writes raster outputs to disk. Fed into
-`ArchGDAL.setgeotransform!` in `Circuitscape.write_raster`.
+Only used if Omniscape writes raster outputs to disk.
 
 """
 function run_omniscape(
