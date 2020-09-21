@@ -8,14 +8,14 @@ In-memory method:
     run_omniscape(
         cfg::Dict{String, String}
         resistance::Array{Union{Float64, Missing}, 2};
-        source_strength = 1 ./ resistance,
+        reclass_table = Array{Float64, 2}(undef, 1, 2),
+        source_strength = source_from_resistance(resistance, cfg, reclass_table),
         condition1 = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
         condition2 = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
         condition1_future = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
         condition2_future = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
-        wkt= "",
-        geotransform = [0.0, 1.0, 0.0, 0.0, 0.0, -1.0],
-        reclass_table = Array{Float64, 2}(undef, 1, 2)
+        wkt = "",
+        geotransform = [0.0, 1.0, 0.0, 0.0, 0.0, -1.0]
     )
 
 Compute omnidirectional current flow. All array inputs for the in-memory method

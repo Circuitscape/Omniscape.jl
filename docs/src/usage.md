@@ -12,7 +12,7 @@ using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 
 ## Running Omniscape
 
-Omniscape.jl provides a single user-facing function: `run_omniscape()`.
+Omniscape.jl provides a single user-facing function: [`run_omniscape`](@ref).
 
 The following Julia code shows an example of how to run the function in the Julia terminal.
 
