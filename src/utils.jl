@@ -720,7 +720,7 @@ function source_from_resistance(resistance::Array{Union{T, Missing}, 2} where T 
 
     if reclassify
         resistance_for_source = deepcopy(resistance)
-        reclassify_resistance!(resistance_for_source)
+        reclassify_resistance!(resistance_for_source, reclass_table)
     else
         resistance_for_source = resistance
     end

@@ -467,7 +467,7 @@ function run_omniscape(path::String)
         # Set values < user-specified threshold to 0
         source_strength[source_strength .< source_threshold] .= 0.0
     else
-        source_strength = source_from_resistance(resistance, cfg)
+        source_strength = source_from_resistance(resistance, cfg, reclass_table)
     end
 
     ## Load condition rasters
@@ -539,8 +539,8 @@ function run_omniscape(path::String)
     resistance_raster = nothing
 
     run_omniscape(
-        cfg;
-        resistance,
+        cfg,
+        resistance;
         source_strength = source_strength,
         condition1 = condition1,
         condition2 = condition2,
