@@ -30,8 +30,8 @@ paramters.
 **`cfg`**: A dictionary of Omniscape run parameters. See the [Arguments](@ref)
 section of the User Guide for descriptions of the run parameters and their
 default values. The in-memory method of `run_omniscape` ignores the following
-keys: resistance_file, source_file, reclass_table, condition1_file,
-condition2_file, condition1_future_file, and condition2_future_file. These
+keys: `resistance_file`, `source_file`, `reclass_table`, `condition1_file`,
+`condition2_file`, `condition1_future_file`, and `condition2_future_file`. These
 all specify file paths, so they do not apply to the in-memory method
 of `run_omniscape`.
 
@@ -47,7 +47,7 @@ what those values should be changed to.
 
 **`source_strength`**: A 2D, north-oriented array (with size equal to
 `size(resistance)`) of source strength values. `source_strength` is only
-required if `source_from_resistance` in `cfg` is set to `"false"`
+required if `source_from_resistance` in `cfg` is set to "false"
 (the default value).
 
 **`condition1`**: Optional. Required if `conditional` in`cfg` is set to "true".
