@@ -80,36 +80,73 @@ block_sources = source_strength[Int(targets[1,2] - int_arguments["block_radius"]
 @test targets[1,3] ≈ sum(block_sources)
 @info "target tests passed"
 
-### Syntax tests for run_omniscape()
+### Tests for run_omniscape()
 l, f, p = run_omniscape("input/config4.ini")
+l_verify = Omniscape.read_raster("output_verify/test4/cum_currmap.tif", Float64)[1]
+f_verify = Omniscape.read_raster("output_verify/test4/flow_potential.tif", Float64)[1]
+p_verify = Omniscape.read_raster("output_verify/test4/normalized_cum_currmap.tif", Float64)[1]
+@test Omniscape.arrays_equal(l, l_verify)
+@test Omniscape.arrays_equal(f, f_verify)
+@test Omniscape.arrays_equal(p, p_verify)
+
 g = run_omniscape("input/config5.ini")
+g_verify = Omniscape.read_raster("output_verify/test5/cum_currmap.tif", Float64)[1]
+@test Omniscape.arrays_equal(g, g_verify)
+
 h = run_omniscape("input/config6.ini")
+h_verify = Omniscape.read_raster("output_verify/test6/cum_currmap.tif", Float64)[1]
+@test Omniscape.arrays_equal(h, h_verify)
+
 a, b, c = run_omniscape("input/config.ini")
+a_verify = Omniscape.read_raster("output_verify/test1/cum_currmap.tif", Float64)[1]
+b_verify = Omniscape.read_raster("output_verify/test1/flow_potential.tif", Float64)[1]
+c_verify = Omniscape.read_raster("output_verify/test1/normalized_cum_currmap.tif", Float64)[1]
+@test Omniscape.arrays_equal(a, a_verify)
+@test Omniscape.arrays_equal(b, b_verify)
+@test Omniscape.arrays_equal(c, c_verify)
+
 a1, b1, c1 = run_omniscape("input/config_32bit.ini")
+a1_verify = Omniscape.read_raster("output_verify/test1_32bit/cum_currmap.tif", Float32)[1]
+b1_verify = Omniscape.read_raster("output_verify/test1_32bit/flow_potential.tif", Float32)[1]
+c1_verify = Omniscape.read_raster("output_verify/test1_32bit/normalized_cum_currmap.tif", Float32)[1]
+@test Omniscape.arrays_equal(a1, a1_verify)
+@test Omniscape.arrays_equal(b1, b1_verify)
+@test Omniscape.arrays_equal(c1, c1_verify)
+
 q, e = run_omniscape("input/config3.ini")
+q_verify = Omniscape.read_raster("output_verify/test3/cum_currmap.asc", Float64)[1]
+e_verify = Omniscape.read_raster("output_verify/test3/flow_potential.asc", Float64)[1]
+@test Omniscape.arrays_equal(q, q_verify)
+@test Omniscape.arrays_equal(e, e_verify)
+
 d = run_omniscape("input/config2.ini")
+d_verify = Omniscape.read_raster("output_verify/test2/cum_currmap.asc", Float64)[1]
+@test Omniscape.arrays_equal(d, d_verify)
 d_1 = run_omniscape("input/config2.ini")
 d_2 = run_omniscape("input/config2.ini")
-reclassed = run_omniscape("input/config_reclass.ini")
 
-@test typeof(f) == Array{Float64,2}
-@test typeof(g) == Array{Float64,2}
-@test typeof(h) == Array{Float64,2}
-@test typeof(a) == Array{Float64,2}
-@test typeof(b) == Array{Float64,2}
-@test typeof(c) == Array{Float64,2}
-@test typeof(a1) == Array{Float32,2}
-@test typeof(b1) == Array{Float32,2}
-@test typeof(c1) == Array{Float32,2}
-@test typeof(d) == Array{Float64,2}
-@test typeof(e) == Array{Float64,2}
-@test typeof(reclassed) == Array{Float64,2}
-@test a ≈ d #parallel and serial produce same result
+reclassed = run_omniscape("input/config_reclass.ini")
+reclassed_verify = Omniscape.read_raster("output_verify/test_reclass/cum_currmap.asc", Float64)[1]
+@test Omniscape.arrays_equal(reclassed, reclassed_verify)
+
+@test typeof(f) == Array{Union{Float64, Missing},2}
+@test typeof(g) == Array{Union{Float64, Missing},2}
+@test typeof(h) == Array{Union{Float64, Missing},2}
+@test typeof(a) == Array{Union{Float64, Missing},2}
+@test typeof(b) == Array{Union{Float64, Missing},2}
+@test typeof(c) == Array{Union{Float64, Missing},2}
+@test typeof(a1) == Array{Union{Float32, Missing},2}
+@test typeof(b1) == Array{Union{Float32, Missing},2}
+@test typeof(c1) == Array{Union{Float32, Missing},2}
+@test typeof(d) == Array{Union{Float64, Missing},2}
+@test typeof(e) == Array{Union{Float64, Missing},2}
+@test typeof(reclassed) == Array{Union{Float64, Missing},2}
+@test Omniscape.arrays_equal(a, d) #parallel and serial produce same result
 
 # Single and double produce similar results
-@test a ≈ a1
-@test b ≈ b1
-@test c ≈ c1
+@test Omniscape.arrays_equal(a, a1)
+@test Omniscape.arrays_equal(b, b1)
+@test Omniscape.arrays_equal(c, c1)
 
 # Test error throws
 @info "Testing error throws"

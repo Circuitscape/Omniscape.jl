@@ -744,3 +744,20 @@ function reclassify_resistance!(resistance::Array{Union{T, Missing}, 2} where T 
     end
     resistance_old = nothing # remove from memory
 end
+
+function convert_and_fill_missing(A::Array{T, 2} where T <: Number,
+                                  precision::DataType)
+    A = convert(Array{Union{precision, Missing}, 2}, A)
+    A[A .== -9999] .= missing
+
+    A
+end
+
+function arrays_equal(A::Array{Union{T, Missing}, 2} where T <: Number,
+                      B::Array{Union{T, Missing}, 2} where T <: Number)
+    # Check that non-missing entries are equal
+    A[ismissing.(A)] .= -9999
+    B[ismissing.(B)] .= -9999
+
+    isapprox(Array{Float64, 2}(A), Array{Float64, 2}(B); rtol = 1e-6)
+end
