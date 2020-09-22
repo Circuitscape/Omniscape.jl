@@ -81,7 +81,11 @@ The geotransform is a 6-element vector with elements as follows for a north up
 oriented image: `[<x coord of upper left orner>, <pixel width>,
 <row rotation (typically 0)>, <y coord of upper left corner>,
 <column rotation (typically 0)>, <pixel height (negative number)>]`.
-Only used if Omniscape writes raster outputs to disk.
+Only used when writing raster outputs to disk.
+
+**`write_outputs`**: Boolean specifying if outputs should be written to disk.
+Defaults to `false`. If `true`, `cfg` must contain a value for the `project`
+key.
 
 """
 function run_omniscape(
@@ -93,8 +97,9 @@ function run_omniscape(
         condition2::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{T, Missing}, 2}(undef, 1, 1),
         condition1_future = condition1,
         condition2_future = condition2,
+        wkt::String = "",
         geotransform::Array{Float64, 1} = [0., 1., 0., 0., 0., -1.0],
-        wkt::String = "")
+        write_outputs::Bool = false)
 
     start_time = time()
     n_threads = nthreads()
@@ -343,13 +348,15 @@ function run_omniscape(
         normalized_cum_currmap[isnan.(normalized_cum_currmap)] .= 0
     end
 
-    ## create new directory if project_name already exists
-    dir_suffix = 1
-    while isdir(string(project_name, "_$(dir_suffix)"))
-        dir_suffix+=1
+    if write_outputs
+        ## create new directory if project_name already exists
+        dir_suffix = 1
+        while isdir(string(project_name, "_$(dir_suffix)"))
+            dir_suffix+=1
+        end
+        isdir(project_name) && (project_name = string(project_name, "_$(dir_suffix)"))
+        mkpath(project_name)
     end
-    isdir(project_name) && (project_name = string(project_name, "_$(dir_suffix)"))
-    mkpath(project_name)
 
     ## Overwrite no data
     if os_flags.mask_nodata
@@ -363,7 +370,7 @@ function run_omniscape(
     end
 
     # Get rid of resistance (save first if needed)
-    if os_flags.reclassify && os_flags.write_reclassified_resistance
+    if os_flags.reclassify && os_flags.write_reclassified_resistance && write_outputs
         resistance[ismissing.(resistance)] .= -9999
         write_raster("$(project_name)/classified_resistance",
                      convert(Array{precision, 2}, resistance),
@@ -375,7 +382,7 @@ function run_omniscape(
     GC.gc()
 
     ## Write outputs
-    if os_flags.write_raw_currmap
+    if os_flags.write_raw_currmap && write_outputs
         write_raster("$(project_name)/cum_currmap",
                      cum_currmap,
                      wkt,
@@ -383,7 +390,7 @@ function run_omniscape(
                      file_format)
     end
 
-    if os_flags.calc_flow_potential
+    if os_flags.calc_flow_potential && write_outputs
         write_raster("$(project_name)/flow_potential",
                      fp_cum_currmap,
                      wkt,
@@ -392,7 +399,7 @@ function run_omniscape(
     end
 
 
-    if os_flags.calc_normalized_current
+    if os_flags.calc_normalized_current && write_outputs
         write_raster("$(project_name)/normalized_cum_currmap",
                      normalized_cum_currmap,
                      wkt,
@@ -403,8 +410,9 @@ function run_omniscape(
     println("Done!")
     println("Time taken to complete job: $(round(time() - start_time; digits = 4)) seconds")
 
-    println("Outputs written to $(string(pwd(),"/",project_name))")
-
+    if write_outputs
+        println("Outputs written to $(string(pwd(),"/",project_name))")
+    end
     ## Return outputs, depending on user options
     # convert arrays, replace -9999's with missing
     cum_currmap = convert_and_fill_missing(cum_currmap, precision)
@@ -555,6 +563,7 @@ function run_omniscape(path::String)
         condition2_future = condition2_future,
         geotransform = geotransform,
         wkt = wkt,
-        reclass_table = reclass_table
+        reclass_table = reclass_table,
+        write_outputs = true
     )
 end
