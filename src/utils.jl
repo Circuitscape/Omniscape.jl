@@ -76,7 +76,7 @@ function get_targets(
 
         # source_array is Array{Union{T, Missing}, 2} but should have no
         # missings, so not having skipmissings be okay
-        ground_points[i, 3] = sum(source_array[ylower:yupper, xlower:xupper])
+        ground_points[i, 3] = sum(skipmissing(source_array[ylower:yupper, xlower:xupper]))
     end
 
     # get rid of ground_points with strength equal to 0
