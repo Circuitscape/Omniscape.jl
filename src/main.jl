@@ -93,8 +93,8 @@ function run_omniscape(
         resistance::Array{Union{T, Missing}, 2} where T <: Number;
         reclass_table::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 2),
         source_strength = source_from_resistance(resistance, cfg, reclass_table),
-        condition1::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{T, Missing}, 2}(undef, 1, 1),
-        condition2::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{T, Missing}, 2}(undef, 1, 1),
+        condition1::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
+        condition2::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
         condition1_future = condition1,
         condition2_future = condition2,
         wkt::String = "",
