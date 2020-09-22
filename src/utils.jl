@@ -711,7 +711,7 @@ end
 # Calculate the source layer using resistance surface and arguments from cfg
 function source_from_resistance(resistance::Array{Union{T, Missing}, 2} where T <: Number,
                                 cfg::Dict{String, String},
-                                reclass_table::Array{T, 2} where T <: Number)
+                                reclass_table::Array{Union{T, Missing}, 2} where T <: Number)
     full_cfg = init_cfg()
     update_cfg!(full_cfg, cfg)
     r_cutoff = parse(Float64, full_cfg["r_cutoff"])
@@ -737,7 +737,7 @@ end
 
 
 function reclassify_resistance!(resistance::Array{Union{T, Missing}, 2} where T <: Number,
-                                reclass_table::Array{T, 2} where T <: Number)
+                                reclass_table::Array{Union{T, Missing}, 2} where T <: Number)
     resistance_old = deepcopy(resistance)
     for i in 1:(size(reclass_table)[1])
         resistance[coalesce.(resistance_old .== reclass_table[i, 1], false)] .= reclass_table[i, 2]

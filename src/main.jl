@@ -8,7 +8,7 @@ In-memory method:
     run_omniscape(
         cfg::Dict{String, String}
         resistance::Array{Union{Float64, Missing}, 2};
-        reclass_table = Array{Float64, 2}(undef, 1, 2),
+        reclass_table = Array{Union{Float64, Missing}, 2}(undef, 1, 2),
         source_strength = source_from_resistance(resistance, cfg, reclass_table),
         condition1 = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
         condition2 = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
@@ -43,7 +43,8 @@ negative values.
 
 **`reclass_table`**:  A two column array. The first column contains the original
 resistance values in the resistance surface, and the second column specifies
-what those values should be changed to.
+what those values should be changed to. You can reclassify values to `missing`
+to replace them with infinite resistance (NoData).
 
 **`source_strength`**: A 2D, north-oriented array (with size equal to
 `size(resistance)`) of source strength values. `source_strength` is only
@@ -91,7 +92,7 @@ key.
 function run_omniscape(
         cfg::Dict{String, String},
         resistance::Array{Union{T, Missing}, 2} where T <: Number;
-        reclass_table::Array{T, 2} where T <: Number = Array{Float64, 2}(undef, 1, 2),
+        reclass_table::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{Float64, Missing}, 2}(undef, 1, 2),
         source_strength = source_from_resistance(resistance, cfg, reclass_table),
         condition1::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
         condition2::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
@@ -145,11 +146,7 @@ function run_omniscape(
     # Reclassify resistance layer
     # TODO create a function in utils.jl, reclassify_resistance()
     if os_flags.reclassify
-        resistance_old = deepcopy(resistance)
-        for i in 1:(size(reclass_table)[1])
-            resistance[coalesce.(resistance_old .== reclass_table[i, 1], false)] .= reclass_table[i, 2]
-        end
-        resistance_old = nothing # remove from memory
+        reclassify_resistance!(resistance, reclass_table)
     end
 
     int_arguments["nrows"] = size(source_strength, 1)
@@ -458,9 +455,9 @@ function run_omniscape(path::String)
 
     ## Load reclass table if applicable
     if os_flags.reclassify
-        reclass_table = convert.(precision, readdlm("$(cfg["reclass_table"])"))
+        reclass_table = read_reclass_table("$(cfg["reclass_table"])", precision)
     else
-        reclass_table = Array{Float64, 2}(undef, 1, 2)
+        reclass_table = Array{Union{precision, Missing}, 2}(undef, 1, 2)
     end
 
     ## Load source strengths

@@ -1,3 +1,13 @@
+function read_reclass_table(tbl_path::String, precision::DataType)
+    rc_table = readdlm(tbl_path)
+
+    if typeof(rc_table) <: Array{Any, 2}
+        rc_table[rc_table .== "missing"] .= missing
+    end
+    
+    convert(Array{Union{precision, Missing}, 2}, rc_table)
+end
+
 function read_raster(path::String, T)
     # Check if file exists (ArchGDAL error is cryptic)
     check_path = endswith(path, ".gz") ? path[10:lastindex(path)] : path
@@ -34,7 +44,7 @@ function read_raster(path::String, T)
         array = convert(Array{Union{Missing, T}, 2}, permutedims(array_t, [2, 1]))
 
         array[array .== nodata_val] .= missing
-        
+
         array, wkt, transform # wkt and transform are needed later for write_raster
     end
 end
