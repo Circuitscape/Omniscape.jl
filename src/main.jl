@@ -253,7 +253,7 @@ function run_omniscape(
     println("Solving moving window targets...")
 
     ## Create progress object
-    p = Progress(n_targets; dt = 0.25, barlen = 60)
+    p = Progress(n_targets; dt = 0.25, barlen = min(50, displaysize(stdout)[2] - length("Progress: 100%  Time: 00:00:00")))
 
     if os_flags.parallelize
         parallel_batch_size = Int64(round(parse(Float64, cfg["parallel_batch_size"])))
