@@ -56,7 +56,7 @@ Here's a bibtex entry:
     title = {{Omniscape.jl: An efficient and scalable implementation of the Omniscape algorithm in the Julia programming language}},
     author = {Vincent A. Landau},
     year = {2020},
-    version = {v0.4.0},
+    version = {v0.4.1},
     url = {https://github.com/Circuitscape/Omniscape.jl},
     doi = {10.5281/zenodo.3955123}
 }

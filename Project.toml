@@ -1,7 +1,7 @@
 name = "Omniscape"
 uuid = "a38d70fc-99f5-11e9-1e3d-cbca093024c3"
 authors = ["Vincent A. Landau <vincent@csp-inc.org>"]
-version = "0.4.0"
+version = "0.4.1"
 
 [deps]
 ArchGDAL = "c9ce4bd3-c3d5-55b8-8973-c0e20141b8c3"
@@ -15,7 +15,7 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 ArchGDAL = "<1.0"
-Circuitscape = "5.7"
+Circuitscape = "5.7.1"
 ProgressMeter = "1.3"
 StatsBase = "0.33.0"
 julia = "1.5"
