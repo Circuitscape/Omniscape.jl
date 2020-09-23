@@ -4,7 +4,7 @@ function read_reclass_table(tbl_path::String, precision::DataType)
     if typeof(rc_table) <: Array{Any, 2}
         rc_table[rc_table .== "missing"] .= missing
     end
-    
+
     convert(Array{Union{precision, Missing}, 2}, rc_table)
 end
 
@@ -100,3 +100,17 @@ function write_raster(fn_prefix::String,
     end
 
 end
+
+function write_cfg(cfg::Dict{String, String}, project_name::String)
+    fn = string(project_name, "/config.ini")
+    touch(fn)
+
+    open(fn, "a") do f
+        for i in keys(cfg)
+            if !isempty(i)
+                write(f, "$(i) = $(cfg[i])\n")
+            end
+        end
+    end
+end
+

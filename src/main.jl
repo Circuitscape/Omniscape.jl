@@ -366,43 +366,47 @@ function run_omniscape(
         cum_currmap[ismissing.(resistance)] .= -9999
     end
 
-    # Get rid of resistance (save first if needed)
-    if os_flags.reclassify && os_flags.write_reclassified_resistance && write_outputs
-        resistance[ismissing.(resistance)] .= -9999
-        write_raster("$(project_name)/classified_resistance",
-                     convert(Array{precision, 2}, resistance),
-                     wkt,
-                     geotransform,
-                     file_format)
-    end
-    resistance = nothing
     GC.gc()
 
     ## Write outputs
-    if os_flags.write_raw_currmap && write_outputs
-        write_raster("$(project_name)/cum_currmap",
-                     cum_currmap,
-                     wkt,
-                     geotransform,
-                     file_format)
+    if write_outputs
+        write_cfg(cfg_user, project_name)
+
+        if os_flags.reclassify && os_flags.write_reclassified_resistance
+            resistance[ismissing.(resistance)] .= -9999
+            write_raster("$(project_name)/classified_resistance",
+                         convert(Array{precision, 2}, resistance),
+                         wkt,
+                         geotransform,
+                         file_format)
+        end
+
+        if os_flags.write_raw_currmap
+            write_raster("$(project_name)/cum_currmap",
+                         cum_currmap,
+                         wkt,
+                         geotransform,
+                         file_format)
+        end
+
+        if os_flags.calc_flow_potential
+            write_raster("$(project_name)/flow_potential",
+                         fp_cum_currmap,
+                         wkt,
+                         geotransform,
+                         file_format)
+        end
+
+        if os_flags.calc_normalized_current
+            write_raster("$(project_name)/normalized_cum_currmap",
+                         normalized_cum_currmap,
+                         wkt,
+                         geotransform,
+                         file_format)
+        end
     end
 
-    if os_flags.calc_flow_potential && write_outputs
-        write_raster("$(project_name)/flow_potential",
-                     fp_cum_currmap,
-                     wkt,
-                     geotransform,
-                     file_format)
-    end
-
-
-    if os_flags.calc_normalized_current && write_outputs
-        write_raster("$(project_name)/normalized_cum_currmap",
-                     normalized_cum_currmap,
-                     wkt,
-                     geotransform,
-                     file_format)
-    end
+    resistance = nothing
 
     println("Done!")
     println("Time taken to complete job: $(round(time() - start_time; digits = 4)) seconds")
