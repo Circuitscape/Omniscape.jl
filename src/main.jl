@@ -15,7 +15,8 @@ In-memory method:
         condition1_future = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
         condition2_future = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
         wkt = "",
-        geotransform = [0.0, 1.0, 0.0, 0.0, 0.0, -1.0]
+        geotransform = [0.0, 1.0, 0.0, 0.0, 0.0, -1.0],
+        write_outputs = false
     )
 
 Compute omnidirectional current flow. All array inputs for the in-memory method
