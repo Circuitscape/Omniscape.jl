@@ -86,7 +86,7 @@ oriented image: `[<x coord of upper left orner>, <pixel width>,
 Only used when writing raster outputs to disk.
 
 **`write_outputs`**: Boolean specifying if outputs should be written to disk.
-Defaults to `false`. If `true`, `cfg` must contain a value for the `project`
+Defaults to `false`. If `true`, `cfg` must contain a value for the `project_name`
 key.
 
 """
