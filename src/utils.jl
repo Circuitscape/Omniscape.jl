@@ -306,7 +306,7 @@ function get_conductance(
         conductance = 1 ./ resistance_clipped
     end
 
-    conductance
+    convert(typeof(resistance_clipped), conductance)
 end
 
 
