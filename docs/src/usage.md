@@ -157,8 +157,6 @@ Example reclass_table.txt:
 
 #### Conditional Connectivity Options
 
-Currently, Omniscape stores NoData values in array representations of input raster data as -9999. It is important to be aware of this in the context of conditional connectivity raster inputs. Rarely, this could result in NoData values being inadvertently interpreted as potential sources. See [#68](@ref) for more information.
-
 **`conditional`:** One of true, false. Defaults to false. Should conditional source/target matching be used? That is, should a given target only be connected to sources that meet similarity conditions to the target? If false, _none_ of the arguments described bellow are needed. If true, then gridded data with values for each pixel are used to compare targets and sources and determine which pairs should be connected according to user-specified criteria.
 
 **`n_conditions`:** One of 1, 2. Defaults to 1. The number of conditions to use for conditional source/target matching.
