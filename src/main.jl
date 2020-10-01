@@ -475,7 +475,7 @@ function run_omniscape(path::String)
 
         # Check for raster alignment
         check_raster_alignment(resistance_raster, sources_raster,
-                               "resistance_file", "sources_file",
+                               "resistance_file", "source_file",
                                allow_different_projections) && return
 
         # get rid of unneeded raster to save memory
