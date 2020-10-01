@@ -173,6 +173,9 @@ function run_omniscape(
     ## Circuitscape calls in loop over targets
     n_targets = size(targets, 1)
 
+    # Permute targets randomly (to get better estimate of ProgressMeter ETA)
+    targets = targets[randperm(n_targets), :]
+
     ## Define parameters for cs
     # Get flags
     o = Circuitscape.OutputFlags(false, false,

@@ -5,6 +5,7 @@ using Circuitscape
 using DelimitedFiles
 using LinearAlgebra.BLAS
 using ProgressMeter
+using Random
 using StatsBase
 using Statistics
 
