@@ -13,7 +13,7 @@ affiliations:
  - name: Conservation Science Partners, Inc.
    index: 1
 date: 6 October 2020
-bibliography: paper/paper.bib
+bibliography: paper.bib
 ---
 
 # Summary
