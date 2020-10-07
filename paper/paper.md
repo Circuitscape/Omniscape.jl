@@ -15,3 +15,13 @@ affiliations:
 date: 6 October 2020
 bibliography: paper/paper.bib
 ---
+
+# Summary
+
+# Statement of Need
+
+# Applications
+
+# Acknowledments
+
+# References
