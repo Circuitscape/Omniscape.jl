@@ -18,13 +18,13 @@ authors:
   - name: Kimberly R. Hall
     affiliation: 4
 affiliations:
- - name: Conservation Science Partners, Inc.
+ - name: Conservation Science Partners, Inc., Fort Collins, Colorado, United States
    index: 1
- - name: Julia Computing
+ - name: Julia Computing Inc., Cambridge, Massachussetts, United States
    index: 2
- - name: Massachusetts Institute of Technology
+ - name: Massachusetts Institute of Technology, Cambridge, Massachussetts, United States
    index: 3
- - name: Then Nature Conservancy
+ - name: Then Nature Conservancy, Lansing, Michigan, United States
    index: 4
 date: 9 October 2020
 bibliography: paper.bib
