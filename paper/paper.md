@@ -52,6 +52,9 @@ The algorithm works as follows:
 
 Steps 1-4 are repeated for every potential target pixel. The resulting current maps from each moving window iteration are summed to get a final map of cumulative current flow.
 
+## Conditional Connectivity
+
+
 # Acknowledments
 
 # References
