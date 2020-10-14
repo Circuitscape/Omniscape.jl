@@ -41,7 +41,7 @@ function read_raster(path::String, T)
         array = convert(Array{Union{Missing, T}, 2}, permutedims(array_t, [2, 1]))
 
         array[array .== nodata_val] .= missing
-        array[isnan.(array)] .= missing
+        array[coalesce.(isnan.(array), false)] .= missing
 
         array, wkt, transform # wkt and transform are needed later for write_raster
     end
