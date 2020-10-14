@@ -37,13 +37,11 @@ function read_raster(path::String, T)
         # but it's the only way I could get it to work for all raster types... -VL
         nodata_val = convert(T, convert(ras_type, ArchGDAL.getnodatavalue(band)))
 
-        # Transpose the array -- ArchGDAL returns a x by y array, need y by x
-        # Line to handle NaNs in datasets read from tifs
-        array_t[isnan.(array_t)] .= nodata_val
-
+        # Transpose the array -- ArchGDAL returns a x by y array, need y by x and convert
         array = convert(Array{Union{Missing, T}, 2}, permutedims(array_t, [2, 1]))
 
         array[array .== nodata_val] .= missing
+        array[isnan.(array)] .= missing
 
         array, wkt, transform # wkt and transform are needed later for write_raster
     end
