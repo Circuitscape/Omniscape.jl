@@ -27,7 +27,7 @@ affiliations:
    index: 2
  - name: Massachusetts Institute of Technology, Cambridge, Massachussetts, United States
    index: 3
- - name: Then Nature Conservancy, Lansing, Michigan, United States
+ - name: The Nature Conservancy, Lansing, Michigan, United States
    index: 4
 date: 9 October 2020
 bibliography: paper.bib
@@ -35,11 +35,11 @@ bibliography: paper.bib
 
 # Summary
 
-Omniscape.jl is a software package for computing landscape connectivity. It is written in the Julia programming language [@bezanson2017] to be fast, scalable, and easy-to-use. Circuitscape.jl [@anantharaman2020], the package on which Omniscape.jl builds and expands, abstracts landscapes as two-dimensional networks of electrical sources, grounds, and resistors and solves, and the current flow that results represents landscape connectivity. Omniscape.jl is novel in that it produces maps of "omni-directional" connectivity, which is explained in more detail below. These maps can be used by researchers and landscape managers to understand and predict how ecological processes (e.g. animal movement, disease, gene flow, or fire) are connected in geographic space. More information on the broader Circuitscape project, which is home to Circuitscape.jl and Omniscape.jl, can be found at [circuitscape.org](https://circuitscape.org).
+Omniscape.jl is a software package for computing landscape connectivity. It is written in the Julia programming language [@bezanson2017] to be fast, scalable, and easy-to-use. Circuitscape.jl [@anantharaman2020], the package on which Omniscape.jl builds and expands, abstracts landscapes as two-dimensional electrical networks and solves for current flow. The current flow that results represents landscape connectivity. Omniscape.jl is novel in that it produces maps of "omni-directional" connectivity, which provide a spatial representation of connectivity between every possible pair of start and endpoints in the landscape. These maps can be used by researchers and landscape managers to understand and predict how ecological processes (e.g. animal movement, disease, gene flow, or fire) are connected in geographic space. More information on the broader Circuitscape project, which is home to Circuitscape.jl and Omniscape.jl, can be found at [circuitscape.org](https://circuitscape.org).
 
 # Motivation
 
-Modeling where and how ecological processes are connected provides valuable information for widlife and landscape management. A common output from connectivity modeling efforts is a connectivity map, which provides a spatial representation of connectivity by showing likely paths of flow for ecological processes of interest. Circuit theory offers a useful framework for modeling these processes [@mcrae2006; @mcrae2008; @dickson2019]. In the circuit-theoretic approach, the landscape is abstracted as a network of current sources, grounds, and resistors. The resulting current flow through the network is then related to movement or flow intensity of the ecological process of interest. These models were first implemented in Circuitscape software for Python [@shah2008], which has since been implemented in Julia as Circuitscape.jl [@anantharaman2020]. 
+Modeling where and how ecological processes are connected provides valuable information for widlife and landscape management. A common output from connectivity modeling efforts is a connectivity map, which provides a spatial representation of connectivity by showing likely paths of flow for ecological processes of interest. Circuit theory offers a useful framework for modeling these processes [@mcrae2006; @mcrae2008; @dickson2019]. In the circuit-theoretic approach, the landscape is abstracted as a network of current sources, grounds, and resistors. The resulting current flow provides a spatial representation through the network is then related to movement or flow intensity of the ecological process of interest. These models were first implemented in Circuitscape software for Python [@shah2008], which has since been implemented in Julia as Circuitscape.jl [@anantharaman2020]. 
 
 Circuitscape.jl is most often run in "pairwise" mode, where current flow is calculated between pairs of user-defined "cores" (usually habitat patches or their centroids). Results from this method can be highly sensitive to the location of cores, which can be problematic in cases where core location is arbitrary, or when there is uncertainty about where cores should be placed. The Omniscape algorithm [@mcrae2016] offers an alternative, coreless approach to pairwise Circuitscape,jl and computes omni-directional landscape connectivity by implementing Circuitscape.jl iteratively in a moving window. Code for Python was developed to implement the Omniscape algorithm in @mcrae2016, but a robust, user-friendly software package was not available. To fill this need, we developed Omniscape.jl, an easy-to-use software package written in the Julia programming langauge, which was chosen for its superior speed, use of multiple dispatch, and efficient parallel processing.
 
@@ -47,7 +47,7 @@ Circuitscape.jl is most often run in "pairwise" mode, where current flow is calc
 
 Omniscape.jl works by applying Circuitscape.jl iteratively through the landscape in a moving window with a user-specified radius. Omniscape.jl requires two basic spatial data inputs: a resistance raster, and a source strength raster. The resistance raster defines the traversal cost for every pixel in the landscape, that is, the relative cost for the ecological process of interest to move through each pixel. The source strength raster defines for every pixel the relative amount of current to be injected into that pixel. In the case of modeling animal movement, a pixel with a high source strength corresponds to relatively more individuals originating from that pixel. A diagram of the moving window is shown in \autoref{fig:window}.
 
-![A diagram of the moving window used in Omniscape.jl, borrowed and adapted with permission from @mcrae2016.\label{fig:window}](fig1.png)
+![A diagram of the moving window used in Omniscape.jl, adapted with permission from @mcrae2016.\label{fig:window}](fig1.png)
 
 The algorithm works as follows:
 
@@ -58,7 +58,7 @@ The algorithm works as follows:
 
 Steps 1-4 are repeated for every potential target pixel. The resulting current maps from each moving window iteration are summed to get a final map of cumulative current flow. Individual moving window iterations can be run independently. Omnicape.jl makes use of Julia's mulithreaded parallel processing to efficiently solve individual moving windows in parallel.
 
-In addition to cumulative current, Omniscape.jl also optionally provides two additional outputs: flow potential, and normalized cumulative current. Flow potential represents current flow under "null" resistance conditions and demonstrates what current flow would look like when unconstrained by resistance and barriers. Flow potential is calculated exactly as cumulative current flow, but with resistance set to one for the entire landscape. Normalized cumulative current flow is calculated as cumulative current flow divided by flow potential. Normalized current helps identify areas where current is impeded or channelized (e.g. more or less current than expected under null resistance conditions). High values mean current flow is channelized, and low values mean current is impeded.
+In addition to cumulative current, Omniscape.jl also optionally provides two additional outputs: flow potential, and normalized cumulative current. Flow potential represents current flow under "null" resistance conditions and demonstrates what current flow would look like when unconstrained by resistance and barriers. Flow potential is calculated exactly as cumulative current flow, but with resistance set to one for the entire landscape. Normalized cumulative current flow is calculated as cumulative current flow divided by flow potential. Normalized current helps identify areas where current is impeded or channelized (e.g., more or less current than expected under null resistance conditions). High values mean current flow is channelized, and low values mean current is impeded.
 
 # Usage
 
@@ -66,6 +66,6 @@ Omniscape.jl is run from the Julia REPL. It offers a single user-facing function
 
 
 # Acknowledments
-Development of this software package was made possible by funding from NASA's Ecological Forecasting program (grant NNX17AF58G) and the Wilburforce Foundation. This software package would not have been possible without Brad McRae (1966-2017), the visionary behind both Circuitscape and the Omniscape algorithm. Aaron Jones developed the diagram in \autoref{fig:window}. Aaron Jones, Carrie Schloss, Melissa Clark, Jim Platt, and early Omniscape.jl users provided valuable feedback and insight during the early stages of Omniscape.jl development.
+Development of this software package was made possible by funding from NASA's Ecological Forecasting program (grant NNX17AF58G) and the Wilburforce Foundation. This software package would not have been possible without Brad McRae (1966-2017), the visionary behind both Circuitscape, the Omniscape algorithm, and several other software tools for assessing connectivity. Aaron Jones developed the diagram in \autoref{fig:window}. Aaron Jones, Carrie Schloss, Melissa Clark, Jim Platt, and early Omniscape.jl users provided valuable feedback and insight.
 
 # References
