@@ -1,7 +1,7 @@
 name = "Omniscape"
 uuid = "a38d70fc-99f5-11e9-1e3d-cbca093024c3"
 authors = ["Vincent A. Landau <vincent@csp-inc.org>"]
-version = "0.4.2"
+version = "0.4.3"
 
 [deps]
 ArchGDAL = "c9ce4bd3-c3d5-55b8-8973-c0e20141b8c3"
