@@ -45,20 +45,20 @@ Circuitscape.jl is most often run in "pairwise" mode, where current flow is calc
 
 # The Omniscape Algorithm
 
-Omniscape.jl works by applying Circuitscape.jl iteratively through the landscape in a moving window with a user-specified radius. Omniscape.jl requires two basic spatial data inputs: a resistance raster, and a source strength raster. The resistance raster defines the traversal cost for every pixel in the landscape, that is, the relative cost for the ecological process of interest to move through each pixel. The source strength raster defines for every pixel the relative amount of current to be injected into that pixel. In the case of modeling animal movement, a pixel with a high source strength corresponds to relatively more individuals originating from that pixel. A diagram of the moving window is shown in \autoref{fig:window}.
+Omniscape.jl works by applying Circuitscape.jl iteratively through the landscape in a circular moving window with a user-specified radius. Omniscape.jl requires two basic spatial data inputs: a resistance raster, and a source strength raster. The resistance raster defines the traversal cost for every pixel in the landscape, that is, the relative cost for the ecological process of interest to move through each pixel. The source strength raster defines for every pixel the relative amount of current to be injected into that pixel. In the case of modeling animal movement, a pixel with a high source strength corresponds to relatively more individuals originating from that pixel. A diagram of the moving window is shown in \autoref{fig:window}.
 
 ![A diagram of the moving window used in Omniscape.jl, adapted with permission from @mcrae2016.\label{fig:window}](fig1.png)
 
 The algorithm works as follows:
 
-1. The window centers on a pixel in the source strength surface that has a source strength greater than 0 (or a user specified threshold). This is referred to as the target pixel.
-2. The source strength and resistance rasters are clipped to the circular window.
-3. Every source pixel within the search radius that also has a source strength greater than 0 is identified. These are referred to as the source pixels.
+1. The circular window centers on a pixel in the source strength surface that has a source strength greater than 0 (or a user specified threshold). This is referred to as the target pixel.
+2. The source strength and resistance rasters are clipped to the circular window centered on the target pixel.
+3. Every source strength pixel within the search radius that also has a source strength greater than 0 is identified. These are referred to as the source pixels.
 4. Circuitscape.jl is run using the clipped resistance raster in “all-to-one” mode, where the target pixel is set to ground, and the source pixels are set as current sources. The total amount of current injected is equal to the source strength of the target pixel, and is divvied up among the source pixels in proportion to their source strengths.
 
 Steps 1-4 are repeated for every potential target pixel. The resulting current maps from each moving window iteration are summed to get a final map of cumulative current flow. Individual moving window iterations can be run independently. Omnicape.jl makes use of Julia's mulithreaded parallel processing to efficiently solve individual moving windows in parallel.
 
-In addition to cumulative current, Omniscape.jl also optionally provides two additional outputs: flow potential, and normalized cumulative current. Flow potential represents current flow under "null" resistance conditions and demonstrates what current flow would look like when unconstrained by resistance and barriers. Flow potential is calculated exactly as cumulative current flow, but with resistance set to one for the entire landscape. Normalized cumulative current flow is calculated as cumulative current flow divided by flow potential. Normalized current helps identify areas where current is impeded or channelized (e.g., more or less current than expected under null resistance conditions). High values mean current flow is channelized, and low values mean current is impeded.
+In addition to cumulative current, Omniscape.jl also optionally provides two additional outputs: flow potential, and normalized cumulative current. Flow potential represents current flow under "null" resistance conditions and demonstrates what current flow would look like when unconstrained by resistance and barriers. Flow potential is calculated exactly as cumulative current flow, but with resistance set to one for the entire landscape. Normalized cumulative current flow is calculated by dividing cumulative current flow by flow potential. Normalized current helps identify areas where current is impeded or channelized (e.g., more or less current than expected under null resistance conditions). High values mean current flow is channelized, and low values mean current is impeded.
 
 # Usage
 
@@ -66,6 +66,6 @@ Omniscape.jl is run from the Julia REPL. It offers a single user-facing function
 
 
 # Acknowledments
-Development of this software package was made possible by funding from NASA's Ecological Forecasting program (grant NNX17AF58G) and the Wilburforce Foundation. This software package would not have been possible without Brad McRae (1966-2017), the visionary behind both Circuitscape, the Omniscape algorithm, and several other software tools for assessing connectivity. Aaron Jones developed the diagram in \autoref{fig:window}. Aaron Jones, Carrie Schloss, Melissa Clark, Jim Platt, and early Omniscape.jl users provided valuable feedback and insight.
+Development of this software package was made possible by funding from NASA's Ecological Forecasting program (grant NNX17AF58G) and the Wilburforce Foundation. This software package would not have been possible without Brad McRae (1966-2017), the visionary behind Circuitscape, the Omniscape algorithm, and several other software tools for assessing connectivity. Aaron Jones developed the diagram in \autoref{fig:window}. Aaron Jones, Carrie Schloss, Melissa Clark, Jim Platt, and early Omniscape.jl users provided valuable feedback and insight.
 
 # References
