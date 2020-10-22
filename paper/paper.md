@@ -66,6 +66,6 @@ Omniscape.jl is run from the Julia REPL. It offers a single user-facing function
 
 
 # Acknowledgments
-Development of this software package was made possible by funding from NASA's Ecological Forecasting program (grant NNX17AF58G) and the Wilburforce Foundation. This software package would not have been possible without Brad McRae (1966-2017), the visionary behind Circuitscape, the Omniscape algorithm, and several other software tools for assessing connectivity. Aaron Jones developed the diagram in \autoref{fig:window}. Aaron Jones, Carrie Schloss, Melissa Clark, Jim Platt, and early Omniscape.jl users provided valuable feedback and insight.
+Development of this software package was made possible by funding from NASA's Ecological Forecasting program (grant NNX17AF58G) and the Wilburforce Foundation. This software package would not have been possible without Brad McRae (1966-2017), the visionary behind Circuitscape, the Omniscape algorithm, and several other software tools for assessing connectivity. Aaron Jones developed the diagram in \autoref{fig:window}. Aaron Jones, Carrie Schloss, Melissa Clark, Jim Platt, and early Omniscape.jl users helped steer software development by providing valuable feedback and insight.
 
 # References
