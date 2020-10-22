@@ -45,7 +45,7 @@ Circuitscape.jl is most often run in "pairwise" mode, where current flow is calc
 
 # The Omniscape Algorithm
 
-Omniscape.jl works by applying Circuitscape.jl iteratively through the landscape in a circular moving window with a user-specified radius \autoref{fig:window}. Omniscape.jl requires two basic spatial data inputs: a resistance raster, and a source strength raster. The resistance raster defines the traversal cost for every pixel in the landscape, that is, the relative cost for the ecological process of interest to move through each pixel. The source strength raster defines for every pixel the relative amount of current (in Amperes) to be injected into that pixel. In the case of modeling animal movement, a pixel with a high source strength corresponds to relatively more individuals originating from that pixel.
+Omniscape.jl works by applying Circuitscape.jl iteratively through the landscape in a circular moving window with a user-specified radius (\autoref{fig:window}). Omniscape.jl requires two basic spatial data inputs: a resistance raster, and a source strength raster. The resistance raster defines the traversal cost (measured in ohms) for every pixel in the landscape, that is, the relative cost for the ecological process of interest to move through each pixel. The source strength raster defines for every pixel the relative amount of current (measured in amperes) to be injected into that pixel. In the case of modeling animal movement, a pixel with a high source strength corresponds to relatively more individuals originating from that pixel.
 
 ![A diagram of the moving window used in Omniscape.jl, adapted with permission from @mcrae2016.\label{fig:window}](fig1.png)
 
