@@ -62,7 +62,7 @@ In addition to cumulative current, Omniscape.jl also optionally provides two add
 
 # Usage
 
-Omniscape.jl is run from the Julia REPL. It offers a single user-facing function, `run_omniscape`, which has two methods. The first and most commonly-used method accepts a single argument specifying the path to an [INI file](https://en.wikipedia.org/wiki/INI_file) that contains input data file paths and run options. The second method of `run_omniscape` accepts arrays representing resistance and other spatial data inputs, and a dictionary of arguments specifying algorithm options. A complete user guide for Omniscape.jl, including installation instructions, function documentation, and a complete list of options and their defaults, can be found in the [Omniscape.jl documentation](https://docs.circuitscape.org/Omniscape.jl/latest/).
+Omniscape.jl is run from the Julia REPL. It offers a single user-facing function, `run_omniscape`, which has two methods. The first method accepts a single argument specifying the path to an [INI file](https://en.wikipedia.org/wiki/INI_file) that contains input data file paths and run options. The second method of `run_omniscape` accepts arrays representing resistance and other spatial data inputs, and a dictionary of arguments specifying algorithm options. A complete user guide for Omniscape.jl, including installation instructions, function documentation, and a complete list of options and their defaults, can be found in the [Omniscape.jl documentation](https://docs.circuitscape.org/Omniscape.jl/latest/).
 
 
 # Acknowledgments
