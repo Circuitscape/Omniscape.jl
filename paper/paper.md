@@ -23,9 +23,9 @@ authors:
 affiliations:
  - name: Conservation Science Partners, Inc., Fort Collins, Colorado, United States
    index: 1
- - name: Julia Computing Inc., Cambridge, Massachussetts, United States
+ - name: Julia Computing Inc., Cambridge, Massachusetts, United States
    index: 2
- - name: Massachusetts Institute of Technology, Cambridge, Massachussetts, United States
+ - name: Massachusetts Institute of Technology, Cambridge, Massachusetts, United States
    index: 3
  - name: The Nature Conservancy, Lansing, Michigan, United States
    index: 4
@@ -41,7 +41,7 @@ Omniscape.jl is a software package that implements the Omniscape algorithm [@mcr
 
 Modeling where and how ecological processes are connected provides valuable information for landscape management and researchers. A common output from connectivity modeling efforts is a map that provides a spatial representation of connectivity by showing likely paths of flow for ecological processes. Circuit theory offers a useful framework for modeling these processes [@mcrae2006; @mcrae2008; @dickson2019]. In the circuit-theoretic approach, the landscape is abstracted as a network of current sources, grounds, and resistors. The resulting current flow  through the electrical network is then related to the movement or flow intensity of the ecological process of interest. These models were first implemented in the Circuitscape software package [@shah2008], which was recently updated and rewritten as Circuitscape.jl [@anantharaman2020] in the Julia programming language. 
 
-Circuitscape.jl is most often run in "pairwise" mode, where current flow is calculated between pairs of user-defined "cores", which are usually habitat patches. Results from this method can be highly sensitive to the location of cores, which can be problematic in cases where core location is arbitrary, or when there is uncertainty about where cores should be placed. The Omniscape algorithm [@mcrae2016] offers an alternative, "coreless" approach to pairwise Circuitscape.jl and computes omni-directional landscape connectivity by implementing Circuitscape.jl iteratively in a moving window. Code for Python was developed to implement the Omniscape algorithm in @mcrae2016, but a user-friendly software package was not available. To fill this need, we developed Omniscape.jl, an easy-to-use software package written in the Julia programming langauge, which was chosen for its superior speed and efficient parallel processing.
+Circuitscape.jl is most often run in "pairwise" mode, where current flow is calculated between pairs of user-defined "cores", which are usually habitat patches. Results from this method can be highly sensitive to the location of cores, which can be problematic in cases where core location is arbitrary, or when there is uncertainty about where cores should be placed. The Omniscape algorithm [@mcrae2016] offers an alternative, "coreless" approach to pairwise Circuitscape.jl and computes omni-directional landscape connectivity by implementing Circuitscape.jl iteratively in a moving window. Code for Python was developed to implement the Omniscape algorithm in @mcrae2016, but a user-friendly software package was not available. To fill this need, we developed Omniscape.jl, an easy-to-use software package written in Julia, which was chosen for its superior speed and efficient parallel processing.
 
 # The Omniscape Algorithm
 
