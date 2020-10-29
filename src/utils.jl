@@ -1,5 +1,3 @@
-abstract type Data end
-
 function clip(
         A::Array{Union{Missing, T}, 2} where T <: Number;
         x::Int64,
