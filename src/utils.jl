@@ -385,7 +385,6 @@ function calculate_current(
     volt = zeros(eltype(G), size(nodemap))
     ind = findall(x -> x != 0, nodemap)
     f_local = Vector{eltype(G)}()
-    solver_called = false
     voltages = Vector{eltype(G)}()
     outvolt = Circuitscape.alloc_map(hbmeta)
     outcurr = Circuitscape.alloc_map(hbmeta)
@@ -419,8 +418,6 @@ function calculate_current(
         local_nodemap = Circuitscape.construct_local_node_map(nodemap,
                                                               c,
                                                               polymap)
-
-        solver_called = true
 
         Circuitscape.accum_currents!(outcurr,
                                      voltages,
