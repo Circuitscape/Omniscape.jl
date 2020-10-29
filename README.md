@@ -25,7 +25,7 @@ A formal paper detailing Omniscape.jl is currently [in pre-review](https://githu
 Here's a bibtex entry:
 ```
 @misc{landau2020omniscape,
-    title = {{Omniscape.jl: An efficient and scalable implementation of the Omniscape algorithm in the Julia programming language}},
+    title = {{Omniscape.jl: Software to compute omnidirectional landscape connectivity}},
     author = {Vincent A. Landau},
     year = {2020},
     version = {v0.4.3},
@@ -34,7 +34,7 @@ Here's a bibtex entry:
 }
 ```
 
-Please also cite the [original work](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest) where the Omniscape algorithm was first described:
+Please be sure to also cite the [original work](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest) where the Omniscape algorithm was first described:
 > McRae, B. H., K. Popper, A. Jones, M. Schindel, S. Buttrick, K. R. Hall, R. S. Unnasch, and J. Platt. 2016. Conserving Nature’s Stage: Mapping Omnidirectional Connectivity for Resilient Terrestrial Landscapes in the Pacific Northwest. *The Nature Conservancy*, Portland, Oregon.
 
 ## Contributing
