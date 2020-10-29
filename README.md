@@ -2,7 +2,7 @@
 
 | **Documentation** | **Chat** | **Build Status**| **Changelog**|
 |:-----------------------------------------------------:|:------------------------------------:|:-----------:|:-------:|
-| [![docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://docs.circuitscape.org/Omniscape.jl/stable) [![docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://docs.circuitscape.org/Omniscape.jl/latest) | [![gitter](https://badges.gitter.im/Circuitscape/Omniscape.jl.png)](https://gitter.im/Circuitscape/Omniscape.jl) | [![Build Status](https://travis-ci.com/Circuitscape/Omniscape.jl.svg?branch=main)](https://travis-ci.com/Circuitscape/Omniscape.jl) [![Build status](https://ci.appveyor.com/api/projects/status/5mw77lobayetc9wh?svg=true)](https://ci.appveyor.com/project/vlandau/omniscape-jl) [![codecov](https://codecov.io/gh/Circuitscape/Omniscape.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/Circuitscape/Omniscape.jl) | [![news](https://img.shields.io/static/v1?label=version&message=v0.4.2&color=orange)](https://github.com/Circuitscape/Omniscape.jl/releases) |
+| [![docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://docs.circuitscape.org/Omniscape.jl/stable) [![docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://docs.circuitscape.org/Omniscape.jl/latest) | [![gitter](https://badges.gitter.im/Circuitscape/Omniscape.jl.png)](https://gitter.im/Circuitscape/Omniscape.jl) | [![Build Status](https://travis-ci.com/Circuitscape/Omniscape.jl.svg?branch=main)](https://travis-ci.com/Circuitscape/Omniscape.jl) [![Build status](https://ci.appveyor.com/api/projects/status/5mw77lobayetc9wh?svg=true)](https://ci.appveyor.com/project/vlandau/omniscape-jl) [![codecov](https://codecov.io/gh/Circuitscape/Omniscape.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/Circuitscape/Omniscape.jl) | [![news](https://img.shields.io/static/v1?label=version&message=v0.4.3&color=orange)](https://github.com/Circuitscape/Omniscape.jl/releases) |
 
 Omniscape.jl is built on [Circuitscape.jl](https://github.com/Circuitscape/Circuitscape.jl) and implements the Omniscape connectivity modeling algorithm to map omni-directional habitat connectivity. The Omniscape algorithm was developed by [McRae and colleagues](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest) in 2016. **Check out [the docs](https://circuitscape.github.io/Omniscape.jl/stable) for additional information.**
 
@@ -19,8 +19,8 @@ using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 
 ## Citing Omniscape.jl
 
-A formal paper detailing Omniscape.jl is forthcoming, but until it is published, please use the something like the following to cite Omniscape.jl if you use it in your work:
-> Landau, V. A. 2020. Omniscape.jl: An efficient and scalable implementation of the Omniscape algorithm in the Julia programming language, vX.Y.Z, URL: https://github.com/Circuitscape/Omniscape.jl, DOI: 10.5281/zenodo.3955123.
+A formal paper detailing Omniscape.jl is currently [in pre-review](https://github.com/openjournals/joss-reviews/issues/2777). Until it is published, please use the following to cite Omniscape.jl if you use it in your work:
+> Landau, V. A. 2020. Omniscape.jl: Software to compute omnidirectional landscape connectivity, vX.Y.Z, URL: https://github.com/Circuitscape/Omniscape.jl, DOI: 10.5281/zenodo.3955123.
 
 Here's a bibtex entry:
 ```
@@ -28,7 +28,7 @@ Here's a bibtex entry:
     title = {{Omniscape.jl: An efficient and scalable implementation of the Omniscape algorithm in the Julia programming language}},
     author = {Vincent A. Landau},
     year = {2020},
-    version = {v0.4.2},
+    version = {v0.4.3},
     url = {https://github.com/Circuitscape/Omniscape.jl},
     doi = {10.5281/zenodo.3955123}
 }
