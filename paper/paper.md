@@ -54,7 +54,7 @@ The algorithm works as follows:
 1. The circular window centers on a pixel in the source strength surface that has a source strength greater than 0 (or a user-specified threshold). This is referred to as the target pixel.
 2. The source strength and resistance rasters are clipped to the circular window centered on the target pixel.
 3. Every source strength pixel within the search radius that also has a source strength greater than 0 is identified. These are referred to as the source pixels.
-4. Circuitscape.jl is run using the clipped resistance raster in “all-to-one” mode, where the target pixel is set to ground, and the source pixels are set as current sources. The total amount of current injected is equal to the source strength of the target pixel, and is divvied up among the source pixels in proportion to their source strengths.
+4. Circuitscape.jl is run using the clipped resistance raster in “advanced" mode, where the target pixel is set to ground, and the source pixels are set as current sources. The total amount of current injected is equal to the source strength of the target pixel, and is divvied up among the source pixels in proportion to their source strengths.
 
 Steps 1-4 are repeated for every potential target pixel. The resulting current maps from each moving window iteration are summed to get a final map of cumulative current flow. Individual moving window iterations can be run independently. Omniscape.jl makes use of Julia's multi-threaded parallel processing to solve individual moving windows in parallel.
 
