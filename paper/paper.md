@@ -1,5 +1,5 @@
 ---
-title: 'Omniscape.jl: Software to predict omni-directional landscape connectivity'
+title: 'Omniscape.jl: Software to compute omnidirectional landscape connectivity'
 tags:
   - julia
   - ecology
