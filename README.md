@@ -19,18 +19,17 @@ using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 
 ## Citing Omniscape.jl
 
-A formal paper detailing Omniscape.jl is currently [in pre-review](https://github.com/openjournals/joss-reviews/issues/2777). Until it is published, please use the following to cite Omniscape.jl if you use it in your work:
-> Landau, V. A. 2020. Omniscape.jl: Software to compute omnidirectional landscape connectivity, vX.Y.Z, URL: https://github.com/Circuitscape/Omniscape.jl, DOI: 10.5281/zenodo.3955123.
+A formal paper detailing Omniscape.jl is currently [in review](https://github.com/openjournals/joss-reviews/issues/2829). Here is an example citation:
+> Landau, V. A., Shah, V. B., Anantharaman, R., and Hall, K. H. in review. Omniscape.jl: Software to compute omnidirectional landscape connectivity, *Journal of Open Source Software*, DOI: 10.21105/joss.02829.
 
 Here's a bibtex entry:
 ```
-@misc{landau2020omniscape,
+@article{landau2020omniscape,
     title = {{Omniscape.jl: Software to compute omnidirectional landscape connectivity}},
-    author = {Vincent A. Landau},
-    year = {2020},
-    version = {v0.4.3},
-    url = {https://github.com/Circuitscape/Omniscape.jl},
-    doi = {10.5281/zenodo.3955123}
+    author = {Vincent A. Landau and Viral B. Shah and Ranjan Anantharaman and Kimberly H. Hall},
+    year = {in review},
+    fourna; = {Journal of Open Source Software)
+    doi = {10.21105/joss.02829}
 }
 ```
 
