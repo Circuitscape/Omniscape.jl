@@ -136,7 +136,6 @@ function run_omniscape(
     # other
     source_threshold = parse(Float64, cfg["source_threshold"])
     project_name = cfg["project_name"]
-    r_cutoff = parse(Float64, cfg["r_cutoff"])
     file_format = os_flags.write_as_tif ? "tif" : "asc"
 
     ## Set number of BLAS threads to 1
