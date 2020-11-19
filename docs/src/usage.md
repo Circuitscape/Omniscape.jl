@@ -14,25 +14,7 @@ using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 
 Omniscape.jl provides a single user-facing function: [`run_omniscape`](@ref).
 
-The following Julia code shows a simple example.
-
-```julia
-using Omniscape
-
-# Download example input data
-url_base = "https://raw.githubusercontent.com/Circuitscape/datasets/main/"
-download(string(url_base, "data/nlcd_2016_frederick_md.tif"),
-         "nlcd_2016_frederick_md.tif")
-download(string(url_base, "omniscape/nlcd-md-example/nlcd_ex.ini"),
-         "nlcd_ex.ini")
-download(string(url_base, "omniscape/nlcd-md-example/nlcd_reclass_table.txt"),
-         "nlcd_reclass_table.txt")
-
-# Run Omniscape
-run_omniscape("nlcd_ex.ini")
-```
-
-`run_omniscape()` offers two methods. The firsts accepts the path to an [INI file](https://en.wikipedia.org/wiki/INI_file) that specifies file paths for raster inputs and other user-specified options. An INI file can be created using any text editor (e.g. notepad) and saved with the .ini file extension. The following code block shows an example INI file. The headings in square brackets are not required. They are there for organization purposes and are ignored by `run_omniscape()`.
+`run_omniscape()` offers two methods. The first, shown above, accepts the path to an [INI file](https://en.wikipedia.org/wiki/INI_file) that specifies file paths for raster inputs and other user-specified options. An INI file can be created using any text editor (e.g. notepad) and saved with the .ini file extension. The following code block shows an example INI file. The headings in square brackets are not required. They are there for organization purposes and are ignored by `run_omniscape()`.
 
 ```
 [Required arguments]

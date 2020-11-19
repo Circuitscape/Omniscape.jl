@@ -15,7 +15,8 @@ makedocs(
     authors = "Vincent A. Landau",
     sitename = "Omniscape.jl",
     pages = ["Home" => "index.md",
-    		 "User Guide" => "usage.md",],
+    		 "User Guide" => "usage.md",
+			 "Examples" => "examples.md"],
 )
 
 deploydocs(
