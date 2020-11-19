@@ -1,4 +1,6 @@
-### Forest connectivity in central Maryland using
+# Examples
+
+## Forest connectivity in central Maryland
 
 Land cover datasets are commonly used to parameterize resistance for connectivity modeling. This example uses the [National Land Cover Dataset](https://www.usgs.gov/centers/eros/science/national-land-cover-database) for the United States to model forest connectivity in central Maryland. Each value in the categorical land cover dataset is assigned a resistance score. We can have Omniscape.jl can assign these values internally by providing a reclassification table (see [Resistance Reclassification](@ref)).
 
@@ -9,7 +11,7 @@ using Pkg; Pkg.add(["Omniscape", "GeoData", "Plots"])
 using Omniscape, GeoData, Plots
 ```
 
-Next, download the inputs for this problems:
+Next, download the inputs for this example:
 
 ```julia
 # Download example input data
@@ -47,4 +49,3 @@ plot(current,
 ```@raw html
 <img src='figs/nlcd_currmap.png' width=350)> <br><em><b>Figure 1</b>: Cumulative current flow output representing forest connectivity in central Maryland.</em><br><br>
 ```
-
