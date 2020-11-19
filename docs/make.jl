@@ -16,8 +16,8 @@ makedocs(
     sitename = "Omniscape.jl",
     pages = ["Home" => "index.md",
     		 "User Guide" => "usage.md",
-			 "Function Documentation" => "apidocs.md",
-			 "Examples" => "examples.md"],
+			 "Examples" => "examples.md",
+			 "Function Documentation" => "apidocs.md"],
 )
 
 deploydocs(

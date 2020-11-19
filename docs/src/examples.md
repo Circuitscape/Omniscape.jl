@@ -47,5 +47,5 @@ plot(current,
 ```
 
 ```@raw html
-<img src='figs/nlcd_currmap.png' width=350)> <br><em><b>Figure 1</b>: Cumulative current flow output representing forest connectivity in central Maryland.</em><br><br>
+<img src='../figs/nlcd_currmap.png' width=450> <br><em>Cumulative current flow output representing forest connectivity in central Maryland.</em><br><br>
 ```
