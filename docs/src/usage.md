@@ -12,7 +12,7 @@ using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 
 ## Running Omniscape
 
-Omniscape.jl provides a single user-facing function: [`run_omniscape`](@ref).
+For detailed examples of how to use Omniscape, check out the [Examples](@ref) section. Omniscape.jl provides a single user-facing function: [`run_omniscape`](@ref).
 
 `run_omniscape()` offers two methods. The first, shown above, accepts the path to an [INI file](https://en.wikipedia.org/wiki/INI_file) that specifies file paths for raster inputs and other user-specified options. An INI file can be created using any text editor (e.g. notepad) and saved with the .ini file extension. The following code block shows an example INI file. The headings in square brackets are not required. They are there for organization purposes and are ignored by `run_omniscape()`.
 
