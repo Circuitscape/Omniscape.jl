@@ -11,6 +11,7 @@ Package repository: [https://github.com/Circuitscape/Omniscape.jl](https://githu
 ### Table of Contents
 
 ```@contents
+Pages = ["index.md", "usage.md", "examples.md", "apidocs.md"]
 Depth = 2
 ```
 
