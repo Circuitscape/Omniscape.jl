@@ -34,7 +34,7 @@ Finally, run Omniscape:
 run_omniscape("nlcd_ex.ini")
 ```
 
-You'll see that outputs are written to a new folder called "md_nlcd_omniscape_output". This is specified by the "project_name" value in the INI file downloaded above. The cumulative current map is called "cum_currmap.tif" and will be located in the output folder.
+You'll see that outputs are written to a new folder called "md\_nlcd\_omniscape\_output". This is specified by the "project\_name" value in the INI file downloaded above. The cumulative current map is called "cum\_currmap.tif" and will be located in the output folder.
 
 Now, load the current map back into Julia using [GeoData.jl](https://github.com/rafaqz/GeoData.jl) and plot it:
 
