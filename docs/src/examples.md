@@ -20,10 +20,10 @@ url_base = "https://raw.githubusercontent.com/Circuitscape/datasets/main/"
 # The NLCD tile used to create the resistance surface
 download(string(url_base, "data/nlcd_2016_frederick_md.tif"),
          "nlcd_2016_frederick_md.tif")
-# The reclass table used to conver land cover class into a resistance value
+# The reclass table used to convert land cover class into a resistance value
 download(string(url_base, "omniscape/nlcd-md-example/nlcd_reclass_table.txt"),
          "nlcd_reclass_table.txt")
-# The INI file the specifies run options
+# The INI file that specifies run options
 download(string(url_base, "omniscape/nlcd-md-example/nlcd_ex.ini"),
          "nlcd_ex.ini")
 ```
