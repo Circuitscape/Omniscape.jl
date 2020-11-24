@@ -26,7 +26,7 @@ download(string(url_base, "data/nlcd_2016_frederick_md.tif"),
 land_cover, wkt, transform = Omniscape.read_raster("nlcd_2016_frederick_md.tif", Float64)
 ```
 
-The next step is to create a resistance reclassification table that defines a resistance value for each land cover value. Land cover values go in the left column, and resistance values go in the right column. In this case, we are modeling forest connectivity, so forest classes receive the lowest resistance score of one. Other "natural" land cover types are assigned moderate values, and human-developed land cover types are assigned higher values. Medium- to high-intensity development, are given a value of `missing`, which denotes infinite resistance (absolute barriers to movement).
+The next step is to create a resistance reclassification table that defines a resistance value for each land cover value. Land cover values go in the left column, and resistance values go in the right column. In this case, we are modeling forest connectivity, so forest classes receive the lowest resistance score of one. Other "natural" land cover types are assigned moderate values, and human-developed land cover types are assigned higher values. Medium- to high-intensity development are given a value of `missing`, which denotes infinite resistance (absolute barriers to movement).
 
 ```julia
 # Create the reclassification table used to translate land cover into resistance
