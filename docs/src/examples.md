@@ -49,7 +49,7 @@ reclass_table = [
 ]
 ```
 
-Next, we define the configuration options for this model run. See the [Arguments](@ref) section in the [User Guide](@ref) for more information each of the configuration options.
+Next, we define the configuration options for this model run. See the [Arguments](@ref) section in the [User Guide](@ref) for more information about each of the configuration options.
 
 ```julia
 # Specify the configuration options
