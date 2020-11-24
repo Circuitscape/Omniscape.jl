@@ -11,30 +11,70 @@ using Pkg; Pkg.add(["Omniscape", "GeoData", "Plots"])
 using Omniscape, GeoData, Plots
 ```
 
-Next, download the inputs for this example:
+Next, download the landcover data we'll use in this example:
 
 ```julia
-# Download example input data
 url_base = "https://raw.githubusercontent.com/Circuitscape/datasets/main/"
-
-# The NLCD tile used to create the resistance surface
+# Download the NLCD tile used to create the resistance surface and load it
 download(string(url_base, "data/nlcd_2016_frederick_md.tif"),
          "nlcd_2016_frederick_md.tif")
-# The reclass table used to convert land cover class into a resistance value
-download(string(url_base, "omniscape/nlcd-md-example/nlcd_reclass_table.txt"),
-         "nlcd_reclass_table.txt")
-# The INI file that specifies run options
-download(string(url_base, "omniscape/nlcd-md-example/nlcd_ex.ini"),
-         "nlcd_ex.ini")
+
+# Load the array using one of Omniscape's internal functions, or a function
+# from a GIS Julia package of your choice. Omniscape's `read_raster()` returns a
+# tuple with the data array, a wkt string containing geographic projection info,
+# and an array containing geotransform values.
+land_cover, wkt, transform = Omniscape.read_raster("nlcd_2016_frederick_md.tif", Float64)
 ```
 
-Finally, run Omniscape:
+The next step is to create a resistance reclassification table that defines a resistance value for each land cover value. Land cover values go in the left column, and resistance values go in the right column. In this case, we are modeling forest connectivity, so forest classes receive the lowest-possible resistance score of one. Other "natural" land cover types are assigned moderate values, and human-developed land cover types are assigned higher values. Medium- to high-intensity development, are given a value of `missing`, which denotes infinite resistance (absolute barriers to movement).
 
 ```julia
-run_omniscape("nlcd_ex.ini")
+# Create the reclassification table used to translate land cover into resistance
+reclass_table = [
+    11.	100; # Water
+    21	500; # Developed, open space
+    22	1000; # Developed, low intensity
+    23	missing; # Developed, medium intensity
+    24	missing; # Developed, high intensity
+    31	100; # Barren land
+    41	1; # Deciduous forest
+    42	1; # Evergreen forest
+    43	1; # Mixed forest
+    52	20; # Shrub/scrub
+    71	30; # Grassland/herbaceous
+    81	200; # Pasture/hay
+    82	300; # Cultivated crops
+    90	20; # Woody wetlands
+    95	30; # Emergent herbaceous wetlands
+]
 ```
 
-You'll see that outputs are written to a new folder called "md\_nlcd\_omniscape\_output". This is specified by the "project\_name" value in the INI file downloaded above. The cumulative current map is called "cum\_currmap.tif" and will be located in the output folder.
+Next, we define the configuration options for this model run. See the [Arguments](@ref) section in the [User Guide](@ref) for more information each of the configuration options.
+
+```julia
+# Specify the configuration options
+config = Dict{String, String}(
+    "radius" => "100",
+    "block_size" => "21",
+    "project_name" => "md_nlcd_omniscape_output",
+    "source_from_resistance" => "true",
+    "r_cutoff" => "1", # Only forest pixels should be sources
+    "reclassify_resistance" => "true"
+)
+```
+
+Finally, run Omniscape, feeding in the configuration dictionary, the resistance array, the reclass table, as well as the wkt and geotransform information loaded above with `Omniscape.read_raster()`. Passing in the wkt and geotransform, along with `true` as the `write_outputs` argument, will allow Omniscape to write the outputs as properly projected rasters.
+
+```julia
+output = run_omniscape(config,
+                       land_cover_array,
+                       reclass_table = reclass_table,
+                       wkt = wkt,
+                       geotransform = transform,
+                       write_outputs = true)
+```
+
+You'll see that outputs are written to a new folder called "md_nlcd_omniscape_output". This is specified by the "project_name" value in `config` above. The cumulative current map will always be called "cum_currmap.tif", and it will be located in the output folder.
 
 Now, load the current map back into Julia using [GeoData.jl](https://github.com/rafaqz/GeoData.jl) and plot it:
 
