@@ -67,7 +67,7 @@ Finally, run Omniscape, feeding in the configuration dictionary, the resistance 
 
 ```julia
 output = run_omniscape(config,
-                       land_cover_array,
+                       land_cover,
                        reclass_table = reclass_table,
                        wkt = wkt,
                        geotransform = transform,
