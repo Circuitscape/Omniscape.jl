@@ -79,7 +79,7 @@ You'll see that outputs are written to a new folder called "md_nlcd_omniscape_ou
 Now, load the current map back into Julia using [GeoData.jl](https://github.com/rafaqz/GeoData.jl) and plot it:
 
 ```julia
-current = GDALarray("md_nlcd_omniscape_output")
+current = GDALarray("md_nlcd_omniscape_output/cum_currmap.tif")
 plot(current,
      title = "Cumulative Current Flow", xlabel = "Easting", ylabel = "Northing",
      seriescolor = cgrad(:inferno, [0, 0.005, 0.03, 0.06, 0.1, 0.15]),
