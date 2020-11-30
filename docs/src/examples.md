@@ -9,6 +9,7 @@ First, install the necessary packages and import them:
 ```@example mdforest
 using Pkg; Pkg.add(["Omniscape", "GeoData", "Plots"])
 using Omniscape, GeoData, Plots
+nothing # hide
 ```
 
 Next, download the landcover data we'll use in this example, and plot it:
@@ -28,7 +29,7 @@ palette = ["#476BA0", "#DDC9C9", "#D89382", "#ED0000", "#AA0000",
 plot(GeoArray(GDALarray("nlcd_2016_frederick_md.tif")),
      title = "Land Cover Type", xlabel = "Easting", ylabel = "Northing",
      seriescolor = cgrad(palette, (values .- 12) ./ 84, categorical = true),
-     size = (600, 550))
+     size = (2400, 2200))
 ```
 
 Now, load the array using Omniscape's internal `read_raster()` function or a function from a GIS Julia package of your choice. `read_raster()` returns a tuple with the data array, a wkt string containing geographic projection info, and an array containing geotransform values. We'll use the wkt and geotransform later.
@@ -94,5 +95,5 @@ current = GDALarray("md_nlcd_omniscape_output/cum_currmap.tif")
 plot(current,
      title = "Cumulative Current Flow", xlabel = "Easting", ylabel = "Northing",
      seriescolor = cgrad(:inferno, [0, 0.005, 0.03, 0.06, 0.1, 0.15]),
-     size = (600, 550))
+     size = (2400, 2200))
 ```
