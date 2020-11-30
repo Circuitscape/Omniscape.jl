@@ -89,7 +89,7 @@ You'll see that outputs are written to a new folder called "md\_nlcd\_omniscape\
 
 Now, load the current map back into Julia as spatial data and plot it:
 
-```@example plot
+```@example mdforest
 current = GDALarray("md_nlcd_omniscape_output/cum_currmap.tif")
 plot(current,
      title = "Cumulative Current Flow", xlabel = "Easting", ylabel = "Northing",
