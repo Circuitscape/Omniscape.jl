@@ -2,7 +2,7 @@
 
 ## Forest connectivity in central Maryland
 
-Land cover datasets are commonly used to parameterize resistance for connectivity modeling. This example uses the [National Land Cover Dataset](https://www.usgs.gov/centers/eros/science/national-land-cover-database) for the United States to model forest connectivity in central Maryland. Each value in the categorical land cover dataset is assigned a resistance score. We can have Omniscape.jl can assign these values internally by providing a reclassification table (see [Resistance Reclassification](@ref)).
+Land cover datasets are commonly used to parameterize resistance for connectivity modeling. This example uses the [National Land Cover Dataset](https://www.usgs.gov/centers/eros/science/national-land-cover-database) for the United States to model forest connectivity in central Maryland. Each value in the categorical land cover dataset is assigned a resistance score. We can have Omniscape.jl assign these values internally by providing a reclassification table (see [Resistance Reclassification](@ref)).
 
 First, install the necessary packages and import them:
 
@@ -63,7 +63,7 @@ config = Dict{String, String}(
 )
 ```
 
-Finally, run Omniscape, feeding in the configuration dictionary, the resistance array, the reclass table, as well as the wkt and geotransform information loaded above with `Omniscape.read_raster()`. Passing in the wkt and geotransform, along with `true` as the `write_outputs` argument, will allow Omniscape to write the outputs as properly projected rasters.
+Finally, run Omniscape, feeding in the configuration dictionary, the resistance array, the reclass table, as well as the wkt and geotransform information loaded above with `Omniscape.read_raster()`. Passing in the wkt and geotransform, along with `true` for the `write_outputs` argument, will allow Omniscape to write the outputs as properly projected rasters.
 
 ```julia
 output = run_omniscape(config,
@@ -74,7 +74,7 @@ output = run_omniscape(config,
                        write_outputs = true)
 ```
 
-You'll see that outputs are written to a new folder called "md_nlcd_omniscape_output". This is specified by the "project_name" value in `config` above. The cumulative current map will always be called "cum_currmap.tif", and it will be located in the output folder.
+You'll see that outputs are written to a new folder called "md\_nlcd\_omniscape\_output". This is specified by the "project\_name" value in `config` above. The cumulative current map will always be called "cum\_currmap.tif", and it will be located in the output folder.
 
 Now, load the current map back into Julia using [GeoData.jl](https://github.com/rafaqz/GeoData.jl) and plot it:
 
