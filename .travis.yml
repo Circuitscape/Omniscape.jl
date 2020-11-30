@@ -22,7 +22,7 @@ jobs:
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
                                                Pkg.instantiate()'
-        - julia --project=docs/ docs/make.jl
+        - travis_wait 30 julia --project=docs/ docs/make.jl
     - stage: "Code coverage"
       if: branch = main
       julia: 1.5
