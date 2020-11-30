@@ -1,3 +1,6 @@
+# Fixes GR warnings in Travis
+ENV["GKSwstype"] = "100"
+
 using Documenter, Omniscape
 
 const formats = Any[
@@ -5,7 +8,7 @@ const formats = Any[
     	assets = [
     		"assets/custom.css"
     	],
-	edit_branch = "main",
+	edit_link = :commit,
     ),
 ]
 
