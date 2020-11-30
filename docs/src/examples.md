@@ -6,29 +6,40 @@ Land cover datasets are commonly used to parameterize resistance for connectivit
 
 First, install the necessary packages and import them:
 
-```julia
+```@example mdforest
 using Pkg; Pkg.add(["Omniscape", "GeoData", "Plots"])
 using Omniscape, GeoData, Plots
 ```
 
-Next, download the landcover data we'll use in this example:
+Next, download the landcover data we'll use in this example, and plot it:
 
-```julia
+```@example mdforest
 url_base = "https://raw.githubusercontent.com/Circuitscape/datasets/main/"
 # Download the NLCD tile used to create the resistance surface and load it
 download(string(url_base, "data/nlcd_2016_frederick_md.tif"),
          "nlcd_2016_frederick_md.tif")
 
-# Load the array using one of Omniscape's internal functions, or a function
-# from a GIS Julia package of your choice. Omniscape's `read_raster()` returns a
-# tuple with the data array, a wkt string containing geographic projection info,
-# and an array containing geotransform values.
+# Plot the landcover data
+values = [11, 21, 22, 23, 24, 31, 41, 42, 43, 52, 71, 81, 82, 90, 95]
+palette = ["#476BA0", "#DDC9C9", "#D89382", "#ED0000", "#AA0000",
+           "#b2b2b2", "#68AA63", "#1C6330", "#B5C98E", "#CCBA7C",
+           "#E2E2C1", "#DBD83D", "#AA7028", "#BAD8EA", "#70A3BA"]
+
+plot(GeoArray(GDALarray("nlcd_2016_frederick_md.tif")),
+     title = "Land Cover Type", xlabel = "Easting", ylabel = "Northing",
+     seriescolor = cgrad(palette, (values .- 12) ./ 84, categorical = true),
+     size = (600, 550))
+```
+
+Now, load the array using Omniscape's internal `read_raster()` function or a function from a GIS Julia package of your choice. `read_raster()` returns a tuple with the data array, a wkt string containing geographic projection info, and an array containing geotransform values. We'll use the wkt and geotransform later.
+
+```@example mdforest
 land_cover, wkt, transform = Omniscape.read_raster("nlcd_2016_frederick_md.tif", Float64)
 ```
 
 The next step is to create a resistance reclassification table that defines a resistance value for each land cover value. Land cover values go in the left column, and resistance values go in the right column. In this case, we are modeling forest connectivity, so forest classes receive the lowest resistance score of one. Other "natural" land cover types are assigned moderate values, and human-developed land cover types are assigned higher values. Medium- to high-intensity development are given a value of `missing`, which denotes infinite resistance (absolute barriers to movement).
 
-```julia
+```@example mdforest
 # Create the reclassification table used to translate land cover into resistance
 reclass_table = [
     11.	100; # Water
@@ -51,7 +62,7 @@ reclass_table = [
 
 Next, we define the configuration options for this model run. See the [Arguments](@ref) section in the [User Guide](@ref) for more information about each of the configuration options.
 
-```julia
+```@example mdforest
 # Specify the configuration options
 config = Dict{String, String}(
     "radius" => "100",
@@ -63,9 +74,9 @@ config = Dict{String, String}(
 )
 ```
 
-Finally, run Omniscape, feeding in the configuration dictionary, the resistance array, the reclass table, as well as the wkt and geotransform information loaded above with `Omniscape.read_raster()`. Passing in the wkt and geotransform, along with `true` for the `write_outputs` argument, will allow Omniscape to write the outputs as properly projected rasters.
+Finally, compute connectivity using `run_omniscape()`, feeding in the configuration dictionary, the resistance array, the reclass table, as well as the wkt and geotransform information loaded earlier. Passing in the wkt and geotransform, along with `true` for the `write_outputs` argument, will allow Omniscape to write the outputs as properly projected rasters. `run_omniscape` will print some information to the console and show progress, along with an ETA, in the form of a progress bar.
 
-```julia
+```@example mdforest
 output = run_omniscape(config,
                        land_cover,
                        reclass_table = reclass_table,
@@ -76,16 +87,12 @@ output = run_omniscape(config,
 
 You'll see that outputs are written to a new folder called "md\_nlcd\_omniscape\_output". This is specified by the "project\_name" value in `config` above. The cumulative current map will always be called "cum\_currmap.tif", and it will be located in the output folder.
 
-Now, load the current map back into Julia using [GeoData.jl](https://github.com/rafaqz/GeoData.jl) and plot it:
+Now, load the current map back into Julia as spatial data and plot it:
 
-```julia
+```@example plot
 current = GDALarray("md_nlcd_omniscape_output/cum_currmap.tif")
 plot(current,
      title = "Cumulative Current Flow", xlabel = "Easting", ylabel = "Northing",
      seriescolor = cgrad(:inferno, [0, 0.005, 0.03, 0.06, 0.1, 0.15]),
-     size = (620, 600))
-```
-
-```@raw html
-<img src='../figs/nlcd_currmap.png' width=450> <br><em>Cumulative current flow output representing forest connectivity in central Maryland.</em><br><br>
+     size = (600, 550))
 ```
