@@ -10,10 +10,10 @@ First, install the necessary packages and import them:
 using Pkg; Pkg.add(["Omniscape", "GeoData", "Plots"])
 using Omniscape, GeoData, Plots
 ```
-```julia
-using Pkg; Pkg.add(["Omniscape", "GeoData", "Plots"]) # hide
-using Omniscape, GeoData, Plots # hide
-nothing # hide
+```@setup mdforest
+using Pkg; Pkg.add(["Omniscape", "GeoData", "Plots"])
+using Omniscape, GeoData, Plots
+nothing
 ```
 
 Next, download the landcover data we'll use in this example, and plot it:
@@ -99,3 +99,4 @@ plot(current,
      title = "Cumulative Current Flow", xlabel = "Easting", ylabel = "Northing",
      seriescolor = cgrad(:inferno, [0, 0.005, 0.03, 0.06, 0.1, 0.15]))
 ```
+*Cumulative current flow representing foret connectivity. Note that areas in white correspond to build up areas (NLCD values of 23 and 24) that act as absolute barriers to movement.*
