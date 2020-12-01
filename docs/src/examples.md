@@ -38,8 +38,9 @@ plot(GeoArray(GDALarray("nlcd_2016_frederick_md.tif")),
      seriescolor = cgrad(palette, (values .- 12) ./ 84, categorical = true),
      size = (700, 640))
 ```
-
+```@raw html
 <img src='../figs/mdlc.png' width=500><br>
+```
 
 Now, load the array using Omniscape's internal `read_raster()` function or a function from a GIS Julia package of your choice. `read_raster()` returns a tuple with the data array, a wkt string containing geographic projection info, and an array containing geotransform values. We'll use the wkt and geotransform later.
 
@@ -106,6 +107,8 @@ plot(current,
      seriescolor = cgrad(:inferno, [0, 0.005, 0.03, 0.06, 0.09, 0.14]),
      size = (600, 550))
 ```
-
+```@raw html
 <img src='../figs/md-curmap.png' width=500> <br><em>Cumulative current flow representing forest connectivity. Note that areas in white correspond to built up areas (NLCD values of 23 and 24) that act as absolute barriers to movement.</em><br><br>
+```
+
 
