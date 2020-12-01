@@ -9,7 +9,6 @@ os:
 
 julia:
   - 1.5
-  - nightly
 
 notifications:
   email: false
@@ -34,5 +33,3 @@ jobs:
           Pkg.add("Coverage");
           using Coverage;
           Codecov.submit(Codecov.process_folder())'
-  allow_failures:
-    - julia: nightly
