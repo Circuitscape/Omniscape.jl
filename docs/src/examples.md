@@ -103,7 +103,7 @@ Now, load the current map back into Julia as spatial data and plot it:
 current = GDALarray("md_nlcd_omniscape_output/cum_currmap.tif")
 plot(current,
      title = "Cumulative Current Flow", xlabel = "Easting", ylabel = "Northing",
-     seriescolor = cgrad(:inferno, [0, 0.005, 0.03, 0.06, 0.1, 0.15]),
+     seriescolor = cgrad(:inferno, [0, 0.005, 0.03, 0.06, 0.09, 0.14]),
      size = (600, 550))
 ```
 
