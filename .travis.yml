@@ -5,7 +5,6 @@ env:
 
 os:
   - linux
-  - osx
 
 julia:
   - 1.5
