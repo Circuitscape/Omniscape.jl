@@ -81,24 +81,28 @@ config = Dict{String, String}(
     "project_name" => "md_nlcd_omniscape_output",
     "source_from_resistance" => "true",
     "r_cutoff" => "1", # Only forest pixels should be sources
-    "reclassify_resistance" => "true"
+    "reclassify_resistance" => "true",
+    "calc_normalized_current" => "true",
+    "calc_flow_potential" => "true"
 )
 ```
 
 Finally, compute connectivity using `run_omniscape()`, feeding in the configuration dictionary, the resistance array, the reclass table, as well as the wkt and geotransform information loaded earlier. Passing in the wkt and geotransform, along with `true` for the `write_outputs` argument, will allow Omniscape to write the outputs as properly projected rasters. `run_omniscape` will print some information to the console and show progress, along with an ETA, in the form of a progress bar.
 
 ```@example mdforest
-output = run_omniscape(config,
-                       land_cover,
-                       reclass_table = reclass_table,
-                       wkt = wkt,
-                       geotransform = transform,
-                       write_outputs = true)
+currmap, flow_pot, norm_current = run_omniscape(config,
+                                                land_cover,
+                                                reclass_table = reclass_table,
+                                                wkt = wkt,
+                                                geotransform = transform,
+                                                write_outputs = true)
 ```
 
-You'll see that outputs are written to a new folder called "md\_nlcd\_omniscape\_output". This is specified by the "project\_name" value in `config` above. The cumulative current map will always be called "cum\_currmap.tif", and it will be located in the output folder.
+You'll see that outputs are written to a new folder called "md\_nlcd\_omniscape\_output". This is specified by the "project\_name" value in `config` above. The cumulative current map will always be called "cum\_currmap.tif", and it will be located in the output folder. We also specified in the run configuration that flow potential and normalized current should be computed as well. These are called "potential\_potential.tif" and "normalized\_cum\_currmap.tif", respectively. See [Outputs](@ref) for a description of each of these outputs.
 
-Now, load the current map back into Julia as spatial data and plot it:
+Now, plot the outputs. Load the outputs into Julia as spatial data and plot them.
+
+First, the cumulative current map:
 
 ```julia
 current = GDALarray("md_nlcd_omniscape_output/cum_currmap.tif")
@@ -111,4 +115,28 @@ plot(current,
 <img src='../figs/md-curmap.png' width=500> <br><em>Cumulative current flow representing forest connectivity. Note that areas in white correspond to built up areas (NLCD values of 23 and 24) that act as absolute barriers to movement.</em><br><br>
 ```
 
+Next, flow potential. This map shows what connectivity looks like under "null" conditions (resistance equals 1 for the whole landscape).
 
+```julia
+fp = GDALarray("md_nlcd_omniscape_output/flow_potential.tif")
+plot(fp,
+     title = "Flow Potential", xlabel = "Easting", ylabel = "Northing",
+     seriescolor = cgrad(:inferno, [0, 0.005, 0.03, 0.06, 0.09, 0.14]),
+     size = (700, 640))
+```
+```@raw html
+<img src='../figs/md-fp.png' width=500> <br><em>Flow potential, which shows what connecitivty would look like in the absence of barriers to movement.</em><br><br>
+```
+
+Finally, map normalized current flow, which is calculated as flow potential divided by cumulative current.
+
+```julia
+normalized_current = GDALarray("md_nlcd_omniscape_output/normalized_cum_currmap.tif")
+plot(normalized_current,
+     title = "Normalized Current Flow", xlabel = "Easting", ylabel = "Northing",
+     seriescolor = cgrad(:inferno, [0, 0.005, 0.03, 0.06, 0.09, 0.14]),
+     size = (700, 640))
+```
+```@raw html
+<img src='../figs/md-fp.png' width=500> <br><em>Normalized cumulative current. Values greater than one indicate areas with channelized/bottlenecked flow. Values around 1 (cumulative current ≈ flow potential) indicate diffuse current. Values less than 1 indicate impeded flow.</em><br><br>
+```
