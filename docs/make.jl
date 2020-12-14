@@ -17,10 +17,11 @@ makedocs(
     modules = [Omniscape],
     authors = "Vincent A. Landau",
     sitename = "Omniscape.jl",
-    pages = ["Home" => "index.md",
+    pages = ["About" => "index.md",
+			 "How It Works" => "algorithm.md",
     		 "User Guide" => "usage.md",
 			 "Examples" => "examples.md",
-			 "Function Documentation" => "apidocs.md"],
+			 "API Documentation" => "apidocs.md"],
 )
 
 deploydocs(
