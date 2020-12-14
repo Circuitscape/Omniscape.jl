@@ -107,6 +107,8 @@ function run_omniscape(
     n_threads = nthreads()
     cfg_user = cfg
 
+    # Check for unsupported or missing arguments
+    check_unsupported_args(cfg)
     check_missing_args_dict(cfg_user) && return
 
     cfg = init_cfg()
@@ -118,8 +120,7 @@ function run_omniscape(
     int_arguments["block_size"] = Int64(round(parse(Float64,
                                                     cfg["block_size"])))
 
-    check_block_size(int_arguments["block_size"]) &&
-        (int_arguments["block_size"] = int_arguments["block_size"] + 1)
+    check_block_size!(int_arguments)
 
     int_arguments["block_radius"] = Int64((int_arguments["block_size"] - 1) / 2)
     int_arguments["radius"] = Int64(round(parse(Float64, cfg["radius"])))
@@ -137,7 +138,9 @@ function run_omniscape(
     source_threshold = parse(Float64, cfg["source_threshold"])
     project_name = cfg["project_name"]
     file_format = os_flags.write_as_tif ? "tif" : "asc"
-    solver = cfg["cs_solver"]
+
+    check_solver!(cfg)
+    solver = cfg["solver"]
 
     ## Set number of BLAS threads to 1
     BLAS.set_num_threads(1)

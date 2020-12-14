@@ -18,7 +18,7 @@ function init_cfg()
     cfg["precision"] = "double"
 
     cfg["connect_four_neighbors_only"] = "false"
-    cfg["cs_solver"] = "cg+amg"
+    cfg["solver"] = "cg+amg"
 
     cfg["calc_flow_potential"] = "false"
     cfg["calc_normalized_current"] = "false"
