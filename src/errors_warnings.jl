@@ -19,7 +19,7 @@ function even_block_size_warning()
 end
 
 function missing_args_error(missing_args)
-    @error "The following arguments are missing from your .ini (or config Dict) with no defaults:
+    @error "The following arguments are missing from your .ini (or config Dictionary) with no defaults:
        $(join(map(string, missing_args), " "))"
 end
 function check_raster_alignment(raster1, raster2, name1, name2, allow_different_projections)
