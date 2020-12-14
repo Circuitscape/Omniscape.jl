@@ -6,7 +6,7 @@ Package repository: [https://github.com/Circuitscape/Omniscape.jl](https://githu
 
     Before proceeding, it is strongly recommended that you familiarize yourself with the circuit theoretic approach to modeling landscape connectivity. See [McRae 2006](https://circuitscape.org/pubs/McRae_2006_IBR_Evolution.pdf) and [McRae et al. 2008](https://circuitscape.org/pubs/McRae_et_al_2008_Ecology.pdf) to learn more. See [Anantharaman et al. 2020](https://proceedings.juliacon.org/papers/10.21105/jcon.00058) for more on [Circuitscape.jl](https://github.com/Circuitscape/Omniscape.jl).
 
-## Table of Contents
+### Table of Contents
 
 ```@contents
 Pages = ["index.md", "algorithm.md","usage.md", "examples.md", "apidocs.md"]
