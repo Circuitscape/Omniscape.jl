@@ -138,5 +138,5 @@ plot(normalized_current,
      size = (700, 640))
 ```
 ```@raw html
-<img src='../figs/md-fp.png' width=500> <br><em>Normalized cumulative current. Values greater than one indicate areas with channelized/bottlenecked flow. Values around 1 (cumulative current ≈ flow potential) indicate diffuse current. Values less than 1 indicate impeded flow.</em><br><br>
+<img src='../figs/md-norm-cur.png' width=500> <br><em>Normalized cumulative current. Values greater than one indicate areas with channelized/bottlenecked flow. Values around 1 (cumulative current ≈ flow potential) indicate diffuse current. Values less than 1 indicate impeded flow.</em><br><br>
 ```
