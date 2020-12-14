@@ -137,6 +137,7 @@ function run_omniscape(
     source_threshold = parse(Float64, cfg["source_threshold"])
     project_name = cfg["project_name"]
     file_format = os_flags.write_as_tif ? "tif" : "asc"
+    solver = cfg["cs_solver"]
 
     ## Set number of BLAS threads to 1
     BLAS.set_num_threads(1)
@@ -144,7 +145,6 @@ function run_omniscape(
     check_resistance_values(resistance) && return
 
     # Reclassify resistance layer
-    # TODO create a function in utils.jl, reclassify_resistance()
     if os_flags.reclassify
         reclassify_resistance!(resistance, reclass_table)
     end
@@ -161,6 +161,7 @@ function run_omniscape(
 
     ## Setup Circuitscape configuration
     cs_cfg_dict = init_csdict(cfg)
+    cs_cfg_dict["solver"] = solver
     cs_cfg = Circuitscape.init_config()
     Circuitscape.update!(cs_cfg, cs_cfg_dict)
 
@@ -217,13 +218,6 @@ function run_omniscape(
             fp_cum_currmap = Array{precision, 3}(undef, 1, 1, 1)
         end
     end
-
-    solver = "cg+amg"
-
-    # n_cells = int_arguments["nrows"] * int_arguments["ncols"]
-    # if n_cells <= 2000000
-    #     solver = "cholmod" # TODO: "cholmod" not available in advanced mode
-    # end
 
     cs_flags = Circuitscape.RasterFlags(true, false, true,
                                         false, false,

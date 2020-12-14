@@ -8,3 +8,5 @@ const REQUIRED_ARGS_DICT = ["radius",
 const TRUELIST = ["true", "True", "TRUE"]
 
 const SINGLE = ["single", "Single", "SINGLE"]
+
+const SOLVERS = ["cg+amg", "cholmod"]
