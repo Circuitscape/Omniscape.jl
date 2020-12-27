@@ -1,4 +1,4 @@
-# Function Documentation
+# API Documentation
 ```@docs
 run_omniscape
 ```
