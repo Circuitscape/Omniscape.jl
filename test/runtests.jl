@@ -1,5 +1,6 @@
 using Test, Omniscape, Circuitscape
 
+@testset "Internals" begin
 ### Unit tests for components
 ## source target matching
 source_subset = [1.0 1 1 1 1 1 1 1 1 1; # 6x10 array
@@ -80,6 +81,14 @@ block_sources = source_strength[Int(targets[1,2] - int_arguments["block_radius"]
 @test targets[1,3] ≈ sum(block_sources)
 @info "target tests passed"
 
+# Test error throws
+@info "Testing error throws"
+@test run_omniscape("input/config7.ini") == nothing
+@test run_omniscape("input/bad_config.ini") == nothing
+
+end
+
+@testset "run_omnsicape()" begin
 ### Tests for run_omniscape()
 l, f, p = run_omniscape("input/config4.ini")
 l_verify = Omniscape.read_raster("output_verify/test4/cum_currmap.tif", Float64)[1]
@@ -148,11 +157,6 @@ reclassed_verify = Omniscape.read_raster("output_verify/test_reclass/cum_currmap
 @test Omniscape.arrays_equal(b, b1)
 @test Omniscape.arrays_equal(c, c1)
 
-# Test error throws
-@info "Testing error throws"
-@test run_omniscape("input/config7.ini") == nothing
-@test run_omniscape("input/bad_config.ini") == nothing
-
 GC.gc()
 
 rm("test1", recursive = true)
@@ -166,4 +170,4 @@ rm("test5", recursive = true)
 rm("test6", recursive = true)
 rm("test_reclass", recursive = true)
 
-@info "run_omniscape tests passed"
+end
