@@ -142,8 +142,10 @@ function run_omniscape(
     check_solver!(cfg)
     solver = cfg["solver"]
 
-    ## Set number of BLAS threads to 1
-    BLAS.set_num_threads(1)
+    ## Set number of BLAS threads to 1 when parallel processing
+    if os_flags.parallelize && nthreads() != 1
+        BLAS.set_num_threads(1)
+    end
 
     check_resistance_values(resistance) && return
 
