@@ -203,4 +203,4 @@ docker run -it --rm^
  -e JULIA_NUM_THREADS=2^
  vlandau/omniscape:latest
 ```
-The `-v` flag and subsequent code will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory that containing your input files). Once you're in Julia in the Docker container, you're ready to go! Make sure that the file paths in your .ini file are relative to the working directory from which you ran Docker.
+The `-v` flag and subsequent code will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory that contains your input files). Once you're in Julia in the Docker container, you're ready to go! Make sure that the file paths in your .ini file are relative to the working directory from which you ran Docker.
