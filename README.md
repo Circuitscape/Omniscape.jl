@@ -19,17 +19,24 @@ using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 
 ## Citing Omniscape.jl
 
-A formal paper detailing Omniscape.jl is currently [in review](https://github.com/openjournals/joss-reviews/issues/2829). Here is an example citation:
-> Landau, V. A., Shah, V. B., Anantharaman, R., and Hall, K. R. in review. Omniscape.jl: Software to compute omnidirectional landscape connectivity, *Journal of Open Source Software*.
+Please cite [Landau et al. (2021)](https://doi.org/10.21105/joss.02829) when using Omniscape.jl
+> Landau, V.A., V.B. Shah, R. Anantharaman, and K.R. Hall. 2021. Omniscape.jl: Software to compute omnidirectional landscape connectivityJournal of Open Source Software, 6(57), 2829.
 
 Here's a bibtex entry:
 ```
-@article{landau2020omniscape,
-    title = {{Omniscape.jl: Software to compute omnidirectional landscape connectivity}},
-    author = {Vincent A. Landau and Viral B. Shah and Ranjan Anantharaman and Kimberly R. Hall},
-    year = {in review},
-    journal = {Journal of Open Source Software}
+@article{Landau2021,
+  doi = {10.21105/joss.02829},
+  url = {https://doi.org/10.21105/joss.02829},
+  year = {2021},
+  publisher = {The Open Journal},
+  volume = {6},
+  number = {57},
+  pages = {2829},
+  author = {Vincent A. Landau and Viral B. Shah and Ranjan Anantharaman and Kimberly R. Hall},
+  title = {Omniscape.jl: Software to compute omnidirectional landscape connectivity},
+  journal = {Journal of Open Source Software}
 }
+
 ```
 
 Please be sure to also cite the [original work](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest) where the Omniscape algorithm was first described:
