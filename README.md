@@ -20,7 +20,7 @@ using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 ## Citing Omniscape.jl
 
 Please cite [Landau et al. (2021)](https://doi.org/10.21105/joss.02829) when using Omniscape.jl
-> Landau, V.A., V.B. Shah, R. Anantharaman, and K.R. Hall. 2021. Omniscape.jl: Software to compute omnidirectional landscape connectivityJournal of Open Source Software, 6(57), 2829.
+> Landau, V.A., V.B. Shah, R. Anantharaman, and K.R. Hall. 2021. Omniscape.jl: Software to compute omnidirectional landscape connectivity. *Journal of Open Source Software*, *6*(57), 2829.
 
 Here's a bibtex entry:
 ```
