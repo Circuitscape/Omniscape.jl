@@ -17,9 +17,11 @@ If you want to install the latest (unreleased) development version of Omniscape,
 using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 ```
 
-## Citing Omniscape.jl
+## Citing Omniscape.jl 
 
-Please cite [Landau et al. (2021)](https://doi.org/10.21105/joss.02829) when using Omniscape.jl
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.02829/status.svg)](https://doi.org/10.21105/joss.02829)
+
+Please cite [Landau et al. (2021)](https://doi.org/10.21105/joss.02829) when using Omniscape.jl.
 > Landau, V.A., V.B. Shah, R. Anantharaman, and K.R. Hall. 2021. Omniscape.jl: Software to compute omnidirectional landscape connectivity. *Journal of Open Source Software*, *6*(57), 2829.
 
 Here's a bibtex entry:
