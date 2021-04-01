@@ -188,7 +188,7 @@ Example reclass_table.txt:
 
 ## Omniscape in Docker
 
-A Docker image with the latest version of Omniscape (precompiled so `using Omniscape` will run instantly!) is [available on Docker Hub](https://hub.docker.com/r/vlandau/omniscape). To pull the image and start the Docker container from your terminal, navigate to the directory containing your Omniscape input files via `cd` and run the following code (set `JULIA_NUM_THREADS` to the number of threads you want to use for parallel processing):
+A Docker image with the latest version of Omniscape is [available on Docker Hub](https://hub.docker.com/r/vlandau/omniscape). To pull the image and start the Docker container from your terminal, navigate to the directory containing your Omniscape input files via `cd` and run the following code (set `JULIA_NUM_THREADS` to the number of threads you want to use for parallel processing):
 
 On Linux/Mac:
 ```
