@@ -25,10 +25,10 @@ should be of type `Array{Union{T, Missing}, 2} where T <: Number`, with
 
 # Parameters
 **`path`**: The path to an INI file containing run parameters. See the
-[Arguments](@ref) section of the User Guide for descriptions of the run
-paramters.
+[Settings and Options](@ref) section of the User Guide for descriptions of the run
+parameters.
 
-**`cfg`**: A dictionary of Omniscape run parameters. See the [Arguments](@ref)
+**`cfg`**: A dictionary of Omniscape run parameters. See the [Settings and Options](@ref)
 section of the User Guide for descriptions of the run parameters and their
 default values. The in-memory method of `run_omniscape` ignores the following
 keys: `resistance_file`, `source_file`, `reclass_table`, `condition1_file`,

@@ -17,7 +17,7 @@ For detailed examples of how to use Omniscape, check out the [Examples](@ref) se
 `run_omniscape()` offers two methods. The first, shown above, accepts the path to an [INI file](https://en.wikipedia.org/wiki/INI_file) that specifies file paths for raster inputs and other user-specified options. An INI file can be created using any text editor (e.g. notepad) and saved with the .ini file extension. The following code block shows an example INI file. The headings in square brackets are not required. They are there for organization purposes and are ignored by `run_omniscape()`.
 
 ```
-[Required arguments]
+[Required]
 resistance_file = resistance_surface.tif
 radius = 100
 block_size = 5
@@ -35,9 +35,9 @@ parallel_batch_size = 20
 write_raw_currmap = true
 ```
 
-The second method of `run_omniscape` accepts in-memory objects representing resistance and other spatial data inputs, and a dictionary of arguments specifying Omniscape options.
+The second method of `run_omniscape` accepts in-memory objects representing resistance and other spatial data inputs, and a dictionary specifying Omniscape settings and options.
 
-The full suite of arguments that can be specified in the .ini file are described in detail in [Arguments](@ref).
+The full suite of settings that are supported are described in detail in [Settings and Options](@ref) below.
 
 ### Parallel Processing
 
@@ -53,10 +53,14 @@ On Windows
 set JULIA_NUM_THREADS=4
 julia
 ```
+For Julia versions 1.5 and greater, you can now specify the number of threads with the `-t` flag when running Julia, e.g.:
+```bash
+julia -t 4
+```
 
-## Arguments
+## Settings and Options
 
-### Required Arguments
+### Required
 
 **`resistance_file`:** The path to the resistance layer input. This file can be in ASCII (.asc) or GeoTiff (.tif) format. If the file is in .asc format, Omniscape will also detect and use any associated .prj file in the same directory to determine the projection of the input file. The same applies for all other inputs described below that may be in .asc  format.
 
@@ -68,7 +72,7 @@ julia
 
 **`source_file`:** The path to the source layer input. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that they have the exact same projection to ensure proper alignment. NoData values will be assigned a source strength of 0.  Does not need to be provided if `source_from_resistance` = true.
 
-### Optional Arguments
+### Optional
 #### General Options
 
 **`block_size`:** An odd integer. Defaults to 1. An odd, positive integer specifying the side length for source layer blocking in target generation. The block size option coarsens the source strength surface for the purposes of identifying target pixels and assigning source strength values. The figure below shows two source strength grids. On the left is the case when `block_size = 1`. In this scenario, every pixel in the grid with a source strength greater than 0 (or, if specified, `source_threshold`, described below) will be a target pixel, and there will be a Circuitscape solve for each one of these pixels. The figure below and to the right represents the case when `block_size = 3`. In this case, the source strength grid is broken up into chunks of 9 pixels (3x3 blocks), each shown with a thick black outline. Only the centers of these 3x3 blocks (the white pixels) will be considered as potential target pixels. The maximum number of Circuitscape solves for this source grid is reduced from 81 when `block_size = 1` to just 9 when `block_size = 3`. In the `block_size = 3` case, the white pixels will be assigned a new source strength equal to the sum of the 9 pixels in the 3x3 block after setting any pixels with a source strength less than `source_threshold` to 0. This ensures that the total amount of current injected will be the same regardless of the value of `block_size`. Using a `block_size` > 1 can significantly reduce compute times and result in only negligable differences in the cumulative current map output.
@@ -92,7 +96,7 @@ julia
 
 **`source_from_resistance`**: One of true, false. Should a source layer be derived using the resistance layer? If true, sources are calculated as the inverse of the resistance layer, and therefore it is not recommended that your resistance layer contain values less than 1. Sources will be set to 0 for all cells with a resistance greater than `r_cutoff` (described below). Defaults to false.
 
-**`resistance_is_conductance`:** One of true, false. Defaults to false. Specify whether the file specified by `resistance_file` is a conductance (rather than resistance) surface. Conductance is the inverse of resistance. Note that `r_cutoff` (an optional argument described below) must be in units of resistance even if a conductance file is supplied as input.
+**`resistance_is_conductance`:** One of true, false. Defaults to false. Specify whether the file specified by `resistance_file` is a conductance (rather than resistance) surface. Conductance is the inverse of resistance. Note that `r_cutoff` (an optional setting described below) must be in units of resistance even if a conductance file is supplied as input.
 
 **`r_cutoff`**: The maximum resistance value a cell can have to be included as a source. Only applies when `source_from_resistance` = true. Defaults to Inf (which allows all cells to be considered as sources regardless of the resistance value).
 
@@ -152,7 +156,7 @@ Example reclass_table.txt:
 
 #### Conditional Connectivity Options
 
-**`conditional`:** One of true, false. Defaults to false. Should conditional source/target matching be used? That is, should a given target only be connected to sources that meet similarity conditions to the target? If false, _none_ of the arguments described bellow are needed. If true, then gridded data with values for each pixel are used to compare targets and sources and determine which pairs should be connected according to user-specified criteria.
+**`conditional`:** One of true, false. Defaults to false. Should conditional source/target matching be used? That is, should a given target only be connected to sources that meet similarity conditions to the target? If false, _none_ of the options described below are needed. If true, then gridded data with values for each pixel are used to compare targets and sources and determine which pairs should be connected according to user-specified criteria.
 
 **`n_conditions`:** One of 1, 2. Defaults to 1. The number of conditions to use for conditional source/target matching.
 
@@ -178,7 +182,7 @@ Example reclass_table.txt:
 
 *Using future conditions:*
 
-**`compare_to_future`:** One of none, 1, 2, or both. Which condition(s) should compare the future condition in targets with present-day conditions in sources when determining which pairs to connect? For any condition(s) specified in this argument, two data layers are needed: one with future condition values for all pixels in the study area, and one for present day condition values for all pixels in the study area. Defaults to "none".
+**`compare_to_future`:** One of none, 1, 2, or both. Which condition(s) should compare the future condition in targets with present-day conditions in sources when determining which pairs to connect? For any condition(s) specified in this option, two data layers are needed: one with future condition values for all pixels in the study area, and one for present day condition values for all pixels in the study area. Defaults to "none".
 
 **`condition1_future_file`:** The file path to the data representing condition one in the future. Only needed if `compare_to_future` = 1 or `compare_to_future` = both. Must be an ASCII or GeoTIFF. This raster must have the same dimensions as `resistance_file`, and it is recommended that they have the exact same projection to ensure proper alignment. Ensure that every pixel in the source strength raster has a corresponding value (not NoData) in `condition1_future_file`.
 
@@ -186,7 +190,7 @@ Example reclass_table.txt:
 
 ## Omniscape in Docker
 
-A Docker image with the latest version of Omniscape (precompiled so `using Omniscape` will run instantly!) is [available on Docker Hub](https://hub.docker.com/r/vlandau/omniscape). To pull the image and start the Docker container from your terminal, navigate to the directory containing your Omniscape input files via `cd` and run the following code (set `JULIA_NUM_THREADS` to the number of threads you want to use for parallel processing):
+A Docker image with the latest version of Omniscape is [available on Docker Hub](https://hub.docker.com/r/vlandau/omniscape). To pull the image and start the Docker container from your terminal, navigate to the directory containing your Omniscape input files via `cd` and run the following code (set `JULIA_NUM_THREADS` to the number of threads you want to use for parallel processing):
 
 On Linux/Mac:
 ```
@@ -205,4 +209,4 @@ docker run -it --rm^
  -e JULIA_NUM_THREADS=2^
  vlandau/omniscape:latest
 ```
-The `-v` flag and subsequent code will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory that containing your input files). Once you're in Julia in the Docker container, you're ready to go! Make sure that the file paths in your .ini file are relative to the working directory from which you ran Docker.
+The `-v` flag and subsequent code will mount the files in your current working directory and make them available to the Docker container (which is why you need to run the code above from the directory that contains your input files). Once you're in Julia in the Docker container, you're ready to go! Make sure that the file paths in your .ini file are relative to the working directory from which you ran Docker.

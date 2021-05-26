@@ -2,7 +2,7 @@
 
 | **Documentation** | **Chat** | **Build Status**| **Changelog**|
 |:-----------------------------------------------------:|:------------------------------------:|:-----------:|:-------:|
-| [![docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://docs.circuitscape.org/Omniscape.jl/stable) [![docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://docs.circuitscape.org/Omniscape.jl/latest) | [![gitter](https://badges.gitter.im/Circuitscape/Omniscape.jl.png)](https://gitter.im/Circuitscape/Omniscape.jl) | [![Build Status](https://github.com/Circuitscape/Omniscape.jl/workflows/CI/badge.svg)](https://github.com/Circuitscape/Omniscape.jl/actions?query=workflow%3ACI) [![Build status](https://ci.appveyor.com/api/projects/status/5mw77lobayetc9wh?svg=true)](https://ci.appveyor.com/project/vlandau/omniscape-jl) [![codecov](https://codecov.io/gh/Circuitscape/Omniscape.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/Circuitscape/Omniscape.jl) | [![news](https://img.shields.io/static/v1?label=version&message=v0.4.3&color=orange)](https://github.com/Circuitscape/Omniscape.jl/releases) |
+| [![docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://docs.circuitscape.org/Omniscape.jl/stable) [![docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://docs.circuitscape.org/Omniscape.jl/latest) | [![gitter](https://badges.gitter.im/Circuitscape/Omniscape.jl.png)](https://gitter.im/Circuitscape/Omniscape.jl) | [![Build Status](https://github.com/Circuitscape/Omniscape.jl/workflows/CI/badge.svg)](https://github.com/Circuitscape/Omniscape.jl/actions?query=workflow%3ACI) [![Build status](https://ci.appveyor.com/api/projects/status/5mw77lobayetc9wh?svg=true)](https://ci.appveyor.com/project/vlandau/omniscape-jl) [![codecov](https://codecov.io/gh/Circuitscape/Omniscape.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/Circuitscape/Omniscape.jl) | [![news](https://img.shields.io/static/v1?label=version&message=v0.4.4&color=orange)](https://github.com/Circuitscape/Omniscape.jl/releases) |
 
 Omniscape.jl is built on [Circuitscape.jl](https://github.com/Circuitscape/Circuitscape.jl) and implements the Omniscape connectivity modeling algorithm to map omni-directional habitat connectivity. The Omniscape algorithm was developed by [McRae and colleagues](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest) in 2016. **Check out [the docs](https://circuitscape.github.io/Omniscape.jl/stable) for additional information.**
 
@@ -17,19 +17,28 @@ If you want to install the latest (unreleased) development version of Omniscape,
 using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 ```
 
-## Citing Omniscape.jl
+## Citing Omniscape.jl 
 
-A formal paper detailing Omniscape.jl is currently [in review](https://github.com/openjournals/joss-reviews/issues/2829). Here is an example citation:
-> Landau, V. A., Shah, V. B., Anantharaman, R., and Hall, K. R. in review. Omniscape.jl: Software to compute omnidirectional landscape connectivity, *Journal of Open Source Software*.
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.02829/status.svg)](https://doi.org/10.21105/joss.02829)
+
+Please cite [Landau et al. (2021)](https://doi.org/10.21105/joss.02829) when using Omniscape.jl.
+> Landau, V.A., V.B. Shah, R. Anantharaman, and K.R. Hall. 2021. Omniscape.jl: Software to compute omnidirectional landscape connectivity. *Journal of Open Source Software*, *6*(57), 2829.
 
 Here's a bibtex entry:
 ```
-@article{landau2020omniscape,
-    title = {{Omniscape.jl: Software to compute omnidirectional landscape connectivity}},
-    author = {Vincent A. Landau and Viral B. Shah and Ranjan Anantharaman and Kimberly R. Hall},
-    year = {in review},
-    journal = {Journal of Open Source Software}
+@article{Landau2021,
+  doi = {10.21105/joss.02829},
+  url = {https://doi.org/10.21105/joss.02829},
+  year = {2021},
+  publisher = {The Open Journal},
+  volume = {6},
+  number = {57},
+  pages = {2829},
+  author = {Vincent A. Landau and Viral B. Shah and Ranjan Anantharaman and Kimberly R. Hall},
+  title = {Omniscape.jl: Software to compute omnidirectional landscape connectivity},
+  journal = {Journal of Open Source Software}
 }
+
 ```
 
 Please be sure to also cite the [original work](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest) where the Omniscape algorithm was first described:
