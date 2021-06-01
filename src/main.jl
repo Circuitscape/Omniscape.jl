@@ -107,6 +107,8 @@ function run_omniscape(
     n_threads = nthreads()
     cfg_user = cfg
 
+    # Check for unsupported or missing arguments
+    check_unsupported_args(cfg)
     check_missing_args_dict(cfg_user) && return
 
     cfg = init_cfg()
@@ -118,8 +120,7 @@ function run_omniscape(
     int_arguments["block_size"] = Int64(round(parse(Float64,
                                                     cfg["block_size"])))
 
-    check_block_size(int_arguments["block_size"]) &&
-        (int_arguments["block_size"] = int_arguments["block_size"] + 1)
+    check_block_size!(int_arguments)
 
     int_arguments["block_radius"] = Int64((int_arguments["block_size"] - 1) / 2)
     int_arguments["radius"] = Int64(round(parse(Float64, cfg["radius"])))
@@ -137,6 +138,9 @@ function run_omniscape(
     source_threshold = parse(Float64, cfg["source_threshold"])
     project_name = cfg["project_name"]
     file_format = os_flags.write_as_tif ? "tif" : "asc"
+
+    check_solver!(cfg)
+    solver = cfg["solver"]
 
     ## Set number of BLAS threads to 1 when parallel processing
     if os_flags.parallelize && nthreads() != 1
@@ -162,6 +166,7 @@ function run_omniscape(
 
     ## Setup Circuitscape configuration
     cs_cfg_dict = init_csdict(cfg)
+    cs_cfg_dict["solver"] = solver
     cs_cfg = Circuitscape.init_config()
     Circuitscape.update!(cs_cfg, cs_cfg_dict)
 
@@ -186,7 +191,8 @@ function run_omniscape(
     precision_name = precision == Float64 ? "double" : "single"
     ## Add parallel workers
     if os_flags.parallelize
-        println("Starting up Omniscape. Using $(n_threads) workers in parallel. Using $(precision_name) precision...")
+        @info("Starting up Omniscape with $(n_threads) workers and $(precision_name) precision")
+        @info("Using Circuitscape with the $(uppercase(solver)) solver...")
 
         cum_currmap = fill(convert(precision, 0.),
                            int_arguments["nrows"],
@@ -203,7 +209,8 @@ function run_omniscape(
             fp_cum_currmap = Array{precision, 3}(undef, 1, 1, 1)
         end
     else
-        println("Starting up Omniscape. Running in serial using 1 worker. Using $(precision_name) precision...")
+        @info("Starting up Omniscape with 1 worker and $(precision_name) precision")
+        @info("Using Circuitscape with the $(uppercase(solver)) solver...")
         cum_currmap = fill(convert(precision, 0.),
                           int_arguments["nrows"],
                           int_arguments["ncols"],
@@ -219,13 +226,6 @@ function run_omniscape(
         end
     end
 
-    solver = "cg+amg"
-
-    # n_cells = int_arguments["nrows"] * int_arguments["ncols"]
-    # if n_cells <= 2000000
-    #     solver = "cholmod" # TODO: "cholmod" not available in advanced mode
-    # end
-
     cs_flags = Circuitscape.RasterFlags(true, false, true,
                                         false, false,
                                         false, Symbol("rmvsrc"),
@@ -233,7 +233,7 @@ function run_omniscape(
                                         false, solver, o)
 
     if os_flags.correct_artifacts && !(int_arguments["block_size"] == 1)
-        println("Calculating block artifact correction array...")
+        @info("Calculating block artifact correction array...")
         correction_array = calc_correction(int_arguments,
                                            os_flags,
                                            cs_cfg,
@@ -256,7 +256,7 @@ function run_omniscape(
     end
 
     ## Calculate and accumulate currents on each worker
-    println("Solving moving window targets...")
+    @info("Solving moving window targets...")
 
     ## Create progress object
     p = Progress(n_targets; dt = 0.25, barlen = min(50, displaysize(stdout)[2] - length("Progress: 100%  Time: 00:00:00")))
@@ -412,11 +412,10 @@ function run_omniscape(
 
     resistance = nothing
 
-    println("Done!")
-    println("Time taken to complete job: $(round(time() - start_time; digits = 4)) seconds")
+    @info("Time taken to complete job: $(round(time() - start_time; digits = 4)) seconds")
 
     if write_outputs
-        println("Outputs written to $(string(pwd(),"/",project_name))")
+        @info("Outputs written to $(string(pwd(),"/",project_name))")
     end
     ## Return outputs, depending on user options
     # convert arrays, replace -9999's with missing

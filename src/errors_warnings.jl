@@ -19,8 +19,8 @@ function even_block_size_warning()
 end
 
 function missing_args_error(missing_args)
-    @error "The following arguments are missing from your .ini with no defaults:
-    $(join(map(string, missing_args), ", "))"
+    @error "The following arguments are missing from your .ini (or config Dictionary) with no defaults:
+       $(join(map(string, missing_args), " "))"
 end
 function check_raster_alignment(raster1, raster2, name1, name2, allow_different_projections)
     sizes_not_equal = size(raster1[1]) != size(raster2[1])
@@ -47,14 +47,12 @@ function check_resistance_values(resistance)
     bad_values
 end
 
-function check_block_size(block_size)
-    even_block_size = iseven(block_size)
-
-    if even_block_size
+function check_block_size!(int_arguments)
+    if iseven(int_arguments["block_size"])
         even_block_size_warning()
+        int_arguments["block_size"] = int_arguments["block_size"] + 1
     end
-
-    even_block_size
+    int_arguments["block_size"]
 end
 
 function check_missing_args_ini(cfg)
@@ -83,4 +81,22 @@ function check_missing_args_dict(cfg)
     end
 
     !isempty(missing_args)
+end
+
+function check_solver!(cfg)
+    if (cfg["solver"] in SOLVERS) == false
+        @warn "Got unsupported value for solver: $(cfg["solver"]). Using the default, cg+amg"
+        cfg["solver"] = "cg+amg"
+    end
+end
+
+function check_unsupported_args(cfg)
+    arg_names = String.(keys(cfg))
+
+    bad_args = arg_names[map(x->(x ∉ SUPPORTED_ARGS), arg_names)]
+
+    if bad_args != [""]
+        @warn "The following unsupported arguments were provided and will be ignored:
+         $(join(map(string, bad_args), " "))"
+    end
 end

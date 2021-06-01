@@ -347,14 +347,14 @@ function calculate_current(
                                      Array{Float64, 1}(undef, 1),
                                      "")
 
-    rasterdata = Circuitscape.RasData(cellmap,
-                                      polymap,
-                                      source_map,
-                                      ground_map,
-                                      points_rc,
-                                      strengths,
-                                      included_pairs,
-                                      hbmeta)
+    rasterdata = Circuitscape.RasterData(cellmap,
+                                         polymap,
+                                         source_map,
+                                         ground_map,
+                                         points_rc,
+                                         strengths,
+                                         included_pairs,
+                                         hbmeta)
 
     # Generate advanced data
     data = Circuitscape.compute_advanced_data(rasterdata, cs_flags, cs_cfg)
@@ -408,6 +408,7 @@ function calculate_current(
         end
 
         voltages = Circuitscape.multiple_solver(cs_cfg,
+                                                data.solver,
                                                 a_local,
                                                 s_local,
                                                 g_local,
