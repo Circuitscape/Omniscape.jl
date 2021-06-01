@@ -191,7 +191,8 @@ function run_omniscape(
     precision_name = precision == Float64 ? "double" : "single"
     ## Add parallel workers
     if os_flags.parallelize
-        println("Starting up Omniscape. Using $(n_threads) workers in parallel. Using $(precision_name) precision...")
+        @info("Starting up Omniscape with $(n_threads) workers and $(precision_name) precision")
+        @info("Using Circuitscape with the $(uppercase(solver)) solver...")
 
         cum_currmap = fill(convert(precision, 0.),
                            int_arguments["nrows"],
@@ -208,7 +209,8 @@ function run_omniscape(
             fp_cum_currmap = Array{precision, 3}(undef, 1, 1, 1)
         end
     else
-        println("Starting up Omniscape. Running in serial using 1 worker. Using $(precision_name) precision...")
+        @info("Starting up Omniscape with 1 worker and $(precision_name) precision")
+        @info("Using Circuitscape with the $(uppercase(solver)) solver...")
         cum_currmap = fill(convert(precision, 0.),
                           int_arguments["nrows"],
                           int_arguments["ncols"],
@@ -231,7 +233,7 @@ function run_omniscape(
                                         false, solver, o)
 
     if os_flags.correct_artifacts && !(int_arguments["block_size"] == 1)
-        println("Calculating block artifact correction array...")
+        @info("Calculating block artifact correction array...")
         correction_array = calc_correction(int_arguments,
                                            os_flags,
                                            cs_cfg,
@@ -254,7 +256,7 @@ function run_omniscape(
     end
 
     ## Calculate and accumulate currents on each worker
-    println("Solving moving window targets...")
+    @info("Solving moving window targets...")
 
     ## Create progress object
     p = Progress(n_targets; dt = 0.25, barlen = min(50, displaysize(stdout)[2] - length("Progress: 100%  Time: 00:00:00")))
@@ -410,11 +412,10 @@ function run_omniscape(
 
     resistance = nothing
 
-    println("Done!")
-    println("Time taken to complete job: $(round(time() - start_time; digits = 4)) seconds")
+    @info("Time taken to complete job: $(round(time() - start_time; digits = 4)) seconds")
 
     if write_outputs
-        println("Outputs written to $(string(pwd(),"/",project_name))")
+        @info("Outputs written to $(string(pwd(),"/",project_name))")
     end
     ## Return outputs, depending on user options
     # convert arrays, replace -9999's with missing
