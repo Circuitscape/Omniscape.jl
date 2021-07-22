@@ -5,3 +5,4 @@ dev.Dockerfile
 docker-build-dev-env.sh
 Manifest.toml
 run-dev.sh
+.vscode/
