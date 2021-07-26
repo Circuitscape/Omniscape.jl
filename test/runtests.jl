@@ -83,8 +83,8 @@ block_sources = source_strength[Int(targets[1,2] - int_arguments["block_radius"]
 
 # Test error throws
 @info "Testing error throws"
-@test run_omniscape("input/config7.ini") == nothing
-@test run_omniscape("input/bad_config.ini") == nothing
+@test run_omniscape("input/config7.ini") === nothing
+@test run_omniscape("input/bad_config.ini") === nothing
 
 end
 
