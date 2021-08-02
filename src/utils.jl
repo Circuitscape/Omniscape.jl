@@ -88,20 +88,9 @@ function get_source(
         source_array::Array{Union{Missing, T}, 2} where T <: Number,
         arguments::Dict{String, Int64},
         os_flags::OmniscapeFlags,
-        condition1_present::Array{Union{Missing, T}, 2} where T <: Number,
-        condition1_future::Array{Union{Missing, T}, 2} where T <: Number,
-        condition2_present::Array{Union{Missing, T}, 2} where T <: Number,
-        condition2_future::Array{Union{Missing, T}, 2} where T <: Number,
-        comparison1::String,
-        comparison2::String,
-        condition1_lower::Number,
-        condition1_upper::Number,
-        condition2_lower::Number,
-        condition2_upper::Number,
-        precision::DataType;
-        x::Int64,
-        y::Int64,
-        strength::Number
+        condition_layers::ConditionLayers,
+        conditions::Conditions,
+        target::Target
     )
 
     block_radius = arguments["block_radius"]
@@ -110,17 +99,19 @@ function get_source(
     nrows = arguments["nrows"]
     ncols = arguments["ncols"]
 
-    source_subset = clip(source_array,
-                         x = x,
-                         y = y,
-                         distance = radius)
+    source_subset = clip(
+        source_array,
+        x = target.x_coord,
+        y = target.y_coord,
+        distance = radius
+    )
 
     # Append missing if buffer > 0
     if buffer > 0
         ### Columns
         nrow_sub = size(source_subset)[1]
-        left_col_num = max(0, min(buffer, x - radius - 1))
-        right_col_num = max(0, min(buffer, ncols - (x + radius)))
+        left_col_num = max(0, min(buffer, target.x_coord - radius - 1))
+        right_col_num = max(0, min(buffer, ncols - (target.x_coord + radius)))
 
         # Add left columns
         if left_col_num > 0
@@ -135,8 +126,8 @@ function get_source(
 
         ### Rows
         ncol_sub = size(source_subset)[2]
-        top_row_num = max(0, min(buffer, y - radius - 1))
-        bottom_row_num = max(0, min(buffer, nrows - (y + radius)))
+        top_row_num = max(0, min(buffer, target.y_coord - radius - 1))
+        bottom_row_num = max(0, min(buffer, nrows - (target.y_coord + radius)))
 
         # Add top rows
         if top_row_num > 0
@@ -165,31 +156,23 @@ function get_source(
     # according to their source strengths
     source_sum = sum(source_subset[coalesce.(source_subset .> 0, false)])
     source_subset[source_subset .> 0] .=
-        (source_subset[coalesce.(source_subset .> 0, false)] * strength) / source_sum
+        (source_subset[coalesce.(source_subset .> 0, false)] * target.amps) / source_sum
 
     if os_flags.conditional
 
-        xlower_buffered = Int64(max(x - radius - buffer, 1))
-        xupper_buffered = Int64(min(x + radius + buffer, ncols))
-        ylower_buffered = Int64(max(y - radius - buffer, 1))
-        yupper_buffered = Int64(min(y + radius + buffer, nrows))
-        xlower = x - block_radius
-        xupper = min(x + block_radius, ncols)
-        ylower = y - block_radius
-        yupper = min(y + block_radius, nrows)
+        xlower_buffered = Int64(max(target.x_coord - radius - buffer, 1))
+        xupper_buffered = Int64(min(target.x_coord + radius + buffer, ncols))
+        ylower_buffered = Int64(max(target.y_coord - radius - buffer, 1))
+        yupper_buffered = Int64(min(target.y_coord + radius + buffer, nrows))
+        xlower = target.x_coord - block_radius
+        xupper = min(target.x_coord + block_radius, ncols)
+        ylower = target.y_coord - block_radius
+        yupper = min(target.y_coord + block_radius, nrows)
 
         source_target_match!(source_subset,
                              arguments["n_conditions"],
-                             condition1_present,
-                             condition1_future,
-                             condition2_present,
-                             condition2_future,
-                             comparison1,
-                             comparison2,
-                             condition1_lower,
-                             condition1_upper,
-                             condition2_lower,
-                             condition2_upper,
+                             condition_layers,
+                             conditions,
                              ylower,
                              yupper,
                              xlower,
@@ -205,16 +188,8 @@ end
 
 function source_target_match!(source_subset::Array{Union{T, Missing}, 2} where T <: Number,
                               n_conditions::Int64,
-                              condition1_present::Array{Union{T, Missing}, 2} where T <: Number,
-                              condition1_future::Array{Union{T, Missing}, 2} where T <: Number,
-                              condition2_present::Array{Union{T, Missing}, 2} where T <: Number,
-                              condition2_future::Array{Union{T, Missing}, 2} where T <: Number,
-                              comparison1::String,
-                              comparison2::String,
-                              condition1_lower::Number,
-                              condition1_upper::Number,
-                              condition2_lower::Number,
-                              condition2_upper::Number,
+                              condition_layers::ConditionLayers,
+                              conditions::Conditions,
                               ylower::Int64,
                               yupper::Int64,
                               xlower::Int64,
@@ -224,6 +199,18 @@ function source_target_match!(source_subset::Array{Union{T, Missing}, 2} where T
                               xlower_buffered::Int64,
                               xupper_buffered::Int64
                               )
+    condition1_present = condition_layers.condition1_present
+    condition1_future = condition_layers.condition1_future
+    condition2_present = condition_layers.condition2_present
+    condition2_future = condition_layers.condition2_future
+
+    comparison1 = conditions.comparison1
+    comparison2 = conditions.comparison2
+    condition1_lower = conditions.condition1_lower
+    condition1_upper = conditions.condition1_upper
+    condition2_lower = conditions.condition2_lower
+    condition2_upper = conditions.condition2_upper
+    
     con1_present_subset = condition1_present[ylower_buffered:yupper_buffered,
                                              xlower_buffered:xupper_buffered]
 
@@ -250,11 +237,9 @@ function source_target_match!(source_subset::Array{Union{T, Missing}, 2} where T
     end
 end
 
-function get_ground(
-        arguments::Dict{String, Int64},
-        precision::DataType;
-        x::Int64,
-        y::Int64)
+function get_ground(arguments::Dict{String, Int64},
+                    precision::DataType,
+                    target::Target)
     radius = arguments["radius"]
     buffer = arguments["buffer"]
     distance = radius + buffer
@@ -262,10 +247,10 @@ function get_ground(
     nrows = arguments["nrows"]
     ncols = arguments["ncols"]
 
-    xlower = Int64(max(x - radius - buffer, 1))
-    xupper = Int64(min(x + radius + buffer, ncols))
-    ylower = Int64(max(y - radius - buffer, 1))
-    yupper = Int64(min(y + radius + buffer, nrows))
+    xlower = Int64(max(target.x_coord - radius - buffer, 1))
+    xupper = Int64(min(target.x_coord + radius + buffer, ncols))
+    ylower = Int64(max(target.y_coord - radius - buffer, 1))
+    yupper = Int64(min(target.y_coord + radius + buffer, nrows))
 
     size_x = xupper - xlower + 1
     size_y = yupper - ylower + 1
@@ -274,8 +259,8 @@ function get_ground(
                   size_y,
                   size_x)
 
-    new_x = min(distance + 1, x)
-    new_y = min(distance + 1, y)
+    new_x = min(distance + 1, target.x_coord)
+    new_y = min(distance + 1, target.y_coord)
 
     ground[new_y, new_x] = Inf
 
@@ -285,18 +270,14 @@ end
 function get_conductance(
         resistance::Array{Union{T, Missing}, 2} where T <: Number,
         arguments::Dict{String, Int64},
-        x::Int64,
-        y::Int64,
+        target::Target,
         os_flags::OmniscapeFlags
     )
 
     radius = arguments["radius"]
     buffer = arguments["buffer"]
 
-    resistance_clipped = clip(resistance,
-                              x = x,
-                              y = y,
-                              distance = radius + buffer)
+    resistance_clipped = clip(resistance, x = target.x_coord, y = target.y_coord, distance = radius + buffer)
 
     if os_flags.resistance_is_conductance
         conductance = resistance_clipped
@@ -367,24 +348,12 @@ function calculate_current(
     grounds = data.grounds
     finitegrounds = data.finite_grounds
     cc = data.cc
-    src = data.src
     check_node = data.check_node
     source_map = data.source_map # Need it for one to all mode
     cellmap = data.cellmap
 
-    # Flags
-    is_raster = cs_flags.is_raster
-    is_alltoone = cs_flags.is_alltoone
-    is_onetoall = cs_flags.is_onetoall
-    write_v_maps = cs_flags.outputflags.write_volt_maps
-    write_c_maps = cs_flags.outputflags.write_cur_maps
-    write_cum_cur_map_only = cs_flags.outputflags.write_cum_cur_map_only
-
-    volt = zeros(eltype(G), size(nodemap))
-    ind = findall(x -> x != 0, nodemap)
     f_local = Vector{eltype(G)}()
     voltages = Vector{eltype(G)}()
-    outvolt = Circuitscape.alloc_map(hbmeta)
     outcurr = Circuitscape.alloc_map(hbmeta)
 
     for c in cc
@@ -432,63 +401,38 @@ function calculate_current(
 end
 
 function solve_target!(
-        i::Int64,
-        n_targets::Int64,
+        target::Target,
         int_arguments::Dict{String, Int64},
-        targets::Array{T, 2} where T <: Number,
         source_strength::Array{Union{Missing, T}, 2} where T <: Number,
         resistance::Array{Union{Missing, T}, 2} where T <: Number,
         os_flags::OmniscapeFlags,
         cs_cfg::Dict{String, String},
         cs_flags::Circuitscape.RasterFlags,
-        o::Circuitscape.OutputFlags,
-        condition1_present::Array{Union{Missing, T}, 2} where T <: Number,
-        condition1_future::Array{Union{Missing, T}, 2} where T <: Number,
-        condition2_present::Array{Union{Missing, T}, 2} where T <: Number,
-        condition2_future::Array{Union{Missing, T}, 2} where T <: Number,
-        comparison1::String,
-        comparison2::String,
-        condition1_lower::Number,
-        condition1_upper::Number,
-        condition2_lower::Number,
-        condition2_upper::Number,
+        condition_layers::ConditionLayers,
+        conditions::Conditions,
         correction_array::Array{T, 2} where T <: Number,
         cum_currmap::Array{T, 3} where T <: Number,
         fp_cum_currmap::Array{T, 3}  where T <: Number,
         precision::DataType
     )
+
     ## get source
-    x_coord = Int64(targets[i, 1])
-    y_coord = Int64(targets[i, 2])
     source = get_source(source_strength,
                         int_arguments,
                         os_flags,
-                        condition1_present,
-                        condition1_future,
-                        condition2_present,
-                        condition2_future,
-                        comparison1,
-                        comparison2,
-                        condition1_lower,
-                        condition1_upper,
-                        condition2_lower,
-                        condition2_upper,
-                        precision,
-                        x = x_coord,
-                        y = y_coord,
-                        strength = float(targets[i, 3]))
+                        condition_layers,
+                        conditions,
+                        target)
 
     ## get ground
     ground = get_ground(int_arguments,
                         precision,
-                        x = x_coord,
-                        y = y_coord)
+                        target)
 
     ## get conductances for Omniscape
     conductance = get_conductance(resistance,
                                   int_arguments,
-                                  x_coord,
-                                  y_coord,
+                                  target,
                                   os_flags)
 
     grid_size = size(source)
@@ -520,19 +464,19 @@ function solve_target!(
         lowerycut = 1
         upperycut = size(correction_array, 1)
 
-        if x_coord > int_arguments["ncols"] - (int_arguments["radius"] + int_arguments["buffer"])
+        if target.x_coord > int_arguments["ncols"] - (int_arguments["radius"] + int_arguments["buffer"])
             upperxcut = upperxcut - (upperxcut - grid_size[2])
         end
 
-        if x_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
+        if target.x_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
             lowerxcut = upperxcut - grid_size[2] + 1
         end
 
-        if y_coord > int_arguments["nrows"] - (int_arguments["radius"] + int_arguments["buffer"])
+        if target.y_coord > int_arguments["nrows"] - (int_arguments["radius"] + int_arguments["buffer"])
             upperycut = upperycut - (upperycut - grid_size[1])
         end
 
-        if y_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
+        if target.y_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
             lowerycut = upperycut - grid_size[1] + 1
         end
 
@@ -547,11 +491,11 @@ function solve_target!(
     end
 
     ## Accumulate values
-    xlower = max(x_coord - int_arguments["radius"] - int_arguments["buffer"], 1)
-    xupper = min(x_coord + int_arguments["radius"] + int_arguments["buffer"],
+    xlower = max(target.x_coord - int_arguments["radius"] - int_arguments["buffer"], 1)
+    xupper = min(target.x_coord + int_arguments["radius"] + int_arguments["buffer"],
                  int_arguments["ncols"])
-    ylower = max(y_coord - int_arguments["radius"] - int_arguments["buffer"], 1)
-    yupper = min(y_coord + int_arguments["radius"] + int_arguments["buffer"],
+    ylower = max(target.y_coord - int_arguments["radius"] - int_arguments["buffer"], 1)
+    yupper = min(target.y_coord + int_arguments["radius"] + int_arguments["buffer"],
                  int_arguments["nrows"])
 
     cum_currmap[ylower:yupper, xlower:xupper, threadid()] .=
@@ -569,17 +513,8 @@ function calc_correction(
         os_flags::OmniscapeFlags,
         cs_cfg::Dict{String, String},
         cs_flags::Circuitscape.RasterFlags,
-        o::Circuitscape.OutputFlags,
-        condition1_present::Array{Union{T, Missing}, 2} where T <: Number,
-        condition1_future::Array{Union{T, Missing}, 2} where T <: Number,
-        condition2_present::Array{Union{T, Missing}, 2}where T <: Number,
-        condition2_future::Array{Union{T, Missing}, 2} where T <: Number,
-        comparison1::String,
-        comparison2::String,
-        condition1_lower::Number,
-        condition1_upper::Number,
-        condition2_lower::Number,
-        condition2_upper::Number,
+        condition_layers::ConditionLayers,
+        conditions::Conditions,
         precision::DataType
     )
     buffer = arguments["buffer"]
@@ -593,9 +528,9 @@ function calc_correction(
                                arguments["radius"] * 2 + buffer * 2 + 1))
 
     source_null = clip(temp_source,
-                            x = arguments["radius"] + buffer + 1,
-                            y = arguments["radius"] + buffer + 1,
-                            distance = arguments["radius"])
+                       x = arguments["radius"] + buffer + 1,
+                       y = arguments["radius"] + buffer + 1,
+                       distance = arguments["radius"])
 
     # Append NoData (-9999) if buffer > 0
     if buffer > 0
@@ -618,23 +553,16 @@ function calc_correction(
                 arguments["radius"] + arguments["buffer"] + 1] = 0.0
     source_null[source_null .!= 0.0] .= 1 / (n_sources - 1)
 
+    target = Target((arguments["radius"] + arguments["buffer"] + 1),
+                    (arguments["radius"] + arguments["buffer"] + 1),
+                    float(arguments["block_size"] ^ 2))
+    
     source_blocked = get_source(temp_source,
-                              arguments,
-                              os_flags,
-                              condition1_present,
-                              condition1_future,
-                              condition2_present,
-                              condition2_future,
-                              comparison1,
-                              comparison2,
-                              condition1_lower,
-                              condition1_upper,
-                              condition2_lower,
-                              condition2_upper,
-                              precision,
-                              x = (arguments["radius"] + arguments["buffer"] + 1),
-                              y = (arguments["radius"] + arguments["buffer"] + 1),
-                              strength = float(arguments["block_size"] ^ 2))
+                                arguments,
+                                os_flags,
+                                condition_layers,
+                                conditions,
+                                target)
 
     conductance = clip(temp_source,
                        x = arguments["radius"] + arguments["buffer"] + 1,

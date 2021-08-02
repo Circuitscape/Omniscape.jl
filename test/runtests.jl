@@ -28,18 +28,18 @@ y = 4
 con1_lower = -1.0
 con1_upper = 1.0
 source_subset = convert(Array{Union{Float64, Missing}, 2}, source_subset)
+
+condition_layers = Omniscape.ConditionLayers(
+    convert(Array{Union{Float64, Missing}, 2}, con1pres),
+    convert(Array{Union{Float64, Missing}, 2}, con1fut),
+    Array{Union{Float64, Missing}, 2}(undef, 1, 1),
+    Array{Union{Float64, Missing}, 2}(undef, 1, 1)
+)
+
 Omniscape.source_target_match!(source_subset,
                      1,
-                     convert(Array{Union{Float64, Missing}, 2}, con1pres),
-                     convert(Array{Union{Float64, Missing}, 2}, con1fut),
-                     Array{Union{Float64, Missing}, 2}(undef, 1, 1),
-                     Array{Union{Float64, Missing}, 2}(undef, 1, 1),
-                     "within",
-                     "within",
-                     con1_lower, # lower bound to be within for comparisome
-                     con1_upper,
-                     0.0,
-                     0.0,
+                     condition_layers,
+                     Omniscape.Conditions("within", "within", con1_lower, con1_upper, 0.0, 0.0),
                      y,
                      y,
                      x,
