@@ -94,11 +94,11 @@ function run_omniscape(
         cfg::Dict{String, String},
         resistance::Array{Union{T, Missing}, 2} where T <: Number;
         reclass_table::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{Float64, Missing}, 2}(undef, 1, 2),
-        source_strength = source_from_resistance(resistance, cfg, reclass_table),
+        source_strength::Array{Union{T, Missing}, 2} where T <: Number = source_from_resistance(resistance, cfg, reclass_table),
         condition1::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
         condition2::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
-        condition1_future = condition1,
-        condition2_future = condition2,
+        condition1_future::Array{Union{T, Missing}, 2} where T <: Number = condition1,
+        condition2_future::Array{Union{T, Missing}, 2} where T <: Number = condition2,
         wkt::String = "",
         geotransform::Array{Float64, 1} = [0., 1., 0., 0., 0., -1.0],
         write_outputs::Bool = false)
@@ -157,12 +157,15 @@ function run_omniscape(
     int_arguments["nrows"] = size(source_strength, 1)
     int_arguments["ncols"] = size(source_strength, 2)
 
-    comparison1 = cfg["comparison1"]
-    comparison2 = cfg["comparison2"]
-    condition1_lower = parse(Float64, cfg["condition1_lower"])
-    condition2_lower = parse(Float64, cfg["condition2_lower"])
-    condition1_upper = parse(Float64, cfg["condition1_upper"])
-    condition2_upper = parse(Float64, cfg["condition2_upper"])
+    # Set up conditional connctivity stuff
+    conditions = Conditions(cfg["comparison1"],
+                            cfg["comparison2"],
+                            parse(Float64, cfg["condition1_lower"]),
+                            parse(Float64, cfg["condition1_upper"]),
+                            parse(Float64, cfg["condition2_lower"]),
+                            parse(Float64, cfg["condition2_upper"]))
+
+    condition_layers = ConditionLayers(condition1, condition1_future, condition2, condition2_future)
 
     ## Setup Circuitscape configuration
     cs_cfg_dict = init_csdict(cfg)
@@ -238,17 +241,8 @@ function run_omniscape(
                                            os_flags,
                                            cs_cfg,
                                            cs_flags,
-                                           o,
-                                           condition1,
-                                           condition1_future,
-                                           condition2,
-                                           condition2_future,
-                                           comparison1,
-                                           comparison2,
-                                           condition1_lower,
-                                           condition1_upper,
-                                           condition2_lower,
-                                           condition2_upper,
+                                           condition_layers,
+                                           conditions,
                                            precision)
 
     else
@@ -268,61 +262,51 @@ function run_omniscape(
         @threads for i in 0:(n_batches - 1)
             start_ind = parallel_batch_size * i + 1
             end_ind = min(n_targets, start_ind + parallel_batch_size - 1)
-
+            
             for j in start_ind:end_ind
-                solve_target!(j,
-                              n_targets,
-                              int_arguments,
-                              targets,
-                              source_strength,
-                              resistance,
-                              os_flags,
-                              cs_cfg,
-                              cs_flags,
-                              o,
-                              condition1,
-                              condition1_future,
-                              condition2,
-                              condition2_future,
-                              comparison1,
-                              comparison2,
-                              condition1_lower,
-                              condition1_upper,
-                              condition2_lower,
-                              condition2_upper,
-                              correction_array,
-                              cum_currmap,
-                              fp_cum_currmap,
-                              precision)
-            next!(p)
+                target = Target(Int64(targets[j, 1]), Int64(targets[j, 2]), float(targets[j, 3]))
+                try 
+                    solve_target!(target,
+                                  int_arguments,
+                                  source_strength,
+                                  resistance,
+                                  os_flags,
+                                  cs_cfg,
+                                  cs_flags,
+                                  condition_layers,
+                                  conditions,
+                                  correction_array,
+                                  cum_currmap,
+                                  fp_cum_currmap,
+                                  precision)
+                catch error
+                    println("Omniscape failed on the moving window centered on row $(target.y_coord) column $(target.x_coord)")
+                    throw(error)
+                end
+                next!(p)
             end
         end
     else
         for i in 1:n_targets
-            solve_target!(i,
-                          n_targets,
-                          int_arguments,
-                          targets,
-                          source_strength,
-                          resistance,
-                          os_flags,
-                          cs_cfg,
-                          cs_flags,
-                          o,
-                          condition1,
-                          condition1_future,
-                          condition2,
-                          condition2_future,
-                          comparison1,
-                          comparison2,
-                          condition1_lower,
-                          condition1_upper,
-                          condition2_lower,
-                          condition2_upper,
-                          correction_array,
-                          cum_currmap,
-                          fp_cum_currmap,
-                          precision)
+            target = Target(Int64(targets[i, 1]), Int64(targets[i, 2]), float(targets[i, 3]))
+            try
+                solve_target!(target,
+                            int_arguments,
+                            source_strength,
+                            resistance,
+                            os_flags,
+                            cs_cfg,
+                            cs_flags,
+                            condition_layers,
+                            conditions,
+                            correction_array,
+                            cum_currmap,
+                            fp_cum_currmap,
+                            precision)
+            catch error
+                println("Omniscape failed on the moving window centered on row $(target.y_coord) column $(target.x_coord)")
+                throw(error)
+            end
             next!(p)
         end
     end
