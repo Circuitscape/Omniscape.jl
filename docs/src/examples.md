@@ -125,7 +125,7 @@ plot(fp,
      size = (700, 640))
 ```
 ```@raw html
-<img src='../figs/md-fp.png' width=500> <br><em>Flow potential, which shows what connecitivty would look like in the absence of barriers to movement. The blocking that you can see is an artifact of setting a large block_size to make the example run faster. Set a smaller block_size to reduce/remove this issue.</em><br><br>
+<img src='../figs/md-fp.png' width=500> <br><em>Flow potential, which shows what connectivity would look like in the absence of barriers to movement. The blocking that you can see is an artifact of setting a large block_size to make the example run faster. Set a smaller block_size to reduce/remove this issue.</em><br><br>
 ```
 
 Finally, map normalized current flow, which is calculated as flow potential divided by cumulative current.
