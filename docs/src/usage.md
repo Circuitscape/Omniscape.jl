@@ -104,9 +104,9 @@ julia -t 4
 
 **`source_threshold`:** Positive number. Defaults to 0. Only pixels in the source layer greater than `source_threshold` will be included as sources.
 
-**`calc_normalized_current`:** One of true, false. Defaults to false. Specify whether to calculate normalized current flow. Normalized current is calculated as raw current divided by flow potential. If true, a normalized current flow raster called "normalized_cum_currmap" (with either .tif or .asc extension, see `write_as_tif` below) will be written to the `project_name` directory.
+**`calc_normalized_current`:** One of true, false. Defaults to false. Specify whether to calculate normalized current flow. Normalized current is calculated as raw current divided by flow potential. If true, a normalized current flow raster called "`normalized_cum_currmap`" (with either .tif or .asc extension, see `write_as_tif` below) will be written to the `project_name` directory.
 
-**`calc_flow_potential`:** One of true, false. Defaults to false. Specify whether to calculate flow potential. Flow potential calculates current flow in "null" conditions, where the resistance of the entire landscape is 1. If true, a flow potential raster called "flow_potential" (with either .tif or .asc extension, see `write_as_tif` below) written to the `project_name` directory. This can still be set to false even if `calc_normalized_current` = true if you want to avoid writing the flow potential raster to disk.
+**`calc_flow_potential`:** One of true, false. Defaults to false. Specify whether to calculate flow potential. Flow potential calculates current flow in "null" conditions, where the resistance of the entire landscape is 1. If true, a flow potential raster called "`flow_potential`" (with either .tif or .asc extension, see `write_as_tif` below) written to the `project_name` directory. This can still be set to false even if `calc_normalized_current` = true if you want to avoid writing the flow potential raster to disk.
 
 **`allow_different_projections`:** One of true, false. Defaults to false. If true, warnings about non-matching projections are suppressed.
 

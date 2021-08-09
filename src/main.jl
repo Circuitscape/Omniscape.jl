@@ -36,7 +36,7 @@ keys: `resistance_file`, `source_file`, `reclass_table`, `condition1_file`,
 all specify file paths, so they do not apply to the in-memory method
 of `run_omniscape`.
 
-**`resistance`**: An 2D, north-oriented array of resistance values. Use
+**`resistance`**: A 2D, north-oriented array of resistance values. Use
 `missing` for NoData (infinite resistance). `resistance` cannot contain zeros or
 negative values.
 
