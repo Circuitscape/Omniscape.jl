@@ -320,12 +320,12 @@ function run_omniscape_lock(
     GC.gc()
 
     # ## Collapse 3-dim cum current arrays to 2-dim via sum
-    # cum_currmap = dropdims(sum(cum_currmap, dims = 3), dims = 3)
+    cum_currmap = dropdims(cum_currmap, dims = 3)
 
-    # if os_flags.calc_flow_potential || os_flags.calc_normalized_current
-    #     fp_cum_currmap = dropdims(sum(fp_cum_currmap, dims = 3), dims = 3)
-    # end
-
+    if os_flags.calc_flow_potential || os_flags.calc_normalized_current
+        fp_cum_currmap = dropdims(fp_cum_currmap, dims = 3)
+    end
+    
     ## Normalize by flow potential
     if os_flags.calc_normalized_current
         normalized_cum_currmap = cum_currmap ./ fp_cum_currmap
