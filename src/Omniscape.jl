@@ -16,6 +16,7 @@ include("consts.jl")
 include("utils.jl")
 include("main.jl")
 include("errors_warnings.jl")
-export run_omniscape
+include("main_lock.jl")
+export run_omniscape, run_omniscape_lock
 
 end

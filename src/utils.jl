@@ -508,6 +508,119 @@ function solve_target!(
 
 end
 
+function solve_target_lock!(
+        target::Target,
+        int_arguments::Dict{String, Int64},
+        source_strength::Array{Union{Missing, T}, 2} where T <: Number,
+        resistance::Array{Union{Missing, T}, 2} where T <: Number,
+        os_flags::OmniscapeFlags,
+        cs_cfg::Dict{String, String},
+        cs_flags::Circuitscape.RasterFlags,
+        condition_layers::ConditionLayers,
+        conditions::Conditions,
+        correction_array::Array{T, 2} where T <: Number,
+        cum_currmap::Array{T, 3} where T <: Number,
+        fp_cum_currmap::Array{T, 3}  where T <: Number,
+        precision::DataType
+    )
+
+    ## get source
+    source = get_source(source_strength,
+                        int_arguments,
+                        os_flags,
+                        condition_layers,
+                        conditions,
+                        target)
+
+    ## get ground
+    ground = get_ground(int_arguments,
+                        precision,
+                        target)
+
+    ## get conductances for Omniscape
+    conductance = get_conductance(resistance,
+                                int_arguments,
+                                target,
+                                os_flags)
+
+    grid_size = size(source)
+
+    ## Run circuitscape
+    curr = calculate_current(conductance,
+                            source,
+                            ground,
+                            cs_flags,
+                            cs_cfg,
+                            precision)
+
+    ## If normalize = True, calculate null map and normalize
+    if os_flags.compute_flow_potential
+        null_conductance = convert(Array{Union{precision, Missing}, 2}, fill(1, grid_size))
+
+        flow_potential = calculate_current(null_conductance,
+                                        source,
+                                        ground,
+                                        cs_flags,
+                                        cs_cfg,
+                                        precision)
+    end
+
+    if os_flags.correct_artifacts && !(int_arguments["block_size"] == 1)
+        correction_array2 = deepcopy(correction_array)
+        lowerxcut = 1
+        upperxcut = size(correction_array, 2)
+        lowerycut = 1
+        upperycut = size(correction_array, 1)
+
+        if target.x_coord > int_arguments["ncols"] - (int_arguments["radius"] + int_arguments["buffer"])
+            upperxcut = upperxcut - (upperxcut - grid_size[2])
+        end
+
+        if target.x_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
+            lowerxcut = upperxcut - grid_size[2] + 1
+        end
+
+        if target.y_coord > int_arguments["nrows"] - (int_arguments["radius"] + int_arguments["buffer"])
+            upperycut = upperycut - (upperycut - grid_size[1])
+        end
+
+        if target.y_coord < int_arguments["radius"] + int_arguments["buffer"] + 1
+            lowerycut = upperycut - grid_size[1] + 1
+        end
+
+        correction_array2 = correction_array[lowerycut:upperycut,
+                                            lowerxcut:upperxcut]
+
+        curr = curr .* correction_array2
+
+        if os_flags.compute_flow_potential
+            flow_potential = flow_potential .* correction_array2
+        end
+    end
+
+    ## Accumulate values
+    xlower = max(target.x_coord - int_arguments["radius"] - int_arguments["buffer"], 1)
+    xupper = min(target.x_coord + int_arguments["radius"] + int_arguments["buffer"],
+                int_arguments["ncols"])
+    ylower = max(target.y_coord - int_arguments["radius"] - int_arguments["buffer"], 1)
+    yupper = min(target.y_coord + int_arguments["radius"] + int_arguments["buffer"],
+                int_arguments["nrows"])
+
+    lock(ReentrantLock()) do
+        cum_currmap[ylower:yupper, xlower:xupper] .= 
+            cum_currmap[ylower:yupper, xlower:xupper] .+ curr
+    end
+
+    if os_flags.compute_flow_potential
+        lock(ReentrantLock()) do
+            fp_cum_currmap[ylower:yupper, xlower:xupper] .=
+                fp_cum_currmap[ylower:yupper, xlower:xupper] .+ flow_potential
+        end
+    end
+
+end
+
+
 function calc_correction(
         arguments::Dict{String, Int64},
         os_flags::OmniscapeFlags,
@@ -589,9 +702,11 @@ function calc_correction(
                                       cs_flags,
                                       cs_cfg,
                                       precision)
-    null_current_total = fill(convert(precision, 0.),
-                              arguments["radius"] * 2 + arguments["buffer"] * 2 + arguments["block_size"],
-                              arguments["radius"] * 2 + arguments["buffer"] * 2 + arguments["block_size"])
+    null_current_total = fill(
+        convert(precision, 0.),
+        arguments["radius"] * 2 + arguments["buffer"] * 2 + arguments["block_size"],
+        arguments["radius"] * 2 + arguments["buffer"] * 2 + arguments["block_size"]
+    )
 
     for i in 1:arguments["block_size"]
         for j in 1:arguments["block_size"]
@@ -600,8 +715,10 @@ function calc_correction(
         end
     end
 
-    null_current_total = null_current_total[(arguments["block_radius"] + 1):(size(null_current, 1) + arguments["block_radius"]),
-                                            (arguments["block_radius"] + 1):(size(null_current, 2) + arguments["block_radius"])]
+    null_current_total = null_current_total[
+        (arguments["block_radius"] + 1):(size(null_current, 1) + arguments["block_radius"]),
+        (arguments["block_radius"] + 1):(size(null_current, 2) + arguments["block_radius"])
+    ]
 
     null_current_total[block_null_current .== 0.] .= 0
 
