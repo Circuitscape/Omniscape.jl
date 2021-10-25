@@ -346,7 +346,7 @@ function calculate_current(
     hbmeta = data.hbmeta
     sources = data.sources
     grounds = data.grounds
-    finitegrounds = data.finite_grounds
+    finitegrounds = data.finitegrounds
     cc = data.cc
     check_node = data.check_node
     source_map = data.source_map # Need it for one to all mode
