@@ -44,24 +44,3 @@ struct ConditionLayers{T, N}
     condition2_present::MissingArray{T, N}
     condition2_future::MissingArray{T, N}
 end
-
-function missingarray(
-        A::Array{T, N} where T <: Union{Missing, Number} where N,
-        precision::DataType,
-        nodata::Number
-    )
-    output = convert(Array{Union{precision, Missing}, ndims(A)}, copy(A))
-    output[output .== nodata] .= missing
-    
-    return output
-end
-
-function missingarray_to_array(
-        A::MissingArray{T, N} where T <: Number where N,
-        nodata::Number
-    )
-    output = copy(A)
-    output[ismissing.(output)] .= nodata
-
-    return convert(Array{typeof(output[1]), ndims(output)}, output)
-end

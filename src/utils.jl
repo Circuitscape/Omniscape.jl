@@ -30,9 +30,6 @@ function clip(
     A_sub
 end
 
-
-
-
 function get_targets(
         source_array::Array{Union{T, Missing}, 2} where T <: Number,
         arguments::Dict{String, Int64},
@@ -556,7 +553,6 @@ function source_from_resistance(resistance::MissingArray{T, 2} where T <: Number
     source_strength
 end
 
-
 function reclassify_resistance!(resistance::MissingArray{T, 2} where T <: Number,
                                 reclass_table::MissingArray{T, 2} where T <: Number)
     resistance_old = deepcopy(resistance)
@@ -566,14 +562,6 @@ function reclassify_resistance!(resistance::MissingArray{T, 2} where T <: Number
     resistance_old = nothing # remove from memory
 end
 
-function convert_and_fill_missing(A::Array{T, 2} where T <: Number,
-                                  precision::DataType)
-    A = convert(Array{Union{precision, Missing}, 2}, A)
-    A[A .== -9999] .= missing
-
-    A
-end
-
 function arrays_equal(A::MissingArray{T, 2} where T <: Number,
                       B::MissingArray{T, 2} where T <: Number)
     # Check that non-missing entries are equal
@@ -581,4 +569,55 @@ function arrays_equal(A::MissingArray{T, 2} where T <: Number,
     B[ismissing.(B)] .= -9999
 
     isapprox(Array{Float64, 2}(A), Array{Float64, 2}(B); rtol = 1e-6)
+end
+
+"""
+    missingarray(A::Array{T, N}, T::DataType, nodata::Number)
+
+This function converts an array to a `MissingArray` and replaces `nodata`
+values with `missing` in the output. `MissingArray{T, N}` is an alias 
+for `Array{Union{T, Missing}, N}``. This function can be used to prepare
+inputs for [`run_omniscape`](@ref).
+
+# Parameters
+
+**`A`**: The array to convert.
+
+**`T`**: The data type for the output (e.g. Float64 or Float32).
+
+**`nodata`**: The numeric value to be replaced by `missing` in the result.
+"""
+function missingarray(
+        A::Array{T, N} where T <: Union{Missing, Number} where N,
+        T::DataType,
+        nodata::Number
+    )
+    output = convert(Array{Union{T, Missing}, ndims(A)}, copy(A))
+    output[output .== nodata] .= missing
+
+    return output
+end
+
+"""
+    missing_array_to_array(A::MissingArray{T, N}, nodata::Number)
+
+This function converts an array of type `MissingArray` to a numeric array 
+and replaces `missing` entries with `nodata`. `MissingArray{T, N}` is an alias 
+for `Array{Union{T, Missing}, N}`.
+
+# Parameters
+
+**`A`**: The array to convert.
+
+**`nodata`**: The numeric value with which `missing` values will be replaced in 
+the result.
+"""
+function missingarray_to_array(
+        A::MissingArray{T, N} where T <: Number where N,
+        nodata::Number
+    )
+    output = copy(A)
+    output[ismissing.(output)] .= nodata
+
+    return convert(Array{typeof(output[1]), ndims(output)}, output)
 end
