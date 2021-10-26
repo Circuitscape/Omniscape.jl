@@ -90,13 +90,17 @@ end
 
 @testset "run_omnsicape()" begin
 ### Tests for run_omniscape()
-l, f, p = run_omniscape("input/config4.ini")
-l_verify = Omniscape.read_raster("output_verify/test4/cum_currmap.tif", Float64)[1]
-f_verify = Omniscape.read_raster("output_verify/test4/flow_potential.tif", Float64)[1]
-p_verify = Omniscape.read_raster("output_verify/test4/normalized_cum_currmap.tif", Float64)[1]
+l, f, p = run_omniscape("input/config4a.ini")
+l_verify = Omniscape.read_raster("output_verify/test4a/cum_currmap.tif", Float64)[1]
+f_verify = Omniscape.read_raster("output_verify/test4a/flow_potential.tif", Float64)[1]
+p_verify = Omniscape.read_raster("output_verify/test4a/normalized_cum_currmap.tif", Float64)[1]
 @test Omniscape.arrays_equal(l, l_verify)
 @test Omniscape.arrays_equal(f, f_verify)
 @test Omniscape.arrays_equal(p, p_verify)
+
+## Syntax checks for various methods of conditional comparisons
+l1 = run_omniscape("input/config4b.ini")
+l2 = run_omniscape("input/config4c.ini")
 
 g = run_omniscape("input/config5.ini")
 g_verify = Omniscape.read_raster("output_verify/test5/cum_currmap.tif", Float64)[1]
@@ -165,7 +169,9 @@ rm("test2", recursive = true)
 rm("test2_1", recursive = true)
 rm("test2_2", recursive = true)
 rm("test3", recursive = true)
-rm("test4", recursive = true)
+rm("test4a", recursive = true)
+rm("test4b", recursive = true)
+rm("test4c", recursive = true)
 rm("test5", recursive = true)
 rm("test6", recursive = true)
 rm("test_reclass", recursive = true)
