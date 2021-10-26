@@ -99,7 +99,7 @@ p_verify = Omniscape.read_raster("output_verify/test4a/normalized_cum_currmap.ti
 @test Omniscape.arrays_equal(p, p_verify)
 
 ## Syntax checks for various methods of conditional comparisons
-l1 = run_omniscape("input/config4b.ini")
+l1, f1 = run_omniscape("input/config4b.ini")
 l2 = run_omniscape("input/config4c.ini")
 
 g = run_omniscape("input/config5.ini")
