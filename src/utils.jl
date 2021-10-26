@@ -1,3 +1,5 @@
+import Circuitscape: compute_omniscape_current
+
 function clip(
         A::Array{Union{Missing, T}, 2} where T <: Number;
         x::Int64,
@@ -27,6 +29,8 @@ function clip(
 
     A_sub
 end
+
+
 
 
 function get_targets(
@@ -85,7 +89,7 @@ end
 # x and y defined by targets object. Ultimately the for loop will be done by
 # iterating through rows of targets object
 function get_source(
-        source_array::Array{Union{Missing, T}, 2} where T <: Number,
+        source_array::MissingArray{T, 2} where T <: Number,
         arguments::Dict{String, Int64},
         os_flags::OmniscapeFlags,
         condition_layers::ConditionLayers,
@@ -186,7 +190,7 @@ function get_source(
     source_subset
 end
 
-function source_target_match!(source_subset::Array{Union{T, Missing}, 2} where T <: Number,
+function source_target_match!(source_subset::MissingArray{T, 2} where T <: Number,
                               n_conditions::Int64,
                               condition_layers::ConditionLayers,
                               conditions::Conditions,
@@ -268,7 +272,7 @@ function get_ground(arguments::Dict{String, Int64},
 end
 
 function get_conductance(
-        resistance::Array{Union{T, Missing}, 2} where T <: Number,
+        resistance::MissingArray{T, 2} where T <: Number,
         arguments::Dict{String, Int64},
         target::Target,
         os_flags::OmniscapeFlags
@@ -288,126 +292,13 @@ function get_conductance(
     convert(typeof(resistance_clipped), conductance)
 end
 
-
-function calculate_current(
-        conductance::Array{Union{T, Missing}, 2} where T <: Number,
-        source::Array{Union{T, Missing}, 2} where T <: Number,
-        ground::Array{T, 2} where T <: Number,
-        cs_flags::Circuitscape.RasterFlags,
-        cs_cfg::Dict{String, String},
-        T::DataType
-    )
-    V = Int64
-
-    # Replace missings with -9999, then convert to Array{T, 2}
-    # prior to circuitscape
-    conductance[ismissing.(conductance)] .= -9999
-    source[ismissing.(source)] .= -9999
-    conductance = convert(Array{T, 2}, conductance)
-    source = convert(Array{T, 2}, source)
-
-    # get raster data
-    cellmap = conductance
-    polymap = Matrix{V}(undef, 0, 0)
-    source_map = source
-    ground_map = ground
-    points_rc = (V[], V[], V[])
-    strengths = Matrix{T}(undef, 0, 0)
-
-    included_pairs = Circuitscape.IncludeExcludePairs(:undef,
-                                                      V[],
-                                                      Matrix{V}(undef,0,0))
-
-    # This is just to satisfy type requirements, most of it not used
-    hbmeta = Circuitscape.RasterMeta(size(cellmap)[2],
-                                     size(cellmap)[1],
-                                     0.,
-                                     0.,
-                                     1.,
-                                     -9999.,
-                                     Array{Float64, 1}(undef, 1),
-                                     "")
-
-    rasterdata = Circuitscape.RasterData(cellmap,
-                                         polymap,
-                                         source_map,
-                                         ground_map,
-                                         points_rc,
-                                         strengths,
-                                         included_pairs,
-                                         hbmeta)
-
-    # Generate advanced data
-    data = Circuitscape.compute_advanced_data(rasterdata, cs_flags, cs_cfg)
-
-    G = data.G
-    nodemap = data.nodemap
-    polymap = data.polymap
-    hbmeta = data.hbmeta
-    sources = data.sources
-    grounds = data.grounds
-    finitegrounds = data.finitegrounds
-    cc = data.cc
-    check_node = data.check_node
-    source_map = data.source_map # Need it for one to all mode
-    cellmap = data.cellmap
-
-    f_local = Vector{eltype(G)}()
-    voltages = Vector{eltype(G)}()
-    outcurr = Circuitscape.alloc_map(hbmeta)
-
-    for c in cc
-        if check_node != -1 && !(check_node in c)
-            continue
-        end
-
-        # a_local = laplacian(G[c, c])
-        a_local = G[c,c]
-        s_local = sources[c]
-        g_local = grounds[c]
-
-        if sum(s_local) == 0 || sum(g_local) == 0
-            continue
-        end
-
-        if finitegrounds != [-9999.]
-            f_local = finitegrounds[c]
-        else
-            f_local = finitegrounds
-        end
-
-        voltages = Circuitscape.multiple_solver(cs_cfg,
-                                                data.solver,
-                                                a_local,
-                                                s_local,
-                                                g_local,
-                                                f_local)
-
-        local_nodemap = Circuitscape.construct_local_node_map(nodemap,
-                                                              c,
-                                                              polymap)
-
-        Circuitscape.accum_currents!(outcurr,
-                                     voltages,
-                                     cs_cfg,
-                                     a_local,
-                                     voltages,
-                                     f_local,
-                                     local_nodemap,
-                                     hbmeta)
-    end
-
-    outcurr
-end
-
 function solve_target!(
         target::Target,
         int_arguments::Dict{String, Int64},
-        source_strength::Array{Union{Missing, T}, 2} where T <: Number,
-        resistance::Array{Union{Missing, T}, 2} where T <: Number,
+        source_strength::MissingArray{T, 2} where T <: Number,
+        resistance::MissingArray{T, 2} where T <: Number,
         os_flags::OmniscapeFlags,
         cs_cfg::Dict{String, String},
-        cs_flags::Circuitscape.RasterFlags,
         condition_layers::ConditionLayers,
         conditions::Conditions,
         correction_array::Array{T, 2} where T <: Number,
@@ -438,23 +329,22 @@ function solve_target!(
     grid_size = size(source)
 
     ## Run circuitscape
-    curr = calculate_current(conductance,
-                             source,
-                             ground,
-                             cs_flags,
-                             cs_cfg,
-                             precision)
+    conductance = missingarray_to_array(conductance, -9999)
+    source = missingarray_to_array(source, -9999)
+    
+    curr = compute_omniscape_current(conductance,
+                                     source,
+                                     ground,
+                                     cs_cfg)
 
     ## If normalize = True, calculate null map and normalize
     if os_flags.compute_flow_potential
-        null_conductance = convert(Array{Union{precision, Missing}, 2}, fill(1, grid_size))
+        null_conductance = convert(Array{precision, 2}, fill(1, grid_size))
 
-        flow_potential = calculate_current(null_conductance,
-                                           source,
-                                           ground,
-                                           cs_flags,
-                                           cs_cfg,
-                                           precision)
+        flow_potential = compute_omniscape_current(null_conductance,
+                                                   source,
+                                                   ground,
+                                                   cs_cfg)
     end
 
     if os_flags.correct_artifacts && !(int_arguments["block_size"] == 1)
@@ -512,7 +402,6 @@ function calc_correction(
         arguments::Dict{String, Int64},
         os_flags::OmniscapeFlags,
         cs_cfg::Dict{String, String},
-        cs_flags::Circuitscape.RasterFlags,
         condition_layers::ConditionLayers,
         conditions::Conditions,
         precision::DataType
@@ -522,18 +411,23 @@ function calc_correction(
     # are not adjusted by target weight, but stay the same according to their
     # original values. Something to keep in mind...
 
-    temp_source = convert(Array{Union{precision, Missing}, 2},
-                          fill(1.0,
-                               arguments["radius"] * 2 + buffer * 2 + 1,
-                               arguments["radius"] * 2 + buffer * 2 + 1))
+    temp_source = convert(
+        Array{precision, 2},
+        fill(
+            1.0,
+            arguments["radius"] * 2 + buffer * 2 + 1,
+            arguments["radius"] * 2 + buffer * 2 + 1
+        )
+    )
+    temp_source = missingarray(temp_source, precision, -9999)
 
     source_null = clip(temp_source,
                        x = arguments["radius"] + buffer + 1,
                        y = arguments["radius"] + buffer + 1,
                        distance = arguments["radius"])
 
-    # Append NoData (-9999) if buffer > 0
-    if buffer > 0
+    # Append NoData (missing) if buffer > 0
+        if buffer > 0
         column_dims = (size(source_null)[1], buffer)
         # Add columns
         source_null = hcat(fill(missing, column_dims),
@@ -546,7 +440,8 @@ function calc_correction(
                                 source_null,
                                 fill(missing, row_dims))
     end
-    n_sources = sum(source_null[(!).(ismissing.(source_null))])
+
+    n_sources = sum(skipmissing(source_null))
 
     source_null[ismissing.(source_null)] .= 0.0
     source_null[arguments["radius"] + arguments["buffer"] + 1,
@@ -576,19 +471,21 @@ function calc_correction(
            arguments["radius"] + arguments["buffer"] + 1] = Inf
 
 
-    block_null_current = calculate_current(conductance,
-                                           source_blocked,
-                                           ground,
-                                           cs_flags,
-                                           cs_cfg,
-                                           precision)
+    # Convert inputs for Circuitscape current solve
+    conductance = missingarray_to_array(conductance, -9999)
+    source_blocked = missingarray_to_array(source_blocked, -9999)
+    source_null = missingarray_to_array(source_null, -9999)
 
-    null_current =  calculate_current(conductance,
-                                      source_null,
-                                      ground,
-                                      cs_flags,
-                                      cs_cfg,
-                                      precision)
+    block_null_current = compute_omniscape_current(conductance,
+                                                   source_blocked,
+                                                   ground,
+                                                   cs_cfg)
+
+    null_current =  compute_omniscape_current(conductance,
+                                              source_null,
+                                              ground,
+                                              cs_cfg)
+
     null_current_total = fill(convert(precision, 0.),
                               arguments["radius"] * 2 + arguments["buffer"] * 2 + arguments["block_size"],
                               arguments["radius"] * 2 + arguments["buffer"] * 2 + arguments["block_size"])
@@ -633,9 +530,9 @@ function get_omniscape_flags(cfg::Dict{String, String})
 end
 
 # Calculate the source layer using resistance surface and arguments from cfg
-function source_from_resistance(resistance::Array{Union{T, Missing}, 2} where T <: Number,
+function source_from_resistance(resistance::MissingArray{T, 2} where T <: Number,
                                 cfg::Dict{String, String},
-                                reclass_table::Array{Union{T, Missing}, 2} where T <: Number)
+                                reclass_table::MissingArray{T, 2} where T <: Number)
     full_cfg = init_cfg()
     update_cfg!(full_cfg, cfg)
     r_cutoff = parse(Float64, full_cfg["r_cutoff"])
@@ -660,8 +557,8 @@ function source_from_resistance(resistance::Array{Union{T, Missing}, 2} where T 
 end
 
 
-function reclassify_resistance!(resistance::Array{Union{T, Missing}, 2} where T <: Number,
-                                reclass_table::Array{Union{T, Missing}, 2} where T <: Number)
+function reclassify_resistance!(resistance::MissingArray{T, 2} where T <: Number,
+                                reclass_table::MissingArray{T, 2} where T <: Number)
     resistance_old = deepcopy(resistance)
     for i in 1:(size(reclass_table)[1])
         resistance[coalesce.(resistance_old .== reclass_table[i, 1], false)] .= reclass_table[i, 2]
@@ -677,8 +574,8 @@ function convert_and_fill_missing(A::Array{T, 2} where T <: Number,
     A
 end
 
-function arrays_equal(A::Array{Union{T, Missing}, 2} where T <: Number,
-                      B::Array{Union{T, Missing}, 2} where T <: Number)
+function arrays_equal(A::MissingArray{T, 2} where T <: Number,
+                      B::MissingArray{T, 2} where T <: Number)
     # Check that non-missing entries are equal
     A[ismissing.(A)] .= -9999
     B[ismissing.(B)] .= -9999

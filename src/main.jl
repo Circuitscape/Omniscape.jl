@@ -92,13 +92,13 @@ key.
 """
 function run_omniscape(
         cfg::Dict{String, String},
-        resistance::Array{Union{T, Missing}, 2} where T <: Number;
-        reclass_table::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{Float64, Missing}, 2}(undef, 1, 2),
-        source_strength::Array{Union{T, Missing}, 2} where T <: Number = source_from_resistance(resistance, cfg, reclass_table),
-        condition1::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
-        condition2::Array{Union{T, Missing}, 2} where T <: Number = Array{Union{Float64, Missing}, 2}(undef, 1, 1),
-        condition1_future::Array{Union{T, Missing}, 2} where T <: Number = condition1,
-        condition2_future::Array{Union{T, Missing}, 2} where T <: Number = condition2,
+        resistance::MissingArray{T, 2} where T <: Number;
+        reclass_table::MissingArray{T, 2} where T <: Number = MissingArray{Float64, 2}(undef, 1, 2),
+        source_strength::MissingArray{T, 2} where T <: Number = source_from_resistance(resistance, cfg, reclass_table),
+        condition1::MissingArray{T, 2} where T <: Number = MissingArray{Float64, 2}(undef, 1, 1),
+        condition2::MissingArray{T, 2} where T <: Number = MissingArray{Float64, 2}(undef, 1, 1),
+        condition1_future::MissingArray{T, 2} where T <: Number = condition1,
+        condition2_future::MissingArray{T, 2} where T <: Number = condition2,
         wkt::String = "",
         geotransform::Array{Float64, 1} = [0., 1., 0., 0., 0., -1.0],
         write_outputs::Bool = false)
@@ -135,12 +135,8 @@ function run_omniscape(
     os_flags = get_omniscape_flags(cfg)
 
     # other
-    source_threshold = parse(Float64, cfg["source_threshold"])
     project_name = cfg["project_name"]
     file_format = os_flags.write_as_tif ? "tif" : "asc"
-
-    check_solver!(cfg)
-    solver = cfg["solver"]
 
     ## Set number of BLAS threads to 1 when parallel processing
     if os_flags.parallelize && nthreads() != 1
@@ -165,11 +161,22 @@ function run_omniscape(
                             parse(Float64, cfg["condition2_lower"]),
                             parse(Float64, cfg["condition2_upper"]))
 
-    condition_layers = ConditionLayers(condition1, condition1_future, condition2, condition2_future)
+    # a bit of a hack, but ensures compare_to_future can work in both methods
+    # for run_omniscape
+    if compare_to_future == "1"
+        condition2_future = condition2
+    elseif compare_to_future == "2"
+        condition1_future = condition1
+    elseif compare_to_future == "none"
+        condition1_future = condition1
+        condition2_future = condition2
+    end
+
+    condition_layers = ConditionLayers(condition1, condition1_future,
+                                       condition2, condition2_future)
 
     ## Setup Circuitscape configuration
     cs_cfg_dict = init_csdict(cfg)
-    cs_cfg_dict["solver"] = solver
     cs_cfg = Circuitscape.init_config()
     Circuitscape.update!(cs_cfg, cs_cfg_dict)
 
@@ -184,18 +191,11 @@ function run_omniscape(
     # Permute targets randomly (to get better estimate of ProgressMeter ETA)
     targets = targets[randperm(n_targets), :]
 
-    ## Define parameters for cs
-    # Get flags
-    o = Circuitscape.OutputFlags(false, false,
-                                 false, false,
-                                 false, false,
-                                 false, false)
-
     precision_name = precision == Float64 ? "double" : "single"
     ## Add parallel workers
     if os_flags.parallelize
         @info("Starting up Omniscape with $(n_threads) workers and $(precision_name) precision")
-        @info("Using Circuitscape with the $(uppercase(solver)) solver...")
+        @info("Using Circuitscape with the $(cs_cfg["solver"]) solver...")
 
         cum_currmap = fill(convert(precision, 0.),
                            int_arguments["nrows"],
@@ -213,7 +213,7 @@ function run_omniscape(
         end
     else
         @info("Starting up Omniscape with 1 worker and $(precision_name) precision")
-        @info("Using Circuitscape with the $(uppercase(solver)) solver...")
+        @info("Using Circuitscape with the $(cs_cfg["solver"]) solver...")
         cum_currmap = fill(convert(precision, 0.),
                           int_arguments["nrows"],
                           int_arguments["ncols"],
@@ -229,18 +229,11 @@ function run_omniscape(
         end
     end
 
-    cs_flags = Circuitscape.RasterFlags(true, false, true,
-                                        false, false,
-                                        false, Symbol("rmvsrc"),
-                                        cfg["connect_four_neighbors_only"] in TRUELIST,
-                                        false, solver, o)
-
     if os_flags.correct_artifacts && !(int_arguments["block_size"] == 1)
         @info("Calculating block artifact correction array...")
         correction_array = calc_correction(int_arguments,
                                            os_flags,
                                            cs_cfg,
-                                           cs_flags,
                                            condition_layers,
                                            conditions,
                                            precision)
@@ -272,7 +265,6 @@ function run_omniscape(
                                   resistance,
                                   os_flags,
                                   cs_cfg,
-                                  cs_flags,
                                   condition_layers,
                                   conditions,
                                   correction_array,
@@ -291,18 +283,17 @@ function run_omniscape(
             target = Target(Int64(targets[i, 1]), Int64(targets[i, 2]), float(targets[i, 3]))
             try
                 solve_target!(target,
-                            int_arguments,
-                            source_strength,
-                            resistance,
-                            os_flags,
-                            cs_cfg,
-                            cs_flags,
-                            condition_layers,
-                            conditions,
-                            correction_array,
-                            cum_currmap,
-                            fp_cum_currmap,
-                            precision)
+                              int_arguments,
+                              source_strength,
+                              resistance,
+                              os_flags,
+                              cs_cfg,
+                              condition_layers,
+                              conditions,
+                              correction_array,
+                              cum_currmap,
+                              fp_cum_currmap,
+                              precision)
             catch error
                 println("Omniscape failed on the moving window centered on row $(target.y_coord) column $(target.x_coord)")
                 throw(error)
@@ -361,9 +352,8 @@ function run_omniscape(
         write_cfg(cfg_user, project_name)
 
         if os_flags.reclassify && os_flags.write_reclassified_resistance
-            resistance[ismissing.(resistance)] .= -9999
             write_raster("$(project_name)/classified_resistance",
-                         convert(Array{precision, 2}, resistance),
+                         missingarray_to_array(resistance, -9999),
                          wkt,
                          geotransform,
                          file_format)
@@ -403,17 +393,17 @@ function run_omniscape(
     end
     ## Return outputs, depending on user options
     # convert arrays, replace -9999's with missing
-    cum_currmap = convert_and_fill_missing(cum_currmap, precision)
+    cum_currmap = missingarray(cum_currmap, precision, -9999)
 
     if os_flags.calc_normalized_current && !os_flags.calc_flow_potential
-        normalized_cum_currmap = convert_and_fill_missing(normalized_cum_currmap, precision)
+        normalized_cum_currmap = missingarray(normalized_cum_currmap, precision, -9999)
         return cum_currmap, normalized_cum_currmap
     elseif !os_flags.calc_normalized_current && os_flags.calc_flow_potential
-        fp_cum_currmap = convert_and_fill_missing(fp_cum_currmap, precision)
+        fp_cum_currmap = missingarray(fp_cum_currmap, precision, -9999)
         return cum_currmap, fp_cum_currmap
     elseif os_flags.calc_normalized_current && os_flags.calc_flow_potential
-        fp_cum_currmap = convert_and_fill_missing(fp_cum_currmap, precision)
-        normalized_cum_currmap = convert_and_fill_missing(normalized_cum_currmap, precision)
+        fp_cum_currmap = missingarray(fp_cum_currmap, precision, -9999)
+        normalized_cum_currmap = missingarray(normalized_cum_currmap, precision, -9999)
         return cum_currmap, fp_cum_currmap, normalized_cum_currmap
     else
         return cum_currmap
@@ -448,7 +438,7 @@ function run_omniscape(path::String)
     if os_flags.reclassify
         reclass_table = read_reclass_table("$(cfg["reclass_table"])", precision)
     else
-        reclass_table = Array{Union{precision, Missing}, 2}(undef, 1, 2)
+        reclass_table = MissingArray{precision, 2}(undef, 1, 2)
     end
 
     ## Load source strengths
@@ -498,7 +488,7 @@ function run_omniscape(path::String)
             # get rid of unneeded raster to save memory
             condition1_future_raster = nothing
         else
-            condition1_future = condition1
+            condition1_future = MissingArray{precision, 2}(undef, 1, 1)
         end
 
         if n_conditions == 2
@@ -525,16 +515,16 @@ function run_omniscape(path::String)
                 # get rid of unneeded raster to save memory
                 condition2_future_raster = nothing
             else
-                condition2_future = condition2
+                condition2_future = MissingArray{precision, 2}(undef, 1, 1)
             end
 
         else
-            condition2 = Array{Union{Missing, precision}, 2}(undef, 1, 1)
+            condition2 = MissingArray{precision, 2}(undef, 1, 1)
             condition2_future = condition2
         end
     else
-        condition1 = Array{Union{Missing, precision}, 2}(undef, 1, 1)
-        condition2 = Array{Union{Missing, precision}, 2}(undef, 1, 1)
+        condition1 = MissingArray{precision, 2}(undef, 1, 1)
+        condition2 = MissingArray{precision, 2}(undef, 1, 1)
         condition1_future = condition1
         condition2_future = condition2
     end

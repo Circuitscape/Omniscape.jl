@@ -1,3 +1,8 @@
+import Base: size, getindex, setindex!, length, sum, eltype, view
+import Base.Broadcast: broadcasted, broadcast
+import StatsBase: mode
+import Statistics: median
+
 struct OmniscapeFlags
     calc_flow_potential::Bool
     calc_normalized_current::Bool
@@ -30,10 +35,33 @@ struct Conditions
     condition2_upper::Number
 end
 
-struct ConditionLayers
-    condition1_present::Array{Union{Missing, Number}, 2} # where T <: Number
-    condition1_future::Array{Union{Missing, Number}, 2} # where U <: Number
-    condition2_present::Array{Union{Missing, Number}, 2} # where V <: Number
-    condition2_future::Array{Union{Missing, Number}, 2} # where W <: Number
+
+const MissingArray{T, N} = Array{Union{Missing, T}, N}
+
+struct ConditionLayers{T, N}
+    condition1_present::MissingArray{T, N}
+    condition1_future::MissingArray{T, N}
+    condition2_present::MissingArray{T, N}
+    condition2_future::MissingArray{T, N}
 end
 
+function missingarray(
+        A::Array{T, N} where T <: Union{Missing, Number} where N,
+        precision::DataType,
+        nodata::Number
+    )
+    output = convert(Array{Union{precision, Missing}, ndims(A)}, copy(A))
+    output[output .== nodata] .= missing
+    
+    return output
+end
+
+function missingarray_to_array(
+        A::MissingArray{T, N} where T <: Number where N,
+        nodata::Number
+    )
+    output = copy(A)
+    output[ismissing.(output)] .= nodata
+
+    return convert(Array{typeof(output[1]), ndims(output)}, output)
+end
