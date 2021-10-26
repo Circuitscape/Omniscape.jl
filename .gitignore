@@ -7,3 +7,5 @@ Manifest.toml
 run-dev.sh
 .vscode/
 benchmark/
+docs/build
+docs/make-local.jl

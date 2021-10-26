@@ -81,13 +81,15 @@ function init_csdict(cfg)
 
     a["ground_file_is_resistances"] = "True"
     a["use_direct_grounds"] = "False"
-
     a["output_file"] = "temp"
-    a["write_cum_cur_map_only"] =  "False"
-
+    a["write_cum_cur_map_only"] = "False"
     a["scenario"] = "Advanced"
-
     a["suppress_messages"] = cfg["suppress_cs_messages"]
+    a["connect_four_neighbors_only"] = cfg["connect_four_neighbors_only"]
+    a["cholmod_batch_size"] = "1000"
+
+    check_solver!(cfg)
+    a["solver"] = cfg["solver"]
 
     a
 end
