@@ -424,7 +424,7 @@ function calc_correction(
                        distance = arguments["radius"])
 
     # Append NoData (missing) if buffer > 0
-        if buffer > 0
+    if buffer > 0
         column_dims = (size(source_null)[1], buffer)
         # Add columns
         source_null = hcat(fill(missing, column_dims),
