@@ -10,6 +10,17 @@ If you want to install the latest (unreleased) development version of Omniscape.
 using Pkg; Pkg.add(PackageSpec(name = "Omniscape", rev = "main"))
 ```
 
+Don't forget to "watch" the Omniscape.jl repository on GitHub to be notified of new releases! 
+
+```@raw html
+<td>
+	<figure>
+		<img src='../figs/watch_releases.gif' alt='How to be notified of new releases'><br>
+		<figcaption><em></em></figcaption>
+	</figure>
+</td>
+```
+
 ## Running Omniscape
 
 For detailed examples of how to use Omniscape, check out the [Examples](@ref) section. Omniscape.jl provides a single user-facing function: [`run_omniscape`](@ref).
