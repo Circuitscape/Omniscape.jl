@@ -94,8 +94,9 @@ function check_unsupported_args(cfg)
     arg_names = String.(keys(cfg))
 
     bad_args = arg_names[map(x->(x ∉ SUPPORTED_ARGS), arg_names)]
-
-    if bad_args != [""]
+    
+    if bad_args != String[] && bad_args != [""]
+        
         @warn "The following unsupported arguments were provided and will be ignored:
          $(join(map(string, bad_args), " "))"
     end

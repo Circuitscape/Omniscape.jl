@@ -7,12 +7,12 @@ Land cover datasets are commonly used to parameterize resistance for connectivit
 First, install the necessary packages and import them:
 
 ```julia
-using Pkg; Pkg.add(["Omniscape", "GeoData", "Plots"])
-using Omniscape, GeoData, Plots
+using Pkg; Pkg.add(["Omniscape", "Rasters", "Plots"])
+using Omniscape, Rasters, Plots
 ```
 ```@setup mdforest
-using Pkg; Pkg.add(["Omniscape", "GeoData", "Plots"])
-using Omniscape, GeoData, Plots
+using Pkg; Pkg.add(["Omniscape", "Rasters", "Plots"])
+using Omniscape, Rasters, Plots
 url_base = "https://raw.githubusercontent.com/Circuitscape/datasets/main/"
 download(string(url_base, "data/nlcd_2016_frederick_md.tif"),
          "nlcd_2016_frederick_md.tif")
@@ -33,7 +33,7 @@ palette = ["#476BA0", "#DDC9C9", "#D89382", "#ED0000", "#AA0000",
            "#b2b2b2", "#68AA63", "#1C6330", "#B5C98E", "#CCBA7C",
            "#E2E2C1", "#DBD83D", "#AA7028", "#BAD8EA", "#70A3BA"]
 
-plot(GeoArray(GDALarray("nlcd_2016_frederick_md.tif")),
+plot(Raster("nlcd_2016_frederick_md.tif"),
      title = "Land Cover Type", xlabel = "Easting", ylabel = "Northing",
      seriescolor = cgrad(palette, (values .- 12) ./ 84, categorical = true),
      size = (700, 640))
@@ -98,14 +98,14 @@ currmap, flow_pot, norm_current = run_omniscape(config,
                                                 write_outputs = true)
 ```
 
-You'll see that outputs are written to a new folder called "md\_nlcd\_omniscape\_output". This is specified by the "project\_name" value in `config` above. The cumulative current map will always be called "cum\_currmap.tif", and it will be located in the output folder. We also specified in the run configuration that flow potential and normalized current should be computed as well. These are called "potential\_potential.tif" and "normalized\_cum\_currmap.tif", respectively. See [Outputs](@ref) for a description of each of these outputs.
+You'll see that outputs are written to a new folder called "md\_nlcd\_omniscape\_output". This is specified by the "project\_name" value in `config` above. The cumulative current map will always be called "cum\_currmap.tif", and it will be located in the output folder. We also specified in the run configuration that flow potential and normalized current should be computed as well. These are called "flow\_potential.tif" and "normalized\_cum\_currmap.tif", respectively. See [Outputs](@ref) for a description of each of these outputs.
 
 Now, plot the outputs. Load the outputs into Julia as spatial data and plot them.
 
 First, the cumulative current map:
 
 ```julia
-current = GDALarray("md_nlcd_omniscape_output/cum_currmap.tif")
+current = Raster("md_nlcd_omniscape_output/cum_currmap.tif")
 plot(current,
      title = "Cumulative Current Flow", xlabel = "Easting", ylabel = "Northing",
      seriescolor = cgrad(:inferno, [0, 0.005, 0.03, 0.06, 0.09, 0.14]),
@@ -118,7 +118,7 @@ plot(current,
 Next, flow potential. This map shows what connectivity looks like under "null" conditions (resistance equals 1 for the whole landscape).
 
 ```julia
-fp = GDALarray("md_nlcd_omniscape_output/flow_potential.tif")
+fp = Raster("md_nlcd_omniscape_output/flow_potential.tif")
 plot(fp,
      title = "Flow Potential", xlabel = "Easting", ylabel = "Northing",
      seriescolor = cgrad(:inferno, [0, 0.005, 0.03, 0.06, 0.09, 0.14]),
@@ -131,7 +131,7 @@ plot(fp,
 Finally, map normalized current flow, which is calculated as flow potential divided by cumulative current.
 
 ```julia
-normalized_current = GDALarray("md_nlcd_omniscape_output/normalized_cum_currmap.tif")
+normalized_current = Raster("md_nlcd_omniscape_output/normalized_cum_currmap.tif")
 plot(normalized_current,
      title = "Normalized Current Flow", xlabel = "Easting", ylabel = "Northing",
      seriescolor = cgrad(:inferno, [0, 0.005, 0.03, 0.06, 0.09, 0.14]),
