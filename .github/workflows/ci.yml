@@ -8,6 +8,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'docs/**'
+      - 'src/**'
+      - 'test/**'
+      - '.github/**'
+      - 'Project.toml'
+      - 'codecov.yml'
     tags: '*'
 jobs:
   test:
