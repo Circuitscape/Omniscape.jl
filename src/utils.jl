@@ -83,8 +83,7 @@ function get_targets(
     targets
 end
 
-# x and y defined by targets object. Ultimately the for loop will be done by
-# iterating through rows of targets object
+# x and y defined by targets object.
 function get_source(
         source_array::MissingArray{T, 2} where T <: Number,
         arguments::Dict{String, Int64},
@@ -620,4 +619,185 @@ function missingarray_to_array(
     output[ismissing.(output)] .= nodata
 
     return convert(Array{typeof(output[1]), ndims(output)}, output)
+end
+
+### Utility functions for chunking (distributed computing)
+"""
+    get_chunk_extents(
+        chunks::Tuple, 
+        shape::Tuple,
+        radius::Integer,
+        block_size::Integer
+    )
+
+This function is used to calculate the index boundaries of each array chunk. 
+Omniscape input arrays can be chunked and solved in parallel. We need to account
+for the block_size argument used for Omniscape (and chunk boundaries need to 
+align with block boundaries) to ensure that the chunked approach also results
+in the same answer as a non-chunked approach. Returns a vector of 4-length 
+vectors describing the extents of each chunk. The elements in the vector 
+elements are orders as follows: top, bottom, left, right -- (extent described by
+`[top:bottom, left:right]`).
+
+# Parameters
+
+**`chunks`**: A tuple describing how to chunk the landscape `(n_row, n_col)`. 
+The landscape will be chunked into `n_row` rows and `n_col` columns.
+
+**`shape`**: The size `(rows, columns)` of the array to be chunked.
+
+**`radius`**: The radius used with Omniscape
+
+**`block_size`**: The block size used with Omniscape
+"""
+function get_chunk_extents(
+        chunks::Tuple,
+        shape::Tuple,
+        radius::Integer,
+        block_size::Integer
+    )
+    block_steps = Int.(floor.((shape ./ (block_size)) ./ chunks))
+    ## Add errors if chunks are too small for radius
+    # row-wise
+    top_row_cuts = Int[]
+    bottom_row_cuts = Int[]
+    for i in 0:(chunks[1] - 1)
+        bottom_idx = ifelse(
+            i ∈ [0, chunks[1]],
+            block_steps[1] * i * block_size + 1,
+            block_steps[1] * i * block_size - radius
+        )
+        push!(bottom_row_cuts, Int(bottom_idx))
+
+        top_idx = ifelse(
+            i == chunks[1],
+            shape[1],
+            min(block_steps[1] * (i + 1) * block_size + radius, shape[1])
+        )
+        push!(top_row_cuts, Int(top_idx))
+    end
+
+    ## Add errors if chunks are too small for radius
+    # row-wise
+    left_col_cuts = Int[]
+    right_col_cuts = Int[]
+    for i in 0:(chunks[2] - 1)
+        left_idx = ifelse(
+            i ∈ [0, chunks[2]],
+            block_steps[2] * i * block_size + 1,
+            block_steps[2] * i * block_size - radius
+        )
+        push!(left_col_cuts, Int(left_idx))
+
+        right_idx = ifelse(
+            i == chunks[2],
+            shape[2],
+            min(block_steps[2] * (i + 1) * block_size + radius, shape[2])
+        )
+        push!(right_col_cuts, Int(right_idx))
+    end
+
+    row_cuts = zip(bottom_row_cuts, top_row_cuts)
+    col_cuts = zip(left_col_cuts, right_col_cuts)
+
+    # extents in order top, bottom, left, right, for each chunk
+    extents = vec(
+        map(
+            x->collect(Iterators.flatten(x)),
+            Iterators.product(
+                collect.(row_cuts),
+                collect.(col_cuts)
+                )
+            )
+        )
+
+    return extents
+end
+
+
+"""
+    get_compute_extents(chunk_extents::Vector, shape::Tuple)
+
+To avoid doing redundant work and to make stitching outputs from different 
+chunks seamless, each target must only be solved in one chunk (raw chunks -- 
+the data sent to each worker -- need to overlap since Omniscape is a moving
+window algorithm). As long as each target is only solved once, the outputs from
+each chunk can simply be summed together (at the proper indices) to get the
+correct output. Returns a vector of 4-length vectors describing the extents to
+use for iterating through targets when solving each chunk. The elements in the 
+vector elements are orders as follows: top, bottom, left, right -- (extent
+described by `[top:bottom, left:right]`).
+
+# Parameters
+
+**`chunk_extents`**: A vector of 4-length vectors describing to extent of each
+array chunk (returned from `Omniscape.get_chunk_extents`).
+
+**`shape`**: The size `(rows, columns)` of the array being chunked.
+
+"""
+function get_compute_extents(chunk_extents, shape)
+    compute_extents = []
+
+    for extent in chunk_extents
+        compute_extent = [
+            extent[1] == 1 ? 1 : extent[1] + radius + 1,
+            extent[2] == shape[1] ? extent[2] : extent[2] - radius,
+            extent[3] == 1 ? 1 : extent[3] + radius + 1,
+            extent[4] == shape[2] ? extent[4] : extent[4] - radius
+        ] 
+        push!(compute_extents, compute_extent)
+    end
+
+    return compute_extents
+end
+
+"""
+    get_relative_compute_extents(chunk_extents::Vector, compute_extents::Vector)
+
+`get_compute_extents` returns indices relative to the full input arrays. This 
+function recalculates the compute extents relative to the current chunk.
+Returns a vector of 4-length vectors describing the relative extents to
+use for iterating through targets when solving each chunk. The elements in the 
+vector elements are orders as follows: top, bottom, left, right -- (extent
+described by `[top:bottom, left:right]`).
+
+# Parameters
+
+**`chunk_extents`**: A vector of 4-length vectors describing to extent of each
+array chunk (returned from `Omniscape.get_chunk_extents`).
+
+**`compute_extents`**: A vector of 4-length vectors describing to extent over 
+which to iterate through targets when solving a chunk (returned from 
+`Omniscape.get_compute_extents`).
+
+"""
+function get_relative_compute_extents(
+        chunk_extents::Vector,
+        compute_extents::Vector
+    )
+    n_chunks = length(chunk_extents)
+    rel_extents = []
+
+    # top, bottom, left, right is order of inputs in each vector
+    for i in 1:n_chunks
+        chunk_extents = chunk_extents[i]
+        compute_extent = compute_extents[i]
+
+        # top = extent[1] == 1 ? 1 : compute_extent[1] - extent[1] + 1
+        top = compute_extent[1] - chunk_extents[1] + 1
+        
+        # bottom = extent[2] == shape[1] ? compute_extent[2] - compute_extent[1] + 1 : compute_extent[2] - extent[1] + 1
+        bottom = compute_extent[2] - chunk_extents[1] + 1
+
+        # left = extent[3] == 1 ? 1 : compute_extent[3] - extent[3] + 1
+        left = compute_extent[3] - chunk_extents[3] + 1
+
+        # right = extent[4] == shape[2] ? compute_extent[4] - compute_extent[3] + 1 : compute_extent[4] - extent[3] + 1
+        right = compute_extent[4] - chunk_extents[3] + 1
+
+        push!(rel_extents, [top, bottom, left, right])
+    end
+    
+    return rel_extents
 end
