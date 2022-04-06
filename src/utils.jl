@@ -83,12 +83,11 @@ function get_targets(
     targets
 end
 
-# x and y defined by targets object. Ultimately the for loop will be done by
-# iterating through rows of targets object
+# x and y defined by targets object.
 function get_source(
         source_array::MissingArray{T, 2} where T <: Number,
         arguments::Dict{String, Int64},
-        os_flags::OmniscapeFlags,
+        conditional::Bool,
         condition_layers::ConditionLayers,
         conditions::Conditions,
         target::Target
@@ -159,7 +158,7 @@ function get_source(
     source_subset[source_subset .> 0] .=
         (source_subset[coalesce.(source_subset .> 0, false)] * target.amps) / source_sum
 
-    if os_flags.conditional
+    if conditional
 
         xlower_buffered = Int64(max(target.x_coord - radius - buffer, 1))
         xupper_buffered = Int64(min(target.x_coord + radius + buffer, ncols))
@@ -187,19 +186,20 @@ function get_source(
     source_subset
 end
 
-function source_target_match!(source_subset::MissingArray{T, 2} where T <: Number,
-                              n_conditions::Int64,
-                              condition_layers::ConditionLayers,
-                              conditions::Conditions,
-                              ylower::Int64,
-                              yupper::Int64,
-                              xlower::Int64,
-                              xupper::Int64,
-                              ylower_buffered::Int64,
-                              yupper_buffered::Int64,
-                              xlower_buffered::Int64,
-                              xupper_buffered::Int64
-                              )
+function source_target_match!(
+        source_subset::MissingArray{T, 2} where T <: Number,
+        n_conditions::Int64,
+        condition_layers::ConditionLayers,
+        conditions::Conditions,
+        ylower::Int64,
+        yupper::Int64,
+        xlower::Int64,
+        xupper::Int64,
+        ylower_buffered::Int64,
+        yupper_buffered::Int64,
+        xlower_buffered::Int64,
+        xupper_buffered::Int64
+    )
     condition1_present = condition_layers.condition1_present
     condition1_future = condition_layers.condition1_future
     condition2_present = condition_layers.condition2_present
@@ -307,7 +307,7 @@ function solve_target!(
     ## get source
     source = get_source(source_strength,
                         int_arguments,
-                        os_flags,
+                        os_flags.conditional,
                         condition_layers,
                         conditions,
                         target)
@@ -451,7 +451,7 @@ function calc_correction(
     
     source_blocked = get_source(temp_source,
                                 arguments,
-                                os_flags,
+                                false,
                                 condition_layers,
                                 conditions,
                                 target)
