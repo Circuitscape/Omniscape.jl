@@ -13,13 +13,13 @@ land_cover, wkt, transform = Omniscape.read_raster(
 
 shape = size(land_cover)
 
-chunks = (1, 1)
+chunks = (2, 2)
 
 radius = 50 
 block_size = 7
 
 extents = Omniscape.get_chunk_extents(chunks, shape, radius, block_size)
-compute_extents = Omniscape.get_compute_extents(extents, shape)
+compute_extents = Omniscape.get_compute_extents(extents, shape, radius)
 rel_compute_extents = Omniscape.get_relative_compute_extents(
     extents,
     compute_extents

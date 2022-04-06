@@ -737,7 +737,7 @@ array chunk (returned from `Omniscape.get_chunk_extents`).
 **`shape`**: The size `(rows, columns)` of the array being chunked.
 
 """
-function get_compute_extents(chunk_extents, shape)
+function get_compute_extents(chunk_extents::Vector, shape::Tuple, radius::Int)
     compute_extents = []
 
     for extent in chunk_extents
@@ -782,20 +782,20 @@ function get_relative_compute_extents(
 
     # top, bottom, left, right is order of inputs in each vector
     for i in 1:n_chunks
-        chunk_extents = chunk_extents[i]
+        chunk_extent = chunk_extents[i]
         compute_extent = compute_extents[i]
 
         # top = extent[1] == 1 ? 1 : compute_extent[1] - extent[1] + 1
-        top = compute_extent[1] - chunk_extents[1] + 1
+        top = compute_extent[1] - chunk_extent[1] + 1
         
         # bottom = extent[2] == shape[1] ? compute_extent[2] - compute_extent[1] + 1 : compute_extent[2] - extent[1] + 1
-        bottom = compute_extent[2] - chunk_extents[1] + 1
+        bottom = compute_extent[2] - chunk_extent[1] + 1
 
         # left = extent[3] == 1 ? 1 : compute_extent[3] - extent[3] + 1
-        left = compute_extent[3] - chunk_extents[3] + 1
+        left = compute_extent[3] - chunk_extent[3] + 1
 
         # right = extent[4] == shape[2] ? compute_extent[4] - compute_extent[3] + 1 : compute_extent[4] - extent[3] + 1
-        right = compute_extent[4] - chunk_extents[3] + 1
+        right = compute_extent[4] - chunk_extent[3] + 1
 
         push!(rel_extents, [top, bottom, left, right])
     end
