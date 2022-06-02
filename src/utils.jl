@@ -38,8 +38,7 @@ function get_targets(
 
     block_size = arguments["block_size"]
     block_radius = arguments["block_radius"]
-    nrows = arguments["nrows"]
-    ncols = arguments["ncols"]
+    nrows, ncols = size(source_array)
 
     start = block_radius + 1
 
@@ -657,25 +656,32 @@ function get_chunk_extents(
         radius::Integer,
         block_size::Integer
     )
+    # Define "effective radius" to use to buffer the chunks
+    # this is necessary because the amount buffered MUST be divisible by chunk_size
+    effective_radius = ceil(radius / block_size) * block_size
+
+    # Calucate the total number of blocks row and column-wise
     block_steps = Int.(floor.((shape ./ (block_size)) ./ chunks))
+
     ## Add errors if chunks are too small for radius
     # row-wise
     top_row_cuts = Int[]
     bottom_row_cuts = Int[]
     for i in 0:(chunks[1] - 1)
-        bottom_idx = ifelse(
-            i ∈ [0, chunks[1]],
+        top_idx = ifelse(
+            i == 0,
             block_steps[1] * i * block_size + 1,
-            block_steps[1] * i * block_size - radius
+            block_steps[1] * i * block_size + 1 - effective_radius
+        )
+        
+        push!(top_row_cuts, Int(top_idx))
+
+        bottom_idx = ifelse(
+            i == chunks[1] - 1,
+            shape[1],
+            block_steps[1] * (i + 1) * block_size + effective_radius
         )
         push!(bottom_row_cuts, Int(bottom_idx))
-
-        top_idx = ifelse(
-            i == chunks[1],
-            shape[1],
-            min(block_steps[1] * (i + 1) * block_size + radius, shape[1])
-        )
-        push!(top_row_cuts, Int(top_idx))
     end
 
     ## Add errors if chunks are too small for radius
@@ -684,21 +690,21 @@ function get_chunk_extents(
     right_col_cuts = Int[]
     for i in 0:(chunks[2] - 1)
         left_idx = ifelse(
-            i ∈ [0, chunks[2]],
+            i == 0,
             block_steps[2] * i * block_size + 1,
-            block_steps[2] * i * block_size - radius
+            block_steps[2] * i * block_size + 1 - effective_radius
         )
         push!(left_col_cuts, Int(left_idx))
 
         right_idx = ifelse(
             i == chunks[2],
             shape[2],
-            min(block_steps[2] * (i + 1) * block_size + radius, shape[2])
+            min(block_steps[2] * (i + 1) * block_size + effective_radius, shape[2])
         )
         push!(right_col_cuts, Int(right_idx))
     end
 
-    row_cuts = zip(bottom_row_cuts, top_row_cuts)
+    row_cuts = zip(top_row_cuts, bottom_row_cuts)
     col_cuts = zip(left_col_cuts, right_col_cuts)
 
     # extents in order top, bottom, left, right, for each chunk
@@ -736,16 +742,27 @@ array chunk (returned from `Omniscape.get_chunk_extents`).
 
 **`shape`**: The size `(rows, columns)` of the array being chunked.
 
+**`radius`**: The radius used with Omniscape
+
 """
-function get_compute_extents(chunk_extents::Vector, shape::Tuple, radius::Int)
+function get_compute_extents(
+        chunk_extents::Vector,
+        shape::Tuple,
+        radius::Integer,
+        block_size::Integer
+    )
+    # Define "effective radius" to use to buffer the chunks
+    # this is necessary because the amount buffered MUST be divisible by chunk_size
+    effective_radius = ceil(radius / block_size) * block_size
+
     compute_extents = []
 
     for extent in chunk_extents
         compute_extent = [
-            extent[1] == 1 ? 1 : extent[1] + radius + 1,
-            extent[2] == shape[1] ? extent[2] : extent[2] - radius,
-            extent[3] == 1 ? 1 : extent[3] + radius + 1,
-            extent[4] == shape[2] ? extent[4] : extent[4] - radius
+            extent[1] == 1 ? 1 : extent[1] + effective_radius,
+            extent[2] == shape[1] ? extent[2] : extent[2] - effective_radius,
+            extent[3] == 1 ? 1 : extent[3] + effective_radius,
+            extent[4] == shape[2] ? extent[4] : extent[4] - effective_radius
         ] 
         push!(compute_extents, compute_extent)
     end

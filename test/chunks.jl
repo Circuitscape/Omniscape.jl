@@ -25,7 +25,10 @@ rel_compute_extents = Omniscape.get_relative_compute_extents(
     compute_extents
 )
 
-## Check that the relative extents are correct
+## Check that the relative extents are correct and stitch back together properly
+
+output = fill(-9., size(land_cover))
+
 for chunk_id in 1:length(extents)
     rel_range = (
         rel_compute_extents[chunk_id][1]:rel_compute_extents[chunk_id][2],
@@ -46,6 +49,24 @@ for chunk_id in 1:length(extents)
     lc_chunk_rel = lc_chunk_ext[rel_range...]
 
     @test lc_chunk_rel == lc_chunk_al
+
+    output[comp_range...] = lc_chunk_rel
 end
+
+@test output == land_cover
+
+# for chunk_id in 1:length(extents)
+#     rel_range = (rel_compute_bounds[chunk_id][1]:rel_compute_bounds[chunk_id][2], rel_compute_bounds[chunk_id][3]:rel_compute_bounds[chunk_id][4])
+#     extent_range = (extents[chunk_id][1]:extents[chunk_id][2], extents[chunk_id][3]:extents[chunk_id][4])
+#     comp_range = (compute_bounds[chunk_id][1]:compute_bounds[chunk_id][2], compute_bounds[chunk_id][3]:compute_bounds[chunk_id][4])
+    
+#     println(extent_range, " ", comp_range, " ", rel_range)
+#     the_chunk = land_cover[extent_range...]
+#     the_sub_chunk = the_chunk[rel_range...]
+
+    
+# end
+
+
 
 rm("nlcd_2016_frederick_md.tif")

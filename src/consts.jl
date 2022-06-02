@@ -21,5 +21,5 @@ const SUPPORTED_ARGS = ["resistance_file", "resistance_is_conductance",
     "n_conditions", "compare_to_future", "condition1_file", "condition2_file",
     "condition1_future_file", "condition2_future_file", "comparison1",
     "comparison2", "condition1_lower", "condition2_lower", "condition1_upper",
-    "condition2_upper", "reclassify_resistance", "reclass_table",
+    "condition2_upper", "reclassify_resistance", "reclass_table", "chunks",
     "write_reclassified_resistance", "allow_different_projections"]
