@@ -158,7 +158,7 @@ Example reclass_table.txt:
 
 #### Output Options
 
-**`write_raw_currmap`:** One of true, false. Defaults to true. Save the raw cumulative current map to disk? Should always be set to true unless `calc_flow_potential`, `calc_normalized_current`, or both are true and you do not need the raw current output. If true, the cumulative current map is saved to disk as a raster called "flow_potential" with either a .tif or .asc extension (see `write_as_tif` below) in the `project_name` directory.
+**`write_raw_currmap`:** One of true, false. Defaults to true. Save the raw cumulative current map to disk? Should always be set to true unless `calc_flow_potential`, `calc_normalized_current`, or both are true and you do not need the raw current output. If true, the cumulative current map is saved to disk as a raster called "cum_currmap" with either a .tif or .asc extension (see `write_as_tif` below) in the `project_name` directory.
 
 **`mask_nodata`:** One of true, false. Defaults to true. Specify whether to mask current flow outputs according to NoData values in resistance surface. (i.e. pixels in current flow outputs that line up with NoData values in resistance are set to no data if `mask_nodata` = true).
 

@@ -128,7 +128,7 @@ plot(fp,
 <img src='../figs/md-fp.png' width=500> <br><em>Flow potential, which shows what connectivity would look like in the absence of barriers to movement. The blocking that you can see is an artifact of setting a large block_size to make the example run faster. Set a smaller block_size to reduce/remove this issue.</em><br><br>
 ```
 
-Finally, map normalized current flow, which is calculated as flow potential divided by cumulative current.
+Finally, map normalized current flow, which is calculated as cumulative current divided by flow potential.
 
 ```julia
 normalized_current = Raster("md_nlcd_omniscape_output/normalized_cum_currmap.tif")
