@@ -723,7 +723,7 @@ end
 
 
 """
-    get_compute_extents(chunk_extents::Vector, shape::Tuple)
+    get_compute_extents(chunk_extents::Vector, shape::Tuple, radius::Integer, block_size:Integer)
 
 To avoid doing redundant work and to make stitching outputs from different 
 chunks seamless, each target must only be solved in one chunk (raw chunks -- 
@@ -743,6 +743,8 @@ array chunk (returned from `Omniscape.get_chunk_extents`).
 **`shape`**: The size `(rows, columns)` of the array being chunked.
 
 **`radius`**: The radius used with Omniscape
+
+**`block_size`**: The block_size used with Omniscape
 
 """
 function get_compute_extents(
@@ -764,7 +766,7 @@ function get_compute_extents(
             extent[3] == 1 ? 1 : extent[3] + effective_radius,
             extent[4] == shape[2] ? extent[4] : extent[4] - effective_radius
         ] 
-        push!(compute_extents, compute_extent)
+        push!(compute_extents, Integer.(compute_extent))
     end
 
     return compute_extents
@@ -814,7 +816,7 @@ function get_relative_compute_extents(
         # right = extent[4] == shape[2] ? compute_extent[4] - compute_extent[3] + 1 : compute_extent[4] - extent[3] + 1
         right = compute_extent[4] - chunk_extent[3] + 1
 
-        push!(rel_extents, [top, bottom, left, right])
+        push!(rel_extents, Integer.([top, bottom, left, right]))
     end
     
     return rel_extents

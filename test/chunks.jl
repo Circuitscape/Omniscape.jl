@@ -19,7 +19,7 @@ radius = 50
 block_size = 7
 
 extents = Omniscape.get_chunk_extents(chunks, shape, radius, block_size)
-compute_extents = Omniscape.get_compute_extents(extents, shape, radius)
+compute_extents = Omniscape.get_compute_extents(extents, shape, radius, block_size)
 rel_compute_extents = Omniscape.get_relative_compute_extents(
     extents,
     compute_extents
