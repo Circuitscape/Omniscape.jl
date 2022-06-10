@@ -289,6 +289,8 @@ function get_conductance(
 end
 
 function solve_target!(
+        cum_currmap,
+        fp_cum_currmap,
         target::Target,
         int_arguments::Dict{String, Int64},
         source_strength::MissingArray{T, 2} where T <: Number,
@@ -298,9 +300,8 @@ function solve_target!(
         condition_layers::ConditionLayers,
         conditions::Conditions,
         correction_array::Array{T, 2} where T <: Number,
-        cum_currmap::Array{T, 3} where T <: Number,
-        fp_cum_currmap::Array{T, 3}  where T <: Number,
-        precision::DataType
+        precision::DataType,
+        lock::ReentrantLock
     )
 
     ## get source
@@ -384,12 +385,12 @@ function solve_target!(
     yupper = min(target.y_coord + int_arguments["radius"] + int_arguments["buffer"],
                  int_arguments["nrows"])
 
-    cum_currmap[ylower:yupper, xlower:xupper, threadid()] .=
-        cum_currmap[ylower:yupper, xlower:xupper, threadid()] .+ curr
+    @lock lock cum_currmap[ylower:yupper, xlower:xupper] .=
+        cum_currmap[ylower:yupper, xlower:xupper] .+ curr
 
     if os_flags.compute_flow_potential
-        fp_cum_currmap[ylower:yupper, xlower:xupper, threadid()] .=
-            fp_cum_currmap[ylower:yupper, xlower:xupper, threadid()] .+ flow_potential
+        @lock lock fp_cum_currmap[ylower:yupper, xlower:xupper] .=
+            fp_cum_currmap[ylower:yupper, xlower:xupper] .+ flow_potential
     end
 
 end
