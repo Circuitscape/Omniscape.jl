@@ -101,7 +101,7 @@ using Test, Omniscape, Circuitscape
 end
 
 @testset "run_omnsicape()" begin
-### Tests for run_omniscape()
+## Tests for run_omniscape()
     l, f, p = run_omniscape("input/config4a.ini")
     l_verify = Omniscape.read_raster("output_verify/test4a/cum_currmap.tif", Float64)[1]
     f_verify = Omniscape.read_raster("output_verify/test4a/flow_potential.tif", Float64)[1]
@@ -110,7 +110,7 @@ end
     @test Omniscape.arrays_equal(f, f_verify)
     @test Omniscape.arrays_equal(p, p_verify)
 
-    ## Syntax checks for various methods of conditional comparisons
+    # Syntax checks for various methods of conditional comparisons
     l1, f1 = run_omniscape("input/config4b.ini")
     l2 = run_omniscape("input/config4c.ini")
 

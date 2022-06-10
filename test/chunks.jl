@@ -1,9 +1,9 @@
-using Test, Omniscape, Circuitscape
+using Test, Omniscape, Circuitscape, Downloads
 
 # read in the raster
 url_base = "https://raw.githubusercontent.com/Circuitscape/datasets/main/"
 # Download the NLCD tile used to create the resistance surface and load it
-download(string(url_base, "data/nlcd_2016_frederick_md.tif"),
+Downloads.download(string(url_base, "data/nlcd_2016_frederick_md.tif"),
          "nlcd_2016_frederick_md.tif")
 
 land_cover, wkt, transform = Omniscape.read_raster(
