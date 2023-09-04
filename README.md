@@ -8,7 +8,7 @@ Omniscape.jl is built on [Circuitscape.jl](https://github.com/Circuitscape/Circu
 
 ## Installation [![Omniscape Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/Omniscape)](https://pkgs.genieframework.com?packages=Omniscape)
 
-**The latest version of Omniscape.jl requires Julia version 1.5.4 or greater**. You can install Julia [here](https://julialang.org/downloads/). Once installation is complete, open a Julia terminal and run the following code to install Omniscape.jl.
+**The latest version of Omniscape.jl requires Julia version 1.9 or greater**. You can install Julia [here](https://julialang.org/downloads/). Once installation is complete, open a Julia terminal and run the following code to install Omniscape.jl.
 ```julia
 using Pkg; Pkg.add("Omniscape")
 ```
