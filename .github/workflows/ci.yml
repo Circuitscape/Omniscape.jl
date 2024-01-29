@@ -62,12 +62,14 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
-      - run: |
+      - name: Install deps
+        run: |
           julia --project=docs -e '
             using Pkg
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()'
-      - run: |
+      - name: Test and build docs
+        run: |
           julia --project=docs -e '
             using Documenter: doctest
             using Omniscape
