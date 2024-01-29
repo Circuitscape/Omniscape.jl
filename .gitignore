@@ -9,3 +9,5 @@ run-dev.sh
 benchmark/
 docs/build
 docs/make-local.jl
+.devcontainer/
+debug/
