@@ -110,7 +110,7 @@ function run_omniscape(
     cfg_user = cfg
 
     # Check for unsupported or missing arguments
-    check_arg_values(cfg, reclass_table, condition1, condition2, write_outputs)
+    check_arg_values(cfg, reclass_table, condition1, condition2)
     check_unsupported_args(cfg)
     check_missing_args_dict(cfg_user) && return
 
@@ -482,7 +482,7 @@ function run_omniscape(path::String)
                                "resistance_file", "condition1_file",
                                allow_different_projections) && return
 
-        # get rid of unneedecheck_rasterd raster to save memory
+        # get rid of unneeded raster to save memory
         condition1_raster = nothing
 
         if compare_to_future == "1" || compare_to_future == "both"
@@ -497,6 +497,9 @@ function run_omniscape(path::String)
             # get rid of unneeded raster to save memory
             condition1_future_raster = nothing
         else
+            if cfg["condition1_future_file"] != ""
+                @error("You provided a future condition raster (condition1_future_file), but did not specify compare_to_future in your INI. compare_to_future must be \"1\" or \"both\" in order to compare to future conditions.")
+            end
             condition1_future = nothing
         end
 
@@ -524,14 +527,23 @@ function run_omniscape(path::String)
                 # get rid of unneeded raster to save memory
                 condition2_future_raster = nothing
             else
+                if cfg["condition2_future_file"] != ""
+                    @error("You provided a future condition raster (condition2_future_file), but did not specify compare_to_future in your INI. compare_to_future must be \"2\" or \"both\" in order to compare to future conditions.")
+                end
                 condition2_future = nothing
             end
 
         else
+            if cfg["condition2_file"] != ""
+                @error("You provided a condition2_file, but n_conditions was not set to 2 in your INI file. Set n_conditions to 2 if you wish to use a second condition for calculating conditional connectivity.")
+            end
             condition2 = nothing
             condition2_future = condition2
         end
     else
+        if (cfg["condition2_file"] != "") || (cfg["condition1_file"] != "")
+            @error("conditional is set to false in your INI but you provided file paths to condition files. Please set conditional to true if you wish to compute conditional connectivity.")
+        end
         condition1 = nothing
         condition2 = nothing
         condition1_future = condition1

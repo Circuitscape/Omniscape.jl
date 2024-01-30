@@ -22,6 +22,7 @@ function missing_args_error(missing_args)
     @error "The following arguments are missing from your .ini (or config Dictionary) with no defaults:
        $(join(map(string, missing_args), " "))"
 end
+
 function check_raster_alignment(raster1, raster2, name1, name2, allow_different_projections)
     sizes_not_equal = size(raster1[1]) != size(raster2[1])
     projections_not_equal = (raster1[2] != raster2[2]) || (raster1[3] != raster2[3])
@@ -106,8 +107,7 @@ function check_arg_values(
         cfg::Dict{String, String},
         reclass_table::Union{Nothing, MissingArray{T, 2} where T <: Number},
         condition1::Union{Nothing, MissingArray{T, 2} where T <: Number},
-        condition2::Union{Nothing, MissingArray{T, 2} where T <: Number},
-        write_outputs::Bool
+        condition2::Union{Nothing, MissingArray{T, 2} where T <: Number}
     )
     # Case when reclass_table is specified but reclass is false
     if (cfg["reclassify_resistance"] ∉ TRUELIST) && (reclass_table !== nothing)
