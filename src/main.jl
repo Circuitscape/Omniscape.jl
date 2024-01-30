@@ -95,21 +95,22 @@ key.
 function run_omniscape(
         cfg::Dict{String, String},
         resistance::MissingArray{T, 2} where T <: Number;
-        reclass_table::MissingArray{T, 2} where T <: Number = MissingArray{Float64, 2}(undef, 1, 2),
+        reclass_table::Union{Nothing, MissingArray{T, 2} where T <: Number} = nothing,
         source_strength::MissingArray{T, 2} where T <: Number = source_from_resistance(resistance, cfg, reclass_table),
-        condition1::MissingArray{T, 2} where T <: Number = MissingArray{Float64, 2}(undef, 1, 1),
-        condition2::MissingArray{T, 2} where T <: Number = MissingArray{Float64, 2}(undef, 1, 1),
-        condition1_future::MissingArray{T, 2} where T <: Number = condition1,
-        condition2_future::MissingArray{T, 2} where T <: Number = condition2,
-        wkt::String = "",
-        geotransform::Array{Float64, 1} = [0., 1., 0., 0., 0., -1.0],
-        write_outputs::Bool = false)
-
+        condition1::Union{Nothing, MissingArray{T, 2} where T <: Number} = nothing,
+        condition2::Union{Nothing, MissingArray{T, 2} where T <: Number} = nothing,
+        condition1_future::Union{Nothing, MissingArray{T, 2} where T <: Number} = nothing,
+        condition2_future::Union{Nothing, MissingArray{T, 2} where T <: Number} = nothing,
+        wkt::Union{String, Nothing} = nothing,
+        geotransform::Union{Array{Float64, 1}, Nothing} = nothing,
+        write_outputs::Bool = false
+    )
     start_time = time()
     n_threads = nthreads()
     cfg_user = cfg
 
     # Check for unsupported or missing arguments
+    check_arg_values(cfg, reclass_table, condition1, condition2, write_outputs)
     check_unsupported_args(cfg)
     check_missing_args_dict(cfg_user) && return
 
@@ -139,6 +140,19 @@ function run_omniscape(
     # other
     project_name = cfg["project_name"]
     file_format = os_flags.write_as_tif ? "tif" : "asc"
+
+    # Warn user if we need to write to a different directory    if write_outputs
+    ## create new directory if project_name already exists
+    if isdir(string(project_name))
+        initial_project_name = deepcopy(project_name)
+        dir_suffix = 1
+        while isdir(string(project_name, "_$(dir_suffix)"))
+            dir_suffix += 1
+        end
+        isdir(project_name) && (project_name = string(project_name, "_$(dir_suffix)"))
+        @warn("Your specified project directory, $(initial_project_name), already exists. Writing outputs to $(project_name).")
+    end
+    mkpath(project_name)
 
     ## Set number of BLAS threads to 1 when parallel processing
     if os_flags.parallelize && nthreads() != 1
@@ -174,7 +188,7 @@ function run_omniscape(
         condition2_future = condition2
     end
 
-    condition_layers = ConditionLayers(condition1, condition1_future,
+    condition_layers = ConditionLayers{precision}(condition1, condition1_future,
                                        condition2, condition2_future)
 
     ## Setup Circuitscape configuration
@@ -326,16 +340,6 @@ function run_omniscape(
         normalized_cum_currmap[isnan.(normalized_cum_currmap)] .= 0
     end
 
-    if write_outputs
-        ## create new directory if project_name already exists
-        dir_suffix = 1
-        while isdir(string(project_name, "_$(dir_suffix)"))
-            dir_suffix+=1
-        end
-        isdir(project_name) && (project_name = string(project_name, "_$(dir_suffix)"))
-        mkpath(project_name)
-    end
-
     ## Overwrite no data
     if os_flags.mask_nodata
         if os_flags.calc_normalized_current
@@ -440,11 +444,14 @@ function run_omniscape(path::String)
     if os_flags.reclassify
         reclass_table = read_reclass_table("$(cfg["reclass_table"])", precision)
     else
-        reclass_table = MissingArray{precision, 2}(undef, 1, 2)
+        reclass_table = nothing
     end
 
     ## Load source strengths
     if !os_flags.source_from_resistance
+        if cfg["source_file"] == ""
+            @error("You did not provide a source raster file path. Set source_from_resistance to true in your config INI if you want to generate source strength from the resistance layer.")
+        end
         sources_raster = read_raster("$(cfg["source_file"])", precision)
         source_strength = sources_raster[1]
 
@@ -490,7 +497,7 @@ function run_omniscape(path::String)
             # get rid of unneeded raster to save memory
             condition1_future_raster = nothing
         else
-            condition1_future = MissingArray{precision, 2}(undef, 1, 1)
+            condition1_future = nothing
         end
 
         if n_conditions == 2
@@ -517,16 +524,16 @@ function run_omniscape(path::String)
                 # get rid of unneeded raster to save memory
                 condition2_future_raster = nothing
             else
-                condition2_future = MissingArray{precision, 2}(undef, 1, 1)
+                condition2_future = nothing
             end
 
         else
-            condition2 = MissingArray{precision, 2}(undef, 1, 1)
+            condition2 = nothing
             condition2_future = condition2
         end
     else
-        condition1 = MissingArray{precision, 2}(undef, 1, 1)
-        condition2 = MissingArray{precision, 2}(undef, 1, 1)
+        condition1 = nothing
+        condition2 = nothing
         condition1_future = condition1
         condition2_future = condition2
     end

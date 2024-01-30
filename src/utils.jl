@@ -529,7 +529,7 @@ end
 # Calculate the source layer using resistance surface and arguments from cfg
 function source_from_resistance(resistance::MissingArray{T, 2} where T <: Number,
                                 cfg::Dict{String, String},
-                                reclass_table::MissingArray{T, 2} where T <: Number)
+                                reclass_table::Union{MissingArray{T, 2} where T <: Number, Nothing})
     full_cfg = init_cfg()
     update_cfg!(full_cfg, cfg)
     r_cutoff = parse(Float64, full_cfg["r_cutoff"])

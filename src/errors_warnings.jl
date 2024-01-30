@@ -101,3 +101,21 @@ function check_unsupported_args(cfg)
          $(join(map(string, bad_args), " "))"
     end
 end
+
+function check_arg_values(
+        cfg::Dict{String, String},
+        reclass_table::Union{Nothing, MissingArray{T, 2} where T <: Number},
+        condition1::Union{Nothing, MissingArray{T, 2} where T <: Number},
+        condition2::Union{Nothing, MissingArray{T, 2} where T <: Number},
+        write_outputs::Bool
+    )
+    # Case when reclass_table is specified but reclass is false
+    if (cfg["reclassify_resistance"] ∉ TRUELIST) && (reclass_table !== nothing)
+        @error("You provided a reclass_table, but did not specify reclassify_resistance to true.")
+    end
+
+    if (condition1 !== nothing || condition2 !== nothing) && (cfg["conditional"] ∉ TRUELIST)
+        @error("You provided condition rasters but conditional was not set to true in your config.")
+    end
+end
+
