@@ -32,8 +32,8 @@ source_subset = convert(Array{Union{Float64, Missing}, 2}, source_subset)
 condition_layers = Omniscape.ConditionLayers(
     convert(Array{Union{Float64, Missing}, 2}, con1pres),
     convert(Array{Union{Float64, Missing}, 2}, con1fut),
-    Array{Union{Float64, Missing}, 2}(undef, 1, 1),
-    Array{Union{Float64, Missing}, 2}(undef, 1, 1)
+    nothing,
+    nothing
 )
 
 Omniscape.source_target_match!(source_subset,
@@ -83,9 +83,13 @@ block_sources = source_strength[Int(targets[1,2] - int_arguments["block_radius"]
 
 # Test error throws
 @info "Testing error throws"
+@test run_omniscape("input/no_source_provided.ini") === nothing
 @test run_omniscape("input/config7.ini") === nothing
 @test run_omniscape("input/bad_config.ini") === nothing
-
+@test run_omniscape("input/bad_n_conditions.ini") === nothing
+@test run_omniscape("input/bad_compare_to_future.ini") === nothing
+@test run_omniscape("input/bad_comparison1.ini") === nothing
+@test run_omniscape("input/bad_comparison2.ini") === nothing
 end
 
 @testset "run_omnsicape()" begin

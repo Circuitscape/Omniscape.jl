@@ -109,8 +109,8 @@ function run_omniscape(
     n_threads = nthreads()
     cfg_user = cfg
 
-    # Check for unsupported or missing arguments
-    check_arg_values(cfg, reclass_table, condition1, condition2)
+    # Check for unsupported, missing arguments, or bad argument options
+    check_arg_values(cfg, reclass_table, condition1, condition2) && return
     check_unsupported_args(cfg)
     check_missing_args_dict(cfg_user) && return
 
@@ -450,7 +450,8 @@ function run_omniscape(path::String)
     ## Load source strengths
     if !os_flags.source_from_resistance
         if cfg["source_file"] == ""
-            @error("You did not provide a source raster file path. Set source_from_resistance to true in your config INI if you want to generate source strength from the resistance layer.")
+            @error("You did not provide a source raster file path. Set source_from_resistance to true in your config if you want to generate source strength from the resistance layer.")
+            return
         end
         sources_raster = read_raster("$(cfg["source_file"])", precision)
         source_strength = sources_raster[1]

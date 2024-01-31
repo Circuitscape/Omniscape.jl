@@ -159,7 +159,6 @@ function get_source(
         (source_subset[coalesce.(source_subset .> 0, false)] * target.amps) / source_sum
 
     if conditional
-
         xlower_buffered = Int64(max(target.x_coord - radius - buffer, 1))
         xupper_buffered = Int64(min(target.x_coord + radius + buffer, ncols))
         ylower_buffered = Int64(max(target.y_coord - radius - buffer, 1))
@@ -219,7 +218,7 @@ function source_target_match!(
       value1 = median(skipmissing(condition1_future[ylower:yupper, xlower:xupper]))
       source_subset[coalesce.(((con1_present_subset .- value1) .> condition1_upper) .|
           ((con1_present_subset .- value1) .< condition1_lower), false)] .= 0
-    elseif comparison1 == "equals"
+    elseif comparison1 == "equal"
       value1 = mode(skipmissing(condition1_future[ylower:yupper, xlower:xupper]))
       source_subset[coalesce.(con1_present_subset .!= value1, false)] .= 0
     end
@@ -231,7 +230,7 @@ function source_target_match!(
           value2 = median(skipmissing(condition2_future[ylower:yupper, xlower:xupper]))
           source_subset[coalesce.(((con2_present_subset .- value2) .> condition2_upper) .|
               ((con2_present_subset .- value2) .< condition2_lower), false)] .= 0
-      elseif comparison2 == "equals"
+      elseif comparison2 == "equal"
           value2 = mode(skipmissing(condition2_future[ylower:yupper, xlower:xupper]))
           source_subset[coalesce.(con2_present_subset .!= value2, false)] .= 0
       end
