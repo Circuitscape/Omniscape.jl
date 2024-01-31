@@ -109,13 +109,15 @@ function run_omniscape(
     n_threads = nthreads()
     cfg_user = cfg
 
-    # Check for unsupported, missing arguments, or bad argument options
-    check_arg_values(cfg, reclass_table, condition1, condition2) && return
+    # Check for unsupported or missing arguments
     check_unsupported_args(cfg)
     check_missing_args_dict(cfg_user) && return
 
     cfg = init_cfg()
     update_cfg!(cfg, cfg_user)
+
+    # Check for bad values passed to options
+    check_arg_values(cfg, reclass_table, condition1, condition2) && return
 
     ## Parse commonly called integer arguments
     int_arguments = Dict{String, Int64}()
