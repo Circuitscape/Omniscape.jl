@@ -1,6 +1,6 @@
 name = "Omniscape"
 uuid = "a38d70fc-99f5-11e9-1e3d-cbca093024c3"
-authors = ["Vincent A. Landau <vincent@vibrantplanet.net>"]
+authors = ["Vincent A. Landau"]
 version = "0.6.2"
 
 [deps]
