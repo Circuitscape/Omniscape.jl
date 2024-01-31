@@ -38,9 +38,9 @@ end
 
 const MissingArray{T, N} = Array{Union{Missing, T}, N}
 
-struct ConditionLayers{T, N}
-    condition1_present::MissingArray{T, N}
-    condition1_future::MissingArray{T, N}
-    condition2_present::MissingArray{T, N}
-    condition2_future::MissingArray{T, N}
+struct ConditionLayers{T}
+    condition1_present::Union{MissingArray{T, 2}, Nothing}
+    condition1_future::Union{MissingArray{T, 2}, Nothing}
+    condition2_present::Union{MissingArray{T, 2}, Nothing}
+    condition2_future::Union{MissingArray{T, 2}, Nothing}
 end

@@ -22,6 +22,7 @@ function missing_args_error(missing_args)
     @error "The following arguments are missing from your .ini (or config Dictionary) with no defaults:
        $(join(map(string, missing_args), " "))"
 end
+
 function check_raster_alignment(raster1, raster2, name1, name2, allow_different_projections)
     sizes_not_equal = size(raster1[1]) != size(raster2[1])
     projections_not_equal = (raster1[2] != raster2[2]) || (raster1[3] != raster2[3])
@@ -101,3 +102,42 @@ function check_unsupported_args(cfg)
          $(join(map(string, bad_args), " "))"
     end
 end
+
+function check_arg_values(
+        cfg::Dict{String, String},
+        reclass_table::Union{Nothing, MissingArray{T, 2} where T <: Number},
+        condition1::Union{Nothing, MissingArray{T, 2} where T <: Number},
+        condition2::Union{Nothing, MissingArray{T, 2} where T <: Number}
+    )
+    # Case when reclass_table is specified but reclass is false
+    if (cfg["reclassify_resistance"] ∉ TRUELIST) && (reclass_table !== nothing || cfg["reclass_table"] != "")
+        @warn "You provided a reclass_table, but did not set reclassify_resistance to true. Resistance will not be reclassified."
+    end
+
+    if (condition1 !== nothing || condition2 !== nothing) && (cfg["conditional"] ∉ TRUELIST)
+        @error "You provided condition rasters but conditional was not set to true in your config."
+        return true
+    end
+
+    if cfg["compare_to_future"] ∉ COMPARE_TO_FUTURE_VALUES
+        @error "compare_to_future must be one of $(COMPARE_TO_FUTURE_VALUES). Got $(cfg["compare_to_future"])."
+        return true
+    end
+
+    if cfg["comparison1"] ∉ COMPARISONS
+        @error "comparison1 must be one of $(COMPARISONS). Got $(cfg["comparison1"])."
+        return true
+    end
+
+    if cfg["comparison2"] ∉ COMPARISONS
+        @error "comparison2 must be one of $(COMPARISONS). Got $(cfg["comparison2"])."
+        return true
+    end
+
+    if cfg["n_conditions"] ∉ N_CONDITIONS_VALUES
+        @error "n_conditions must be one of $(N_CONDITIONS_VALUES). Got $(cfg["n_conditions"])."
+        return true
+    end
+    return false
+end
+

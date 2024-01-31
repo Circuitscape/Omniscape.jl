@@ -11,6 +11,12 @@ const SINGLE = ["single", "Single", "SINGLE"]
 
 const SOLVERS = ["cg+amg", "cholmod"]
 
+const N_CONDITIONS_VALUES = ["1", "2"]
+
+const COMPARE_TO_FUTURE_VALUES = ["none", "1", "2", "both"]
+
+const COMPARISONS = ["equal", "within"]
+
 const SUPPORTED_ARGS = ["resistance_file", "resistance_is_conductance",
     "source_file", "project_name", "parallelize", "parallel_batch_size",
     "block_size", "radius", "buffer", "source_threshold",
