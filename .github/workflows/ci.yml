@@ -23,8 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - '1.9' 
+        version: 
           - '1'
         os:
           - ubuntu-latest
