@@ -264,7 +264,12 @@ function run_omniscape(
     @info("Solving moving window targets...")
 
     ## Create progress object
-    p = Progress(n_targets; dt = 0.25, barlen = min(50, displaysize(stdout)[2] - length("Progress: 100%  Time: 00:00:00")))
+    # safe_lock = 1 makes next!() always take the meter's lock when running in
+    # parallel. The default detects threading from threadid(), which is racy
+    # for the first concurrent calls and does not account for task migration.
+    p = Progress(n_targets; dt = 0.25,
+                 barlen = min(50, displaysize(stdout)[2] - length("Progress: 100%  Time: 00:00:00")),
+                 safe_lock = os_flags.parallelize ? 1 : 0)
 
     if os_flags.parallelize
         parallel_batch_size = Int64(round(parse(Float64, cfg["parallel_batch_size"])))
