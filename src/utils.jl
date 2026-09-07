@@ -493,8 +493,8 @@ function calc_correction(
 
     for i in 1:arguments["block_size"]
         for j in 1:arguments["block_size"]
-            null_current_total[i:(i + arguments["radius"] * 2 + arguments["buffer"] * 2),
-                               j:(j + arguments["radius"] * 2 + arguments["buffer"] * 2)] += null_current
+            @views null_current_total[i:(i + arguments["radius"] * 2 + arguments["buffer"] * 2),
+                                      j:(j + arguments["radius"] * 2 + arguments["buffer"] * 2)] .+= null_current
         end
     end
 
