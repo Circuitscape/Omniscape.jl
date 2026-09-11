@@ -264,36 +264,47 @@ function run_omniscape(
     @info("Solving moving window targets...")
 
     ## Create progress object
-    p = Progress(n_targets; dt = 0.25, barlen = min(50, displaysize(stdout)[2] - length("Progress: 100%  Time: 00:00:00")))
+    # safe_lock = 1 makes next!() always take the meter's lock when running in
+    # parallel. The default detects threading from threadid(), which is racy
+    # for the first concurrent calls and does not account for task migration.
+    p = Progress(n_targets; dt = 0.25,
+                 barlen = min(50, displaysize(stdout)[2] - length("Progress: 100%  Time: 00:00:00")),
+                 safe_lock = os_flags.parallelize ? 1 : 0)
 
     if os_flags.parallelize
         parallel_batch_size = Int64(round(parse(Float64, cfg["parallel_batch_size"])))
         n_batches = Int(ceil(n_targets / parallel_batch_size))
 
-        @threads for i in 0:(n_batches - 1)
-            start_ind = parallel_batch_size * i + 1
-            end_ind = min(n_targets, start_ind + parallel_batch_size - 1)
-            
-            for j in start_ind:end_ind
-                target = Target(Int64(targets[j, 1]), Int64(targets[j, 2]), float(targets[j, 3]))
-                try 
-                    solve_target!(target,
-                                  int_arguments,
-                                  source_strength,
-                                  resistance,
-                                  os_flags,
-                                  cs_cfg,
-                                  condition_layers,
-                                  conditions,
-                                  correction_array,
-                                  cum_currmap,
-                                  fp_cum_currmap,
-                                  precision)
-                catch error
-                    println("Omniscape failed on the moving window centered on row $(target.y_coord) column $(target.x_coord)")
-                    throw(error)
+        # One task per accumulator slice; task k handles every n_threads-th
+        # batch and only ever writes to slice k, so the accumulation is
+        # race-free regardless of which thread a task runs on.
+        @sync for k in 1:n_threads
+            @spawn for i in (k - 1):n_threads:(n_batches - 1)
+                start_ind = parallel_batch_size * i + 1
+                end_ind = min(n_targets, start_ind + parallel_batch_size - 1)
+
+                for j in start_ind:end_ind
+                    target = Target(Int64(targets[j, 1]), Int64(targets[j, 2]), float(targets[j, 3]))
+                    try
+                        solve_target!(target,
+                                      int_arguments,
+                                      source_strength,
+                                      resistance,
+                                      os_flags,
+                                      cs_cfg,
+                                      condition_layers,
+                                      conditions,
+                                      correction_array,
+                                      cum_currmap,
+                                      fp_cum_currmap,
+                                      precision,
+                                      k)
+                    catch error
+                        println("Omniscape failed on the moving window centered on row $(target.y_coord) column $(target.x_coord)")
+                        throw(error)
+                    end
+                    next!(p)
                 end
-                next!(p)
             end
         end
     else
