@@ -300,7 +300,8 @@ function solve_target!(
         correction_array::Array{T, 2} where T <: Number,
         cum_currmap::Array{T, 3} where T <: Number,
         fp_cum_currmap::Array{T, 3}  where T <: Number,
-        precision::DataType
+        precision::DataType,
+        slice::Int = 1
     )
 
     ## get source
@@ -384,12 +385,16 @@ function solve_target!(
     yupper = min(target.y_coord + int_arguments["radius"] + int_arguments["buffer"],
                  int_arguments["nrows"])
 
-    cum_currmap[ylower:yupper, xlower:xupper, threadid()] .=
-        cum_currmap[ylower:yupper, xlower:xupper, threadid()] .+ curr
+    # `slice` identifies the caller's private accumulator slice. It is passed
+    # in rather than derived from threadid(): since Julia 1.12 thread ids do
+    # not run 1:nthreads() (the interactive pool takes id 1), and a task may
+    # migrate between threads while it runs.
+    cum_currmap[ylower:yupper, xlower:xupper, slice] .=
+        cum_currmap[ylower:yupper, xlower:xupper, slice] .+ curr
 
     if os_flags.compute_flow_potential
-        fp_cum_currmap[ylower:yupper, xlower:xupper, threadid()] .=
-            fp_cum_currmap[ylower:yupper, xlower:xupper, threadid()] .+ flow_potential
+        fp_cum_currmap[ylower:yupper, xlower:xupper, slice] .=
+            fp_cum_currmap[ylower:yupper, xlower:xupper, slice] .+ flow_potential
     end
 
 end
@@ -495,6 +500,13 @@ function calc_correction(
 
     null_current_total = null_current_total[(arguments["block_radius"] + 1):(size(null_current, 1) + arguments["block_radius"]),
                                             (arguments["block_radius"] + 1):(size(null_current, 2) + arguments["block_radius"])]
+
+    # Cells whose block-source current is at solver-noise level carry no
+    # signal: dividing two near-zero currents there gives factors of 1e4-1e5
+    # that change with every solver update. Treat such cells as zero-current
+    # so that, like true zeros below, they get a correction factor of 1.
+    noise_floor = 1e-6 * maximum(block_null_current)
+    block_null_current[block_null_current .<= noise_floor] .= 0.0
 
     null_current_total[block_null_current .== 0.] .= 0
 
@@ -612,11 +624,9 @@ for `Array{Union{T, Missing}, N}`.
 the result.
 """
 function missingarray_to_array(
-        A::MissingArray{T, N} where T <: Number where N,
+        A::AbstractArray{<:Union{Missing, Number}},
         nodata::Number
     )
-    output = copy(A)
-    output[ismissing.(output)] .= nodata
-
-    return convert(Array{typeof(output[1]), ndims(output)}, output)
+    T = nonmissingtype(eltype(A))
+    return coalesce.(A, convert(T, nodata))
 end

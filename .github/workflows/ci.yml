@@ -23,8 +23,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: 
+        version:
           - 'min'
+          - '1'
         os:
           - ubuntu-latest
           - macos-latest
