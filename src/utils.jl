@@ -389,12 +389,13 @@ function solve_target!(
     # in rather than derived from threadid(): since Julia 1.12 thread ids do
     # not run 1:nthreads() (the interactive pool takes id 1), and a task may
     # migrate between threads while it runs.
-    cum_currmap[ylower:yupper, xlower:xupper, slice] .=
-        cum_currmap[ylower:yupper, xlower:xupper, slice] .+ curr
+    # `@views ... .+=` accumulates in place. Spelled `A[...] .= A[...] .+ curr`,
+    # the right-hand `getindex` materialises a full copy of the window on every
+    # target, for each accumulated map.
+    @views cum_currmap[ylower:yupper, xlower:xupper, slice] .+= curr
 
     if os_flags.compute_flow_potential
-        fp_cum_currmap[ylower:yupper, xlower:xupper, slice] .=
-            fp_cum_currmap[ylower:yupper, xlower:xupper, slice] .+ flow_potential
+        @views fp_cum_currmap[ylower:yupper, xlower:xupper, slice] .+= flow_potential
     end
 
 end
