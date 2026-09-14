@@ -81,6 +81,23 @@ block_sources = source_strength[Int(targets[1,2] - int_arguments["block_radius"]
 @test targets[1,3] ≈ sum(block_sources)
 @info "target tests passed"
 
+## clip() masks exactly the cells further than `distance` from the target,
+## against the Euclidean definition rather than against how it is implemented.
+## The cases cover an interior window, both clamped corners, an edge clamped on
+## one axis only, and a zero radius.
+clip_in = convert(Array{Union{Float64, Missing}, 2}, fill(1.0, 21, 21))
+
+for (x, y, distance) in ((11, 11, 5), (1, 1, 5), (21, 21, 7), (21, 11, 7), (11, 11, 0))
+    clipped = Omniscape.clip(clip_in, x = x, y = y, distance = distance)
+    new_x = min(distance + 1, x)
+    new_y = min(distance + 1, y)
+    expected = [sqrt((j - new_x)^2 + (i - new_y)^2) > distance
+                for i in 1:size(clipped, 1), j in 1:size(clipped, 2)]
+    @test ismissing.(clipped) == expected
+    @test all(skipmissing(clipped) .== 1.0)
+end
+@info "clip tests passed"
+
 # Test error throws
 @info "Testing error throws"
 @test run_omniscape("input/no_source_provided.ini") === nothing
