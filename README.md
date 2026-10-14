@@ -1,8 +1,8 @@
 <img src='docs/src/assets/logo.png' width=300/>
 
-| **Docs** | **Chat** | **Cite** | **Status** |
-|:-----------------------------------------------------:|:------------------------------------:|:-----------:|:-------:|
-| [![docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://docs.circuitscape.org/Omniscape.jl/stable) [![docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://docs.circuitscape.org/Omniscape.jl/latest) | [![DOI](https://joss.theoj.org/papers/10.21105/joss.02829/status.svg)](https://doi.org/10.21105/joss.02829) | [![Build Status](https://github.com/Circuitscape/Omniscape.jl/workflows/CI/badge.svg)](https://github.com/Circuitscape/Omniscape.jl/actions?query=workflow%3ACI) [![codecov](https://codecov.io/gh/Circuitscape/Omniscape.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/Circuitscape/Omniscape.jl) | 
+| **Docs** | **Cite** | **Status** |
+|:-----------------------------------------------------:|:------------------------------------:|:-----------:|
+| [![docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://docs.circuitscape.org/Omniscape.jl/stable) [![docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://docs.circuitscape.org/Omniscape.jl/latest) | [![DOI](https://joss.theoj.org/papers/10.21105/joss.02829/status.svg)](https://doi.org/10.21105/joss.02829) | [![Build Status](https://github.com/Circuitscape/Omniscape.jl/workflows/CI/badge.svg)](https://github.com/Circuitscape/Omniscape.jl/actions?query=workflow%3ACI) [![codecov](https://codecov.io/gh/Circuitscape/Omniscape.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/Circuitscape/Omniscape.jl) |
 
 Omniscape.jl is built on [Circuitscape.jl](https://github.com/Circuitscape/Circuitscape.jl) and implements the Omniscape connectivity modeling algorithm to map omni-directional habitat connectivity. The Omniscape algorithm was developed by [McRae and colleagues](https://www.researchgate.net/publication/304842896_Conserving_Nature's_Stage_Mapping_Omnidirectional_Connectivity_for_Resilient_Terrestrial_Landscapes_in_the_Pacific_Northwest) in 2016. **Check out [the docs](https://circuitscape.github.io/Omniscape.jl/stable) for additional information.**
 
