@@ -345,7 +345,6 @@ function solve_target!(
     end
 
     if os_flags.correct_artifacts && !(int_arguments["block_size"] == 1)
-        correction_array2 = deepcopy(correction_array)
         lowerxcut = 1
         upperxcut = size(correction_array, 2)
         lowerycut = 1
