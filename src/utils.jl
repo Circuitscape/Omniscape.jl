@@ -23,9 +23,22 @@ function clip(
     new_x = min(distance + 1, x)
     new_y = min(distance + 1, y)
 
-    dist_array = [sqrt((j - new_x)^2 + (i - new_y)^2) for i = 1:dim1, j = 1:dim2]
+    # Mask cells further than `distance` from the target. Written as
+    # `A_sub[[sqrt(...) for i, j] .> distance] .= missing` this materialises two
+    # full-window temporaries per call -- a `dim1 x dim2` Float64 distance array
+    # and the BitMatrix from comparing it -- neither of which outlives the
+    # statement. Comparing squared distances instead keeps the test in exact
+    # Int64 arithmetic and drops the `sqrt`.
+    distance2 = distance ^ 2
 
-    A_sub[dist_array .> distance] .= missing
+    for j = 1:dim2
+        dx2 = (j - new_x) ^ 2
+        for i = 1:dim1
+            if dx2 + (i - new_y) ^ 2 > distance2
+                A_sub[i, j] = missing
+            end
+        end
+    end
 
     A_sub
 end
