@@ -1,0 +1,7 @@
+nav.toc .logo {
+    max-height: 15em;
+}
+
+figure{
+    display: inline-block;
+}
