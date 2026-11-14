@@ -275,11 +275,16 @@ function run_omniscape(
         parallel_batch_size = Int64(round(parse(Float64, cfg["parallel_batch_size"])))
         n_batches = Int(ceil(n_targets / parallel_batch_size))
 
-        # One task per accumulator slice; task k handles every n_threads-th
-        # batch and only ever writes to slice k, so the accumulation is
-        # race-free regardless of which thread a task runs on.
+        # One task per accumulator slice; task k only ever writes to slice k,
+        # so the accumulation is race-free regardless of which thread a task
+        # runs on. Batches are handed out from a shared counter as tasks
+        # become free rather than every n_threads-th batch to task k: window
+        # sizes vary several-fold (windows are clipped at the raster edges),
+        # and a fixed assignment left threads idle while others finished,
+        # about 30% over the ideal run time at 64 threads.
+        next_batch = Threads.Atomic{Int}(0)
         @sync for k in 1:n_threads
-            @spawn for i in (k - 1):n_threads:(n_batches - 1)
+            @spawn while (i = Threads.atomic_add!(next_batch, 1)) < n_batches
                 start_ind = parallel_batch_size * i + 1
                 end_ind = min(n_targets, start_ind + parallel_batch_size - 1)
 
